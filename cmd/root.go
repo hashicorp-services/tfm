@@ -79,22 +79,19 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfe-migrate.hcl).")
-	// rootCmd.PersistentFlags().String("tfeHostname", "app.terraform.io", "The hostname of TFE without the schema. Can also be set with the environment variable TFE_HOSTNAME.")
-	// rootCmd.PersistentFlags().String("tfeOrganization", "", "The name of the TFx Organization. Can also be set with the environment variable TFE_ORGANIZATION.")
-	// rootCmd.PersistentFlags().String("tfeToken", "", "The API token used to authenticate to TFx. Can also be set with the environment variable TFE_TOKEN.")
-
-	// // Add json output option, but hide during development
-	// rootCmd.PersistentFlags().BoolP("json", "j", false, "Will output command results as JSON.")
-	// rootCmd.PersistentFlags().MarkHidden("json")
+	// rootCmd.PersistentFlags().String("source-hostname", "", "The source hostname. Can also be set with the environment variable SOURCE_HOSTNAME.")
+	// rootCmd.PersistentFlags().String("source-organization", "", "The source Organization. Can also be set with the environment variable SOURCE_ORGANIZATION.")
+	// rootCmd.PersistentFlags().String("source-token", "", "The source API token used to authenticate. Can also be set with the environment variable SOURCE_TOKEN.")
 
 	// // required
-	// rootCmd.MarkPersistentFlagRequired("tfeOrganization")
-	// rootCmd.MarkPersistentFlagRequired("tfeToken")
+	// rootCmd.MarkPersistentFlagRequired("source-hostname")
+	// rootCmd.MarkPersistentFlagRequired("source-organization")
+	// rootCmd.MarkPersistentFlagRequired("source-token")
 
 	// // ENV aliases
-	// viper.BindEnv("tfeHostname", "TFE_HOSTNAME")
-	// viper.BindEnv("tfeOrganization", "TFE_ORGANIZATION")
-	// viper.BindEnv("tfeToken", "TFE_TOKEN")
+	// viper.BindEnv("source-hostname", "SOURCE_HOSTNAME")
+	// viper.BindEnv("source-organization", "SOURCE_ORGANIZATION")
+	// viper.BindEnv("source-token", "SOURCE_TOKEN")
 
 	// Turn off completion option
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
