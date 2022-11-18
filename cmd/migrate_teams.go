@@ -127,8 +127,19 @@ func copyTeams(c ClientContexts) error {
 			fmt.Println("Exists in destination will not migrate", srcteam.Name)
 		} else {
 			srcteam, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
-				// Options to create the team with
-				Name: &srcteam.Name,
+				Type:      "",
+				Name:      &srcteam.Name,
+				SSOTeamID: &srcteam.SSOTeamID,
+				OrganizationAccess: &tfe.OrganizationAccessOptions{
+					ManagePolicies:        &srcteam.OrganizationAccess.ManagePolicies,
+					ManagePolicyOverrides: &srcteam.OrganizationAccess.ManagePolicyOverrides,
+					ManageWorkspaces:      &srcteam.OrganizationAccess.ManageWorkspaces,
+					ManageVCSSettings:     &srcteam.OrganizationAccess.ManageVCSSettings,
+					ManageProviders:       &srcteam.OrganizationAccess.ManageProviders,
+					ManageModules:         &srcteam.OrganizationAccess.ManageModules,
+					ManageRunTasks:        &srcteam.OrganizationAccess.ManageRunTasks,
+				},
+				Visibility: &srcteam.Visibility,
 			})
 			if err != nil {
 				return err

@@ -49,11 +49,8 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "tfe-migrate",
-	Short: "A CLI to assist with TFE Migration discovery.",
-	Long: `Disocvery of Terraform Enterprise.
-	More words here.
-	And maybe here.`,
+	Use:              "tfe-migrate",
+	Short:            "A CLI to assist with TFE Migration.",
 	SilenceUsage:     true,
 	SilenceErrors:    true,
 	Version:          version.String(),
