@@ -13,4 +13,4 @@ Information on how this repository is structured.
 
 `cmds/` - Directory for all commands/subcommands
 `helper_viper.go` - This file creates an easy set of functions to cleanly retrieve flag values regardless of how they were set
-`foo.go` - All the `tfe-migrate foo` commands and related functions
+`foo.go` - All the `tfe-mig foo` commands and related functions

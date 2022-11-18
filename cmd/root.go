@@ -24,7 +24,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp-services/tfe-migrate/version"
+	"github.com/hashicorp-services/tfe-mig/output"
+	"github.com/hashicorp-services/tfe-mig/version"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -35,7 +36,7 @@ import (
 
 var (
 	cfgFile string
-	// o       *output.Output
+	o       *output.Output
 
 	// Required to leverage viper defaults for optional Flags
 	bindPFlags = func(cmd *cobra.Command, args []string) {
@@ -47,10 +48,10 @@ var (
 )
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "tfe-migrate",
-	Short: "A CLI to assist with TFE Migrations.",
-	Long: `Migration of Terraform Enterprise.
+	Short: "A CLI to assist with TFE Migration discovery.",
+	Long: `Disocvery of Terraform Enterprise.
 	More words here.
 	And maybe here.`,
 	SilenceUsage:     true,
@@ -59,26 +60,36 @@ var rootCmd = &cobra.Command{
 	PersistentPreRun: bindPFlags, // Bind here to avoid having to call this in every subcommand
 }
 
+// `tfe-migrate list` commands
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List command",
+	Long:  "List objects in an org",
+}
+
+// `tfemig copy` commands
+var copyCmd = &cobra.Command{
+	Use:   "copy",
+	Short: "Copy command",
+	Long:  "Copy objects from source org to destination org",
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(aurora.Red(err))
-	}
-
 	// // Close output stream always before exiting
-	// if err := rootCmd.Execute(); err != nil {
-	// 	o.Close()
-	// 	log.Fatal(aurora.Red(err))
-	// } else {
-	// 	o.Close()
-	// }
+	if err := RootCmd.Execute(); err != nil {
+		o.Close()
+		log.Fatal(aurora.Red(err))
+	} else {
+		o.Close()
+	}
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfe-migrate.hcl).")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfx-src.hcl).")
 	// rootCmd.PersistentFlags().String("source-hostname", "", "The source hostname. Can also be set with the environment variable SOURCE_HOSTNAME.")
 	// rootCmd.PersistentFlags().String("source-organization", "", "The source Organization. Can also be set with the environment variable SOURCE_ORGANIZATION.")
 	// rootCmd.PersistentFlags().String("source-token", "", "The source API token used to authenticate. Can also be set with the environment variable SOURCE_TOKEN.")
@@ -93,8 +104,11 @@ func init() {
 	// viper.BindEnv("source-organization", "SOURCE_ORGANIZATION")
 	// viper.BindEnv("source-token", "SOURCE_TOKEN")
 
+	// Available commands required after "tfe-migrate"
+	RootCmd.AddCommand(copyCmd)
+	RootCmd.AddCommand(listCmd)
 	// Turn off completion option
-	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	RootCmd.CompletionOptions.DisableDefaultCmd = true
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -107,10 +121,10 @@ func initConfig() {
 		home, err := homedir.Dir()
 		cobra.CheckErr(err)
 
-		// Search config in current & home directory with name ".tfe-migrate" (without extension).
+		// Search config in current & home directory with name ".tfe-mig" (without extension).
 		viper.AddConfigPath(home)
 		viper.AddConfigPath(".")
-		viper.SetConfigName(".tfe-migrate")
+		viper.SetConfigName(".tfx.hcl")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -124,10 +138,10 @@ func initConfig() {
 	// Some hacking here to let viper use the cobra required flags, simplifies this checking
 	// in one place rather than each command
 	// More info: https://github.com/spf13/viper/issues/397
-	postInitCommands(rootCmd.Commands())
+	postInitCommands(RootCmd.Commands())
 
 	// // Initialize output
-	// o = output.New(*viperBool("json"))
+	o = output.New(*ViperBool("json"))
 
 	// Print if config file was found
 	if isConfigFile {

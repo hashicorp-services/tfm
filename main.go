@@ -20,7 +20,7 @@
 
 package main
 
-import "github.com/hashicorp-services/tfe-migrate/cmd"
+import "github.com/hashicorp-services/tfe-mig/cmd"
 
 func main() {
 	cmd.Execute()

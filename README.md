@@ -1,4 +1,4 @@
-# tfe-migrate
+# tfe-mig
 
 This CLI will do awesome things.
 
@@ -6,7 +6,7 @@ This CLI will do awesome things.
 
 ```
 make build-local
-./tfe-migrate -v
+./tfe-mig -v
 ```
 
 -or-
