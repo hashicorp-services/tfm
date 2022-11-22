@@ -47,8 +47,7 @@ var (
 			// orgList(client)
 
 
-			// return orgList(
-			// 	tfclient.GetClientContexts())
+			orgList(tfclient.GetClientContexts())
 			//*viperString("search"),
 			//*viperString("repository"),
 			//*viperString("run-status"))

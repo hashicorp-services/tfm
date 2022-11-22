@@ -70,7 +70,7 @@ func Foo() string {
 // GetTfcConfig returns a TFE/TFC config with token if found
 // in the terraform local cred file
 func GetTfcConfig(hostname string) (tfe.Config, error) {
-	config := &tfe.Config{
+	config := tfe.Config{
 		Address: "https://" + viper.GetString("hostname"),
 		Token:   viper.GetString("token"),
 	}
