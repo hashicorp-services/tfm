@@ -89,7 +89,7 @@ func init() {
 
 }
 
-func orgList(c ClientContexts) error {
+func orgList(c tfclient.ClientContexts) error {
 	o.AddMessageUserProvided("List of Organizations at: ", c.SourceHostname)
 	allItems := []*tfe.Organization{}
 
