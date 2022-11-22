@@ -22,7 +22,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			// return orgShow(
 			// 	viper.GetString("name"))
-			fmt.Println(tfclient.Foo())
+			listTeams(tfclient.GetClientContexts())
 		},
 	}
 )
@@ -38,7 +38,7 @@ func init() {
 
 }
 
-func listTeams(c ClientContexts) error {
+func listTeams(c tfclient.ClientContexts) error {
 	o.AddMessageUserProvided("Getting list of teams from: ", c.SourceHostname)
 	srcTeams := []*tfe.Team{}
 
