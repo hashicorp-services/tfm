@@ -26,6 +26,7 @@ import (
 
 	"github.com/hashicorp-services/tfe-mig/output"
 	"github.com/hashicorp-services/tfe-mig/version"
+	"github.com/hashicorp-services/tfe-mig/cmd/list"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -33,6 +34,7 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
+
 
 var (
 	cfgFile string
@@ -57,12 +59,7 @@ var RootCmd = &cobra.Command{
 	PersistentPreRun: bindPFlags, // Bind here to avoid having to call this in every subcommand
 }
 
-// `tfe-migrate list` commands
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List command",
-	Long:  "List objects in an org",
-}
+
 
 // `tfemig copy` commands
 var copyCmd = &cobra.Command{
@@ -103,7 +100,7 @@ func init() {
 
 	// Available commands required after "tfe-migrate"
 	RootCmd.AddCommand(copyCmd)
-	RootCmd.AddCommand(listCmd)
+	RootCmd.AddCommand(list.ListCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 }

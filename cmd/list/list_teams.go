@@ -1,4 +1,4 @@
-package cmd
+package list
 
 import (
 	"github.com/hashicorp/go-tfe"
