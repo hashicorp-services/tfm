@@ -66,3 +66,14 @@ func GetClientContexts() ClientContexts {
 func Foo() string {
 	return "Called Foo(), Return with Bar"
 }
+
+// GetTfcConfig returns a TFE/TFC config with token if found
+// in the terraform local cred file
+func GetTfcConfig(hostname string) (tfe.Config, error) {
+	config := &tfe.Config{
+		Address: "https://" + viper.GetString("hostname"),
+		Token:   viper.GetString("token"),
+	}
+
+	return config, nil
+}

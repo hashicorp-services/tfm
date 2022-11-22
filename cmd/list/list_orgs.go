@@ -23,7 +23,7 @@ package list
 import (
 	"fmt"
 
-	"github.com/hashicorp/go-tfe"
+	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp-services/tfe-mig/tfclient"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
@@ -43,6 +43,10 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 
 			fmt.Println(tfclient.Foo())
+			// client := tfclient.GetClientContexts()
+			// orgList(client)
+
+
 			// return orgList(
 			// 	tfclient.GetClientContexts())
 			//*viperString("search"),
