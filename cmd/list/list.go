@@ -3,7 +3,6 @@ package list
 import (
 	"github.com/spf13/cobra"
 	"context"
-	"log"
 
 	tfe "github.com/hashicorp/go-tfe"
 )

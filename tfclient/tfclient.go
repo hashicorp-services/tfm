@@ -61,3 +61,8 @@ func GetClientContexts() ClientContexts {
 		viper.GetString("destinationOrganization"),
 		viper.GetString("destinationToken")}
 }
+
+
+func Foo() string {
+	return "Called Foo(), Return with Bar"
+}

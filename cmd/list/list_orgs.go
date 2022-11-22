@@ -27,10 +27,12 @@ import (
 	"github.com/hashicorp-services/tfe-mig/tfclient"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/hashicorp-services/tfe-mig/output"
+	"github.com/hashicorp-services/tfe-mig/cmd/helper"
 )
 
 var (
+	o       *output.Output
 
 	// `tfe-migrate list organization` command
 	orgListCmd = &cobra.Command{
@@ -38,9 +40,11 @@ var (
 		Aliases: []string{"org"},
 		Short:   "List Organizations",
 		Long:    "List of Organizations.",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return orgList(
-				tfclient.GetClientContexts())
+		Run: func(cmd *cobra.Command, args []string) {
+
+			fmt.Println(tfclient.Foo())
+			// return orgList(
+			// 	tfclient.GetClientContexts())
 			//*viperString("search"),
 			//*viperString("repository"),
 			//*viperString("run-status"))
@@ -54,9 +58,10 @@ var (
 		Use:   "show",
 		Short: "Show org attributes",
 		Long:  "Show the attributes of a specific org.",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return orgShow(
-				viper.GetString("name"))
+		Run: func(cmd *cobra.Command, args []string) {
+			// return orgShow(
+			// 	viper.GetString("name"))
+			fmt.Println(tfclient.Foo())
 		},
 	}
 )
@@ -94,7 +99,7 @@ func orgList(c ClientContexts) error {
 	for {
 		items, err := c.SourceClient.Organizations.List(c.SourceContext, &opts)
 		if err != nil {
-			logError(err, "failed to list orgs")
+			helper.LogError(err, "failed to list orgs")
 		}
 
 		allItems = append(allItems, items.Items...)
@@ -109,11 +114,10 @@ func orgList(c ClientContexts) error {
 
 	o.AddTableHeaders("Name", "Created On", "Email")
 	for _, i := range allItems {
-		cr_created_at := FormatDateTime(i.CreatedAt)
+		cr_created_at := helper.FormatDateTime(i.CreatedAt)
 
 		o.AddTableRows(i.Name, cr_created_at, i.Email)
 	}
-
 	return nil
 }
 

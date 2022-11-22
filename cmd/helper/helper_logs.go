@@ -1,4 +1,4 @@
-package cmd
+package helper
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 // Centralize error handing, simple print message and exit
-func logError(err error, message string) {
+func LogError(err error, message string) {
 	fmt.Println()
 	fmt.Println()
 	fmt.Println(color.RedString("Error: " + message))
@@ -16,7 +16,7 @@ func logError(err error, message string) {
 }
 
 // Warning but dont exit
-func logWarning(err error, message string) {
+func LogWarning(err error, message string) {
 	fmt.Println()
 	fmt.Println()
 	fmt.Println(color.YellowString("Error: " + message))

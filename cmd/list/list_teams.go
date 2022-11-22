@@ -3,6 +3,8 @@ package list
 import (
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
+	"github.com/hashicorp-services/tfe-mig/tfclient"
+	"fmt"
 )
 
 var (
@@ -12,10 +14,15 @@ var (
 		Use:   "teams",
 		Short: "Teams command",
 		Long:  "Act upon Teams in an org",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return listTeams(
-				GetClientContexts())
+		// RunE: func(cmd *cobra.Command, args []string) error {
+		// 	return listTeams(
+		// 		tfeclient.GetClientContexts())
 
+		// },
+		Run: func(cmd *cobra.Command, args []string) {
+			// return orgShow(
+			// 	viper.GetString("name"))
+			fmt.Println(tfclient.Foo())
 		},
 	}
 )
@@ -27,7 +34,7 @@ func init() {
 	teamsListCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// Add commands
-	listCmd.AddCommand(teamsListCmd)
+	ListCmd.AddCommand(teamsListCmd)
 
 }
 
