@@ -103,6 +103,7 @@ func init() {
 	RootCmd.AddCommand(list.ListCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
+	
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -117,6 +118,7 @@ func initConfig() {
 
 		// Search config in current & home directory with name ".tfe-mig" (without extension).
 		viper.AddConfigPath(home)
+		viper.SetConfigType("hcl")
 		viper.AddConfigPath(".")
 		viper.SetConfigName(".tfx.hcl")
 	}
@@ -140,6 +142,7 @@ func initConfig() {
 	// Print if config file was found
 	if isConfigFile {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Println("\n\nAll Settings:", viper.AllKeys())
 	}
 }
 
