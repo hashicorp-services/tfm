@@ -25,6 +25,8 @@ type ClientContexts struct {
 
 func GetClientContexts() ClientContexts {
 
+	
+
 	sourceConfig := &tfe.Config{
 		Address: "https://" + viper.GetString("sourceHostname"),
 		Token:   viper.GetString("sourceToken"),

@@ -32,7 +32,7 @@ import (
 )
 
 var (
-	o       *output.Output
+	o       output.Output
 
 	// `tfe-migrate list organization` command
 	orgListCmd = &cobra.Command{
@@ -41,11 +41,6 @@ var (
 		Short:   "List Organizations",
 		Long:    "List of Organizations.",
 		Run: func(cmd *cobra.Command, args []string) {
-
-			fmt.Println(tfclient.Foo())
-			// client := tfclient.GetClientContexts()
-			// orgList(client)
-
 
 			orgList(tfclient.GetClientContexts())
 			//*viperString("search"),
