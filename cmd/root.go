@@ -142,7 +142,6 @@ func initConfig() {
 	// Print if config file was found
 	if isConfigFile {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
-		fmt.Println("\n\nAll Settings:", viper.AllKeys())
 	}
 }
 

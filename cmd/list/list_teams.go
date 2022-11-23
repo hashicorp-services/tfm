@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
 	"github.com/hashicorp-services/tfe-mig/tfclient"
-	"fmt"
+
 )
 
 var (
