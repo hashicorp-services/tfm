@@ -37,7 +37,7 @@ var (
 	// `tfe-migrate list organization` command
 	orgListCmd = &cobra.Command{
 		Use:     "organization",
-		Aliases: []string{"org"},
+		Aliases: []string{"orgs"},
 		Short:   "List Organizations",
 		Long:    "List of Organizations.",
 		Run: func(cmd *cobra.Command, args []string) {
