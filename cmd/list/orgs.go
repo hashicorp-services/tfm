@@ -18,27 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package cmd
+package list
 
 import (
 	"fmt"
 
-	"github.com/hashicorp/go-tfe"
+	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp-services/tfe-mig/tfclient"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
+	"github.com/hashicorp-services/tfe-mig/output"
+	"github.com/hashicorp-services/tfe-mig/cmd/helper"
 )
 
 var (
+	o       output.Output
 
 	// `tfe-migrate list organization` command
 	orgListCmd = &cobra.Command{
 		Use:     "organization",
-		Aliases: []string{"org"},
+		Aliases: []string{"orgs"},
 		Short:   "List Organizations",
 		Long:    "List of Organizations.",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return orgList(
-				GetClientContexts())
+		Run: func(cmd *cobra.Command, args []string) {
+
+			orgList(tfclient.GetClientContexts())
 			//*viperString("search"),
 			//*viperString("repository"),
 			//*viperString("run-status"))
@@ -52,14 +56,17 @@ var (
 		Use:   "show",
 		Short: "Show org attributes",
 		Long:  "Show the attributes of a specific org.",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return orgShow(
-				*ViperString("name"))
+		Run: func(cmd *cobra.Command, args []string) {
+			// return orgShow(
+			// 	viper.GetString("name"))
+			fmt.Println(tfclient.Foo())
 		},
 	}
 )
 
 func init() {
+	ListCmd.AddCommand(orgListCmd)
+	ListCmd.AddCommand(orgShowCmd)
 	// Flags().StringP, etc... - the "P" gives us the option for a short hand
 
 	// `tfe-discover organization list` command
@@ -72,12 +79,12 @@ func init() {
 
 	// Add commands
 	//RootCmd.AddCommand(listCmd)
-	listCmd.AddCommand(orgListCmd)
+	ListCmd.AddCommand(orgListCmd)
 	//orgCmd.AddCommand(orgShowCmd)
 
 }
 
-func orgList(c ClientContexts) error {
+func orgList(c tfclient.ClientContexts) error {
 	o.AddMessageUserProvided("List of Organizations at: ", c.SourceHostname)
 	allItems := []*tfe.Organization{}
 
@@ -90,7 +97,7 @@ func orgList(c ClientContexts) error {
 	for {
 		items, err := c.SourceClient.Organizations.List(c.SourceContext, &opts)
 		if err != nil {
-			logError(err, "failed to list orgs")
+			helper.LogError(err, "failed to list orgs")
 		}
 
 		allItems = append(allItems, items.Items...)
@@ -105,11 +112,10 @@ func orgList(c ClientContexts) error {
 
 	o.AddTableHeaders("Name", "Created On", "Email")
 	for _, i := range allItems {
-		cr_created_at := FormatDateTime(i.CreatedAt)
+		cr_created_at := helper.FormatDateTime(i.CreatedAt)
 
 		o.AddTableRows(i.Name, cr_created_at, i.Email)
 	}
-
 	return nil
 }
 

@@ -26,6 +26,8 @@ import (
 
 	"github.com/hashicorp-services/tfe-mig/output"
 	"github.com/hashicorp-services/tfe-mig/version"
+	"github.com/hashicorp-services/tfe-mig/cmd/list"
+	"github.com/hashicorp-services/tfe-mig/cmd/copy"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -33,6 +35,7 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
+
 
 var (
 	cfgFile string
@@ -57,12 +60,7 @@ var RootCmd = &cobra.Command{
 	PersistentPreRun: bindPFlags, // Bind here to avoid having to call this in every subcommand
 }
 
-// `tfe-migrate list` commands
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List command",
-	Long:  "List objects in an org",
-}
+
 
 // `tfemig copy` commands
 var copyCmd = &cobra.Command{
@@ -102,10 +100,11 @@ func init() {
 	// viper.BindEnv("source-token", "SOURCE_TOKEN")
 
 	// Available commands required after "tfe-migrate"
-	RootCmd.AddCommand(copyCmd)
-	RootCmd.AddCommand(listCmd)
+	RootCmd.AddCommand(copy.CopyCmd)
+	RootCmd.AddCommand(list.ListCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
+	
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -120,6 +119,7 @@ func initConfig() {
 
 		// Search config in current & home directory with name ".tfe-mig" (without extension).
 		viper.AddConfigPath(home)
+		viper.SetConfigType("hcl")
 		viper.AddConfigPath(".")
 		viper.SetConfigName(".tfx.hcl")
 	}

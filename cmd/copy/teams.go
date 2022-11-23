@@ -1,14 +1,18 @@
-package cmd
+package copy
 
 import (
 	"fmt"
 
-	"github.com/hashicorp/go-tfe"
+	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp-services/tfe-mig/tfclient"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/hashicorp-services/tfe-mig/output"
 )
 
 var (
+
+	o       output.Output
 
 	// `tfemig copy teams` command
 	teamCopyCmd = &cobra.Command{
@@ -17,7 +21,7 @@ var (
 		Long:  "Copy Teams from source to destination org",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return copyTeams(
-				GetClientContexts())
+				tfclient.GetClientContexts())
 
 		},
 	}
@@ -30,11 +34,11 @@ func init() {
 	teamCopyCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// Add commands
-	copyCmd.AddCommand(teamCopyCmd)
+	CopyCmd.AddCommand(teamCopyCmd)
 
 }
 
-func discoverSrcTeams(c ClientContexts) ([]*tfe.Team, error) {
+func discoverSrcTeams(c tfclient.ClientContexts) ([]*tfe.Team, error) {
 	o.AddMessageUserProvided("Getting list of teams from: ", c.SourceHostname)
 	srcTeams := []*tfe.Team{}
 
@@ -63,7 +67,7 @@ func discoverSrcTeams(c ClientContexts) ([]*tfe.Team, error) {
 	return srcTeams, nil
 }
 
-func discoverDestTeams(c ClientContexts) ([]*tfe.Team, error) {
+func discoverDestTeams(c tfclient.ClientContexts) ([]*tfe.Team, error) {
 	o.AddMessageUserProvided("Getting list of teams from: ", c.DestinationHostname)
 	destTeams := []*tfe.Team{}
 
@@ -106,15 +110,15 @@ func doesTeamExist(teamName string, teams []*tfe.Team) bool {
 
 // Gets all source team names and all destination team names and recreates
 // the source teams in the destination if the team name does not exist in the destination.
-func copyTeams(c ClientContexts) error {
+func copyTeams(c tfclient.ClientContexts) error {
 	// Get the source teams properties
-	srcTeams, err := discoverSrcTeams(GetClientContexts())
+	srcTeams, err := discoverSrcTeams(tfclient.GetClientContexts())
 	if err != nil {
 		return errors.Wrap(err, "failed to list teams from source")
 	}
 
 	// Get the destination teams properties
-	destTeams, err := discoverDestTeams(GetClientContexts())
+	destTeams, err := discoverDestTeams(tfclient.GetClientContexts())
 	if err != nil {
 		return errors.Wrap(err, "failed to list teams from destination")
 	}
