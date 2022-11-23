@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp-services/tfe-mig/output"
 	"github.com/hashicorp-services/tfe-mig/version"
 	"github.com/hashicorp-services/tfe-mig/cmd/list"
+	"github.com/hashicorp-services/tfe-mig/cmd/copy"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -99,7 +100,7 @@ func init() {
 	// viper.BindEnv("source-token", "SOURCE_TOKEN")
 
 	// Available commands required after "tfe-migrate"
-	RootCmd.AddCommand(copyCmd)
+	RootCmd.AddCommand(copy.CopyCmd)
 	RootCmd.AddCommand(list.ListCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
