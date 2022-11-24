@@ -1,8 +1,9 @@
 package list
 
 import (
-	"github.com/spf13/cobra"
 	"context"
+
+	"github.com/spf13/cobra"
 
 	tfe "github.com/hashicorp/go-tfe"
 )

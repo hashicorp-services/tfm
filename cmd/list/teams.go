@@ -1,10 +1,9 @@
 package list
 
 import (
+	"github.com/hashicorp-services/tfe-mig/tfclient"
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
-	"github.com/hashicorp-services/tfe-mig/tfclient"
-
 )
 
 var (
@@ -23,6 +22,9 @@ var (
 			// return orgShow(
 			// 	viper.GetString("name"))
 			listTeams(tfclient.GetClientContexts())
+		},
+		PostRun: func(cmd *cobra.Command, args []string) {
+			o.Close()
 		},
 	}
 )

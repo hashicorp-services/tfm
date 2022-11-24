@@ -23,6 +23,9 @@ var (
 				tfclient.GetClientContexts())
 
 		},
+		PostRun: func(cmd *cobra.Command, args []string) {
+			o.Close()
+		},
 	}
 )
 
@@ -150,6 +153,5 @@ func copyTeams(c tfclient.ClientContexts) error {
 			o.AddDeferredMessageRead("Migrated", srcteam.Name)
 		}
 	}
-	o.Close()
 	return nil
 }

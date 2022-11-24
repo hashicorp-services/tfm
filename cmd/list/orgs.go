@@ -41,14 +41,11 @@ var (
 		Short:   "List Organizations",
 		Long:    "List of Organizations.",
 		Run: func(cmd *cobra.Command, args []string) {
-
 			orgList(tfclient.GetClientContexts())
-			//*viperString("search"),
-			//*viperString("repository"),
-			//*viperString("run-status"))
 		},
-		//		Run: func(cmd *cobra.Command, args []string) {
-		//			orgList(getTfeDiscoverClientContextSource())
+		PostRun: func(cmd *cobra.Command, args []string) {
+			o.Close()
+		},
 	}
 
 	// `tfe-mig org show org-id` command
@@ -60,6 +57,9 @@ var (
 			// return orgShow(
 			// 	viper.GetString("name"))
 			fmt.Println(tfclient.Foo())
+		},
+		PostRun: func(cmd *cobra.Command, args []string) {
+			o.Close()
 		},
 	}
 )
