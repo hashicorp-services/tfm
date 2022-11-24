@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp-services/tfe-mig/cmd/copy"
+	"github.com/hashicorp-services/tfe-mig/cmd/list"
 	"github.com/hashicorp-services/tfe-mig/output"
 	"github.com/hashicorp-services/tfe-mig/version"
-	"github.com/hashicorp-services/tfe-mig/cmd/list"
-	"github.com/hashicorp-services/tfe-mig/cmd/copy"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -35,7 +35,6 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
-
 
 var (
 	cfgFile string
@@ -59,8 +58,6 @@ var RootCmd = &cobra.Command{
 	Version:          version.String(),
 	PersistentPreRun: bindPFlags, // Bind here to avoid having to call this in every subcommand
 }
-
-
 
 // `tfemig copy` commands
 var copyCmd = &cobra.Command{
@@ -104,7 +101,7 @@ func init() {
 	RootCmd.AddCommand(list.ListCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
-	
+
 }
 
 // initConfig reads in config file and ENV variables if set.
