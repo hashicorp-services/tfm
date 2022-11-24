@@ -23,16 +23,16 @@ package list
 import (
 	"fmt"
 
-	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp-services/tfe-mig/cmd/helper"
+	"github.com/hashicorp-services/tfe-mig/output"
 	"github.com/hashicorp-services/tfe-mig/tfclient"
+	tfe "github.com/hashicorp/go-tfe"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
-	"github.com/hashicorp-services/tfe-mig/output"
-	"github.com/hashicorp-services/tfe-mig/cmd/helper"
 )
 
 var (
-	o       output.Output
+	o output.Output
 
 	// `tfe-migrate list organization` command
 	orgListCmd = &cobra.Command{
@@ -65,8 +65,7 @@ var (
 )
 
 func init() {
-	ListCmd.AddCommand(orgListCmd)
-	ListCmd.AddCommand(orgShowCmd)
+
 	// Flags().StringP, etc... - the "P" gives us the option for a short hand
 
 	// `tfe-discover organization list` command
@@ -78,9 +77,8 @@ func init() {
 	orgShowCmd.Flags().String("name", "n", "name of foo")
 
 	// Add commands
-	//RootCmd.AddCommand(listCmd)
 	ListCmd.AddCommand(orgListCmd)
-	//orgCmd.AddCommand(orgShowCmd)
+	ListCmd.AddCommand(orgShowCmd)
 
 }
 
