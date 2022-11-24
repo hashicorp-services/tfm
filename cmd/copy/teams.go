@@ -3,16 +3,15 @@ package copy
 import (
 	"fmt"
 
-	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp-services/tfe-mig/output"
 	"github.com/hashicorp-services/tfe-mig/tfclient"
+	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/hashicorp-services/tfe-mig/output"
 )
 
 var (
-
-	o       output.Output
+	o output.Output
 
 	// `tfemig copy teams` command
 	teamCopyCmd = &cobra.Command{
@@ -151,5 +150,6 @@ func copyTeams(c tfclient.ClientContexts) error {
 			o.AddDeferredMessageRead("Migrated", srcteam.Name)
 		}
 	}
+	o.Close()
 	return nil
 }
