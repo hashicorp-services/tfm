@@ -1,25 +1,8 @@
 package list
 
 import (
-	"context"
-
 	"github.com/spf13/cobra"
-
-	tfe "github.com/hashicorp/go-tfe"
 )
-
-type ClientContexts struct {
-	SourceClient                *tfe.Client
-	SourceContext               context.Context
-	SourceHostname              string
-	SourceOrganizationName      string
-	SourceToken                 string
-	DestinationClient           *tfe.Client
-	DestinationContext          context.Context
-	DestinationHostname         string
-	DestinationOrganizationName string
-	DestinationToken            string
-}
 
 // `tfe-migrate list` commands
 var ListCmd = &cobra.Command{
