@@ -73,14 +73,16 @@ func vcsListAll(c tfclient.ClientContexts) error {
 		helper.LogError(derr, "failed to list organizations")
 	}
 
-	var allVcsList []*tfe.OAuthClient
+	var sourceAllVcsList []*tfe.OAuthClient
+	var destinationAllVcsList []*tfe.OAuthClient
+
 	for _, v := range sourceOrgs {
 		vcsList, err := vcsListAllForOrganization(c, "source", v.Name)
 		if err != nil {
 			helper.LogError(err, "failed to list vcs for organization")
 		}
 
-		allVcsList = append(allVcsList, vcsList...)
+		sourceAllVcsList = append(sourceAllVcsList, vcsList...)
 	}
 
 	for _, v := range destinationOrgs {
@@ -89,20 +91,30 @@ func vcsListAll(c tfclient.ClientContexts) error {
 			helper.LogError(err, "failed to list vcs for organization")
 		}
 
-		allVcsList = append(allVcsList, vcsList...)
+		destinationAllVcsList = append(destinationAllVcsList, vcsList...)
 	}
 
-	o.AddFormattedMessageCalculated("Found %d vcs", len(allVcsList))
+	o.AddFormattedMessageCalculated("Found %d vcs", len(sourceAllVcsList)+len(destinationAllVcsList))
 
-	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
-	for _, i := range allVcsList {
+	o.AddTableHeaders("Hostname","Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
+	for _, i := range sourceAllVcsList {
 
 		vcsName := ""
 		if i.Name != nil {
 			vcsName = *i.Name
 		}
 
-		o.AddTableRows(i.Organization.Name, vcsName, i.ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
+		o.AddTableRows(c.SourceHostname, i.Organization.Name, vcsName, i.ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
+	}
+
+	for _, i := range destinationAllVcsList {
+
+		vcsName := ""
+		if i.Name != nil {
+			vcsName = *i.Name
+		}
+
+		o.AddTableRows(c.DestinationHostname, i.Organization.Name, vcsName, i.ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
 	}
 
 	return nil
