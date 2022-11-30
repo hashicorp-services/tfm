@@ -25,6 +25,20 @@ destinationOrganization="companyxyz"
 destinationToken="<user token from destination TFE/TFC with owner permissions>"
 ```
 
+## Workspace List
+As part of the HCL config file (`/home/user/.tfx.hcl`), a list of workspaces from the source TFE can be specified. `tfemigrate` will use this list when running `tfemigrate copy workspaces` and ensure the workspace exists or is created in the target. 
+
+```hcl
+#List of Workspaces to create/check are migrated across to new TFC
+"workspaces" = [
+  "appAFrontEnd",
+  "appABackEnd",
+  "appBDataLake",
+  "appBInfra"
+]
+
+```
+
 
 ## Environment Variables
 If no config file is found, the following environment variables can be set or used to overide existing config file values. 
