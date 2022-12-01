@@ -121,3 +121,49 @@ func orgShow(name string) error {
 	fmt.Println("Show org with name:", aurora.Bold(name))
 	return nil
 }
+
+func organizationListAllSource(c tfclient.ClientContexts) ([]*tfe.Organization, error) {
+	allItems := []*tfe.Organization{}
+	opts := tfe.OrganizationListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+	for {
+		items, err := c.SourceClient.Organizations.List(c.SourceContext, &opts)
+		if err != nil {
+			return nil, err
+		}
+
+		allItems = append(allItems, items.Items...)
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+	}
+
+	return allItems, nil
+}
+
+func organizationListAllDestination(c tfclient.ClientContexts) ([]*tfe.Organization, error) {
+	allItems := []*tfe.Organization{}
+	opts := tfe.OrganizationListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+	for {
+		items, err := c.DestinationClient.Organizations.List(c.DestinationContext, &opts)
+		if err != nil {
+			return nil, err
+		}
+
+		allItems = append(allItems, items.Items...)
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+	}
+
+	return allItems, nil
+}
