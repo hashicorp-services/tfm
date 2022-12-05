@@ -25,25 +25,26 @@ var (
 )
 
 func init() {
-
 	ListCmd.AddCommand(vcsListCmd)
 }
 
-func vcsListAllForOrganization(c tfclient.ClientContexts, side string, orgName string) ([]*tfe.OAuthClient, error) {
+// helper functions
+func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tfe.OAuthClient, error) {
 	var allItems []*tfe.OAuthClient
 	opts := tfe.OAuthClientListOptions{
 		ListOptions: tfe.ListOptions{PageNumber: 1, PageSize: 100},
 	}
 	for {
-
 		var items *tfe.OAuthClientList
 		var err error
 		
-		if side == "source" {
-			items, err = c.SourceClient.OAuthClients.List(c.SourceContext, orgName, &opts)	
-		} else {
-			items, err = c.DestinationClient.OAuthClients.List(c.DestinationContext, orgName, &opts)
-		}
+		if ListCmd.Flags().Lookup("side").Value.String() == "source" {
+			items, err = c.SourceClient.OAuthClients.List(c.SourceContext, orgName, &opts)
+		} 
+		
+		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+			items, err = c.DestinationClient.OAuthClients.List(c.DestinationContext, orgName, &opts)	
+		} 
 		if err != nil {
 			return nil, err
 		}
@@ -56,65 +57,81 @@ func vcsListAllForOrganization(c tfclient.ClientContexts, side string, orgName s
 		opts.PageNumber = items.NextPage
 	}
 
+	return allItems, nil
+}
+
+func organizationListAll(c tfclient.ClientContexts) ([]*tfe.Organization, error) {
+	allItems := []*tfe.Organization{}
+	opts := tfe.OrganizationListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+	for {
+		var items *tfe.OrganizationList
+		var err error
+
+		if ListCmd.Flags().Lookup("side").Value.String() == "source" {
+
+			items, err = c.SourceClient.Organizations.List(c.SourceContext, &opts)
+			if err != nil {
+				return nil, err
+			}
+	
+			allItems = append(allItems, items.Items...)
+			if items.CurrentPage >= items.TotalPages {
+				break
+			}
+			opts.PageNumber = items.NextPage
+		} 
+		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+			items, err = c.DestinationClient.Organizations.List(c.DestinationContext, &opts)
+			if err != nil {
+				return nil, err
+			}
+	
+			allItems = append(allItems, items.Items...)
+			if items.CurrentPage >= items.TotalPages {
+				break
+			}
+			opts.PageNumber = items.NextPage
+		} 
+	}
 
 	return allItems, nil
 }
 
 // output functions
 func vcsListAll(c tfclient.ClientContexts) error {
-	o.AddMessageUserProvided("List vcs for all available Organizations in source and destination", "")
-	
-	sourceOrgs, serr := organizationListAllSource(c)
-	if serr != nil {
-		helper.LogError(serr, "failed to list organizations")
-	}
-	destinationOrgs, derr := organizationListAllDestination(c)
-	if derr != nil {
-		helper.LogError(derr, "failed to list organizations")
+	o.AddMessageUserProvided("List vcs for all available Organizations", "")
+
+	allOrgs, err := organizationListAll(c)
+	if err != nil {
+		helper.LogError(err, "failed to list organizations")
 	}
 
-	var sourceAllVcsList []*tfe.OAuthClient
-	var destinationAllVcsList []*tfe.OAuthClient
+	var allVcsList []*tfe.OAuthClient
 
-	for _, v := range sourceOrgs {
-		vcsList, err := vcsListAllForOrganization(c, "source", v.Name)
+	for _, v := range allOrgs {
+		vcsList, err := vcsListAllForOrganization(c, v.Name)
 		if err != nil {
 			helper.LogError(err, "failed to list vcs for organization")
 		}
 
-		sourceAllVcsList = append(sourceAllVcsList, vcsList...)
+		allVcsList = append(allVcsList, vcsList...)
 	}
 
-	for _, v := range destinationOrgs {
-		vcsList, err := vcsListAllForOrganization(c, "destination", v.Name)
-		if err != nil {
-			helper.LogError(err, "failed to list vcs for organization")
-		}
+	o.AddFormattedMessageCalculated("Found %d vcs", len(allVcsList))
 
-		destinationAllVcsList = append(destinationAllVcsList, vcsList...)
-	}
-
-	o.AddFormattedMessageCalculated("Found %d vcs", len(sourceAllVcsList)+len(destinationAllVcsList))
-
-	o.AddTableHeaders("Hostname","Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
-	for _, i := range sourceAllVcsList {
+	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
+	for _, i := range allVcsList {
 
 		vcsName := ""
 		if i.Name != nil {
 			vcsName = *i.Name
 		}
 
-		o.AddTableRows(c.SourceHostname, i.Organization.Name, vcsName, i.ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
-	}
-
-	for _, i := range destinationAllVcsList {
-
-		vcsName := ""
-		if i.Name != nil {
-			vcsName = *i.Name
-		}
-
-		o.AddTableRows(c.DestinationHostname, i.Organization.Name, vcsName, i.ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
+		o.AddTableRows(i.Organization.Name, vcsName, i.ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
 	}
 
 	return nil
