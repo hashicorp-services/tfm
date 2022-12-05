@@ -37,8 +37,8 @@ func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tf
 	for {
 		var items *tfe.OAuthClientList
 		var err error
-		
-		if ListCmd.Flags().Lookup("side").Value.String() == "source" {
+	
+		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed)  {
 			items, err = c.SourceClient.OAuthClients.List(c.SourceContext, orgName, &opts)
 		} 
 		
@@ -71,7 +71,9 @@ func organizationListAll(c tfclient.ClientContexts) ([]*tfe.Organization, error)
 		var items *tfe.OrganizationList
 		var err error
 
-		if ListCmd.Flags().Lookup("side").Value.String() == "source" {
+		
+
+		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
 			items, err = c.SourceClient.Organizations.List(c.SourceContext, &opts)
 			if err != nil {
