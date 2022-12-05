@@ -14,7 +14,7 @@ var (
 		Use:     "vcs",
 		Aliases: []string{"vcs"},
 		Short:   "List VCS Providers",
-		Long:    "List of VCS Providers.",
+		Long:    "List of VCS Providers. Will default to source if no side is specified",
 		Run: func(cmd *cobra.Command, args []string) {
 			vcsListAll(tfclient.GetClientContexts())
 		},
