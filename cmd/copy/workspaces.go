@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp-services/tfe-mig/cmd/helper"
 	"github.com/hashicorp-services/tfe-mig/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -36,11 +37,81 @@ func init() {
 	// `tfemigrate copy workspaces --workspace-id [WORKSPACEID]`
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
 	workspacesCopyCmd.Flags().BoolP("vars", "", false, "Copy workspace variables")
-	workspacesCopyCmd.Flags().BoolP("state", "",false,  "Copy workspace states")
+	workspacesCopyCmd.Flags().BoolP("state", "", false, "Copy workspace states")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
 
+}
+
+func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
+	o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+	srcWorkspaces := []*tfe.Workspace{}
+
+	opts := tfe.WorkspaceListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+	for {
+		items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
+		if err != nil {
+			return nil, err
+		}
+
+		srcWorkspaces = append(srcWorkspaces, items.Items...)
+
+		o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+
+	}
+
+	return srcWorkspaces, nil
+}
+
+func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
+	o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+	destWorkspaces := []*tfe.Workspace{}
+
+	opts := tfe.WorkspaceListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+	for {
+		items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
+		if err != nil {
+			return nil, err
+		}
+
+		destWorkspaces = append(destWorkspaces, items.Items...)
+
+		o.AddFormattedMessageCalculated("Found %d Workspaces", len(destWorkspaces))
+
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+
+	}
+
+	return destWorkspaces, nil
+}
+
+// Takes a team name and a slice of teams as type []*tfe.Team and
+// returns true if the team name exists within the provided slice of teams.
+// Used to compare source team names to the destination team names.
+func doesWorkspaceExist(workspaceName string, ws []*tfe.Workspace) bool {
+	for _, w := range ws {
+		if workspaceName == w.Name {
+			return true
+		}
+	}
+	return false
 }
 
 // Gets all source workspaces and ensure destination workspaces exist and recreates
@@ -51,65 +122,76 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	// This function will only work with a configuration file as we expect the migration to be automated in a pipeline
 	// thus repeatable as migration of workspaces occur.
 
-	// Check List of Workspaces from Config
-	srcWorkspaces := viper.GetStringSlice("workspaces")
+	// Get Workspaces from Config
+	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
 
-	o.AddFormattedMessageCalculated("Found %d Workspaces in Configuration", len(srcWorkspaces))
+	o.AddFormattedMessageCalculated("Found %d Workspaces in Configuration", len(srcWorkspacesCfg))
 
-	fmt.Println("\n\nworkspaces from config are: ", srcWorkspaces)
-	fmt.Printf("\n\nworkspaces type are: %T", srcWorkspaces)
-
-	for i, s := range srcWorkspaces {
-		fmt.Println("Workspace ", i, ":", s)
+	// Get the source workspaces properties
+	srcWorkspaces, err := discoverSrcWorkspaces(tfclient.GetClientContexts())
+	if err != nil {
+		return errors.Wrap(err, "failed to list teams from source")
 	}
 
-	// Check Workspaces exist in source
-	workspaceExists(tfclient.GetClientContexts())
+	// Get the destination teams properties
+	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
+	if err != nil {
+		return errors.Wrap(err, "failed to list teams from destination")
+	}
 
-	// // Get the source teams properties
-	// srcWorkspaces, err := discoverSrcTeams(tfclient.GetClientContexts())
-	// if err != nil {
-	// 	return errors.Wrap(err, "failed to list teams from source")
-	// }
+	// Check Workspaces exist in source from config
+	for i, s := range srcWorkspacesCfg {
+		fmt.Println("\nWorkspace ", i, ":", s)
+		exists := doesWorkspaceExist(s, srcWorkspaces)
+		if !exists {
+			fmt.Printf("Defined Workspace in Config %s does not exist in %s", s, viper.GetString("sourceHostname"))
+			break
+		}
+	}
 
-	// // Get the destination teams properties
-	// destWorkspaces, err := discoverDestTeams(tfclient.GetClientContexts())
-	// if err != nil {
-	// 	return errors.Wrap(err, "failed to list teams from destination")
-	// }
-
-	// // Loop each team in the srcTeams slice, check for the team existence in the destination,
-	// // and if a team exists in the destination, then do nothing, else create team in destination.
-	// for _, srcteam := range srcTeams {
-	// 	exists := doesTeamExist(srcteam.Name, destTeams)
-	// 	if exists {
-	// 		fmt.Println("Exists in destination will not migrate", srcteam.Name)
-	// 	} else {
-	// 		srcteam, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
-	// 			Type:      "",
-	// 			Name:      &srcteam.Name,
-	// 			SSOTeamID: &srcteam.SSOTeamID,
-	// 			OrganizationAccess: &tfe.OrganizationAccessOptions{
-	// 				ManagePolicies:        &srcteam.OrganizationAccess.ManagePolicies,
-	// 				ManagePolicyOverrides: &srcteam.OrganizationAccess.ManagePolicyOverrides,
-	// 				ManageWorkspaces:      &srcteam.OrganizationAccess.ManageWorkspaces,
-	// 				ManageVCSSettings:     &srcteam.OrganizationAccess.ManageVCSSettings,
-	// 				ManageProviders:       &srcteam.OrganizationAccess.ManageProviders,
-	// 				ManageModules:         &srcteam.OrganizationAccess.ManageModules,
-	// 				ManageRunTasks:        &srcteam.OrganizationAccess.ManageRunTasks,
-	// 			},
-	// 			Visibility: &srcteam.Visibility,
-	// 		})
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		o.AddDeferredMessageRead("Migrated", srcteam.Name)
-	// 	}
-	// }
+	// Loop each team in the srcWorkspaces slice, check for the workspace existence in the destination,
+	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
+	// Most values will be
+	for _, srcworkspace := range srcWorkspaces {
+		exists := doesWorkspaceExist(srcworkspace.Name, destWorkspaces)
+		if exists {
+			fmt.Println("Exists in destination will not migrate", srcworkspace.Name)
+		} else {
+			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
+				Type: "",
+				// AgentPoolID:        new(string),
+				AllowDestroyPlan: &srcworkspace.AllowDestroyPlan,
+				// AssessmentsEnabled: new(bool),
+				// AutoApply:          new(bool),
+				Description:   &srcworkspace.Description,
+				ExecutionMode: &srcworkspace.ExecutionMode,
+				// FileTriggersEnabled:        new(bool),
+				// GlobalRemoteState:          new(bool),
+				// MigrationEnvironment:       new(string),
+				Name: &srcworkspace.Name,
+				// QueueAllRuns:               new(bool),
+				// SpeculativeEnabled:         new(bool),
+				// SourceName:                 new(string),
+				// SourceURL:                  &srcworkspace.SourceURL,
+				StructuredRunOutputEnabled: &srcworkspace.StructuredRunOutputEnabled,
+				TerraformVersion:           &srcworkspace.TerraformVersion,
+				// TriggerPrefixes:            []string{},
+				// TriggerPatterns:            []string{},
+				VCSRepo: &tfe.VCSRepoOptions{},
+				// WorkingDirectory: new(string),
+				Tags: []*tfe.Tag{},
+			})
+			if err != nil {
+				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
+				return err
+			}
+			o.AddDeferredMessageRead("Migrated", srcworkspace.Name)
+		}
+	}
 	return nil
 }
 
-func workspaceExists(c tfclient.ClientContexts) error {
+func workspaceExists(c tfclient.ClientContexts, ws []string) error {
 	allItems := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -133,9 +215,9 @@ func workspaceExists(c tfclient.ClientContexts) error {
 		}
 		opts.PageNumber = items.NextPage
 	}
+
 	o.AddTableHeaders("Name")
 	for _, i := range allItems {
-
 		o.AddTableRows(i.Name)
 	}
 
