@@ -179,12 +179,13 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 				// TriggerPatterns:            []string{},
 				VCSRepo: &tfe.VCSRepoOptions{},
 				// WorkingDirectory: new(string),
-				Tags: []*tfe.Tag{},
+				Tags: srcworkspace.Tags,
 			})
 			if err != nil {
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
 				return err
 			}
+
 			o.AddDeferredMessageRead("Migrated", srcworkspace.Name)
 		}
 	}
