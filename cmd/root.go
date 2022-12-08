@@ -39,6 +39,7 @@ import (
 var (
 	cfgFile string
 	o       *output.Output
+	side string
 
 	// Required to leverage viper defaults for optional Flags
 	bindPFlags = func(cmd *cobra.Command, args []string) {
@@ -82,6 +83,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfx-src.hcl).")
+	RootCmd.PersistentFlags().StringVar(&side, "side", "", "Specify source or destination side to process")
 	// rootCmd.PersistentFlags().String("source-hostname", "", "The source hostname. Can also be set with the environment variable SOURCE_HOSTNAME.")
 	// rootCmd.PersistentFlags().String("source-organization", "", "The source Organization. Can also be set with the environment variable SOURCE_ORGANIZATION.")
 	// rootCmd.PersistentFlags().String("source-token", "", "The source API token used to authenticate. Can also be set with the environment variable SOURCE_TOKEN.")
