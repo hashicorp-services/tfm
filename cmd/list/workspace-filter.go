@@ -57,10 +57,18 @@ func workspaceFilter(c tfclient.ClientContexts) error {
 	}
 
 	for {
-		items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &workspaceFilterOpts)
-
+		var items *tfe.WorkspaceList
+		var err error
+	
+		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed)  {
+			items, err = c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &workspaceFilterOpts)
+		} 
+		
+		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+			items, err = c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &workspaceFilterOpts)	
+		} 
 		if err != nil {
-			return err
+			return nil
 		}
 
 		allItems = append(allItems, items.Items...)
