@@ -102,6 +102,35 @@ func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error)
 	return destWorkspaces, nil
 }
 
+func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
+	o.AddMessageUserProvided("Getting list of workspaces states: ", c.SourceHostname)
+	srcStates := []*tfe.StateVersion{}
+
+	opts := tfe.StateVersionListOptions{
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
+		Organization: c.SourceOrganizationName,
+		Workspace:    ws,
+	}
+	for {
+		items, err := c.SourceClient.StateVersions.List(c.SourceContext, &opts)
+		if err != nil {
+			return nil, err
+		}
+
+		srcStates = append(srcStates, items.Items...)
+
+		o.AddFormattedMessageCalculated("Found %d Workspaces states", len(srcStates))
+
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+
+	}
+
+	return srcStates, nil
+}
+
 // Takes a team name and a slice of teams as type []*tfe.Team and
 // returns true if the team name exists within the provided slice of teams.
 // Used to compare source team names to the destination team names.
@@ -140,8 +169,8 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	}
 
 	// Check Workspaces exist in source from config
-	for i, s := range srcWorkspacesCfg {
-		fmt.Println("\nWorkspace ", i, ":", s)
+	for _, s := range srcWorkspacesCfg {
+		fmt.Println("\nFound Workspace in config:", s, " exists in", viper.GetString("sourceHostname"))
 		exists := doesWorkspaceExist(s, srcWorkspaces)
 		if !exists {
 			fmt.Printf("Defined Workspace in Config %s does not exist in %s", s, viper.GetString("sourceHostname"))
@@ -154,6 +183,14 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	// Most values will be
 	for _, srcworkspace := range srcWorkspaces {
 		exists := doesWorkspaceExist(srcworkspace.Name, destWorkspaces)
+
+		// Copy tags over
+		var tag []*tfe.Tag
+
+		for _, t := range srcworkspace.TagNames {
+			tag = append(tag, &tfe.Tag{Name: t})
+		}
+
 		if exists {
 			fmt.Println("Exists in destination will not migrate", srcworkspace.Name)
 		} else {
@@ -179,13 +216,12 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 				// TriggerPatterns:            []string{},
 				VCSRepo: &tfe.VCSRepoOptions{},
 				// WorkingDirectory: new(string),
-				Tags: srcworkspace.Tags,
+				Tags: tag,
 			})
 			if err != nil {
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
 				return err
 			}
-
 			o.AddDeferredMessageRead("Migrated", srcworkspace.Name)
 		}
 	}
