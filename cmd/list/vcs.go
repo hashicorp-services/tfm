@@ -1,8 +1,8 @@
 package list
 
 import (
-	"github.com/hashicorp-services/tfe-mig/cmd/helper"
-	"github.com/hashicorp-services/tfe-mig/tfclient"
+	"github.com/hashicorp-services/tfm/cmd/helper"
+	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
 )
@@ -37,14 +37,14 @@ func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tf
 	for {
 		var items *tfe.OAuthClientList
 		var err error
-	
-		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed)  {
+
+		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 			items, err = c.SourceClient.OAuthClients.List(c.SourceContext, orgName, &opts)
-		} 
-		
+		}
+
 		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
-			items, err = c.DestinationClient.OAuthClients.List(c.DestinationContext, orgName, &opts)	
-		} 
+			items, err = c.DestinationClient.OAuthClients.List(c.DestinationContext, orgName, &opts)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -71,33 +71,31 @@ func organizationListAll(c tfclient.ClientContexts) ([]*tfe.Organization, error)
 		var items *tfe.OrganizationList
 		var err error
 
-		
-
 		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
 			items, err = c.SourceClient.Organizations.List(c.SourceContext, &opts)
 			if err != nil {
 				return nil, err
 			}
-	
+
 			allItems = append(allItems, items.Items...)
 			if items.CurrentPage >= items.TotalPages {
 				break
 			}
 			opts.PageNumber = items.NextPage
-		} 
+		}
 		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
 			items, err = c.DestinationClient.Organizations.List(c.DestinationContext, &opts)
 			if err != nil {
 				return nil, err
 			}
-	
+
 			allItems = append(allItems, items.Items...)
 			if items.CurrentPage >= items.TotalPages {
 				break
 			}
 			opts.PageNumber = items.NextPage
-		} 
+		}
 	}
 
 	return allItems, nil

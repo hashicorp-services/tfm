@@ -3,8 +3,8 @@ package copy
 import (
 	"fmt"
 
-	"github.com/hashicorp-services/tfe-mig/output"
-	"github.com/hashicorp-services/tfe-mig/tfclient"
+	"github.com/hashicorp-services/tfm/output"
+	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -32,7 +32,7 @@ var (
 func init() {
 	// Flags().StringP, etc... - the "P" gives us the option for a short hand
 
-	// `tfe-migrate copy teams all` command
+	// `tfm copy teams all` command
 	teamCopyCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// Add commands

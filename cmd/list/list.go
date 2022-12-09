@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// `tfe-migrate list` commands
+// `tfm list` commands
 var ListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List command",
