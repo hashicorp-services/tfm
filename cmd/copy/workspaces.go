@@ -20,7 +20,7 @@ var (
 		Aliases: []string{"ws"},
 		Long:    "Copy Workspaces from source to destination org",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return copyWorkspaces(
+			return copyStates(
 				tfclient.GetClientContexts())
 
 		},
@@ -102,35 +102,6 @@ func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error)
 	return destWorkspaces, nil
 }
 
-func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
-	o.AddMessageUserProvided("Getting list of workspaces states: ", c.SourceHostname)
-	srcStates := []*tfe.StateVersion{}
-
-	opts := tfe.StateVersionListOptions{
-		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
-		Organization: c.SourceOrganizationName,
-		Workspace:    ws,
-	}
-	for {
-		items, err := c.SourceClient.StateVersions.List(c.SourceContext, &opts)
-		if err != nil {
-			return nil, err
-		}
-
-		srcStates = append(srcStates, items.Items...)
-
-		o.AddFormattedMessageCalculated("Found %d Workspaces states", len(srcStates))
-
-		if items.CurrentPage >= items.TotalPages {
-			break
-		}
-		opts.PageNumber = items.NextPage
-
-	}
-
-	return srcStates, nil
-}
-
 // Takes a team name and a slice of teams as type []*tfe.Team and
 // returns true if the team name exists within the provided slice of teams.
 // Used to compare source team names to the destination team names.
@@ -162,7 +133,7 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 		return errors.Wrap(err, "failed to list teams from source")
 	}
 
-	// Get the destination teams properties
+	// Get the destination Workspace properties
 	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
 	if err != nil {
 		return errors.Wrap(err, "failed to list teams from destination")
