@@ -1,14 +1,19 @@
 package list
 
 import (
-
-    //"github.com/davecgh/go-spew/spew"
+	"fmt"
 	"github.com/hashicorp-services/tfe-mig/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
 )
 
 var (
+	searchString      string
+	tagsString        string
+	excludedTags      string
+	wildcardName      string
+	//workspaceIncludes tfe.WSIncludeOpt
+
 	workspaceFilterCmd = &cobra.Command{
 		Use:     "workspace-filter",
 		Aliases: []string{"workspace-filter"},
@@ -25,28 +30,29 @@ var (
 
 func init() {
 	ListCmd.AddCommand(workspaceFilterCmd)
+	workspaceFilterCmd.PersistentFlags().StringVar(&searchString, "name", "", "partial workspace name used to filter the results")
+	workspaceFilterCmd.PersistentFlags().StringVar(&tagsString, "tags", "", "comma-separated tag names used to filter the results")
+	workspaceFilterCmd.PersistentFlags().StringVar(&excludedTags, "excluded-tags", "", "comma-separated tag names to exclude")
+	workspaceFilterCmd.PersistentFlags().StringVar(&wildcardName, "wildcard-name", "", "workspace name to match with a wildcard")
+	//workspaceFilterCmd.PersistentFlags().StringSlice("workspace-includes", []string{}, "Additional relations to include")
 }
 
-type workspaceFilterOptions struct {
-	searchString string
-	tagsString string
-	excludedTags string
-	workspaceIncludes []tfe.WSIncludeOpt
-}
-
-func workspaceFilter(c tfclient.ClientContexts, w workspaceFilterOptions) error {
+func workspaceFilter(c tfclient.ClientContexts) error {
 
 	allItems := []*tfe.Workspace{}
-	opts := tfe.WorkspaceListOptions{
-		ListOptions: tfe.ListOptions{PageNumber: 1, PageSize: 100},
-		Search:      w.searchString,
-		Tags:        w.tagsString,
-		ExcludeTags: w.excludedTags,
-		Include:     w.workspaceIncludes,
+
+	workspaceFilterOpts := tfe.WorkspaceListOptions{
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
+		Search:       searchString,
+		Tags:         tagsString,
+		ExcludeTags:  excludedTags,
+		WildcardName: wildcardName,
+		//Include:      workspaceIncludes,
+		//Include:      workspaceIncludes,
 	}
 
 	for {
-		items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
+		items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &workspaceFilterOpts)
 
 		if err != nil {
 			return err
@@ -57,8 +63,11 @@ func workspaceFilter(c tfclient.ClientContexts, w workspaceFilterOptions) error 
 		if items.CurrentPage >= items.TotalPages {
 			break
 		}
-		opts.PageNumber = items.NextPage
+		workspaceFilterOpts.PageNumber = items.NextPage
 	}
-	//spew.Dump(len(allItems))
+
+	fmt.Print(len(allItems))
+
 	return nil
+
 }
