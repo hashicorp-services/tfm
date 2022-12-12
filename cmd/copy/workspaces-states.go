@@ -2,6 +2,7 @@ package copy
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/hashicorp-services/tfe-mig/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
@@ -51,11 +52,11 @@ func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersi
 
 	opts := tfe.StateVersionListOptions{
 		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
-		Organization: c.SourceOrganizationName,
+		Organization: c.DestinationOrganizationName,
 		Workspace:    ws,
 	}
 	for {
-		items, err := c.SourceClient.StateVersions.List(c.SourceContext, &opts)
+		items, err := c.DestinationClient.StateVersions.List(c.DestinationContext, &opts)
 		if err != nil {
 			return nil, err
 		}
@@ -113,6 +114,24 @@ func findDestWorkspaceId() (string, error) {
 	return stateVersionsWsId, err
 }
 
+func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) error {
+	o.AddMessageUserProvided("Creating temp dir to download states from: ", c.SourceHostname)
+
+	o.AddMessageUserProvided("Downloading State file to local host from: ", c.SourceHostname)
+
+	state, err := c.SourceClient.StateVersions.Download(c.SourceContext, downloadUrl)
+	if err != nil {
+		return err
+	}
+
+	if err := os.WriteFile("/Users/joshuatracy/temp-git-edits/go/tfe-migrate/file", state, 0644); err != nil {
+		panic(err)
+	}
+
+	return nil
+	//defer os.RemoveAll(dir)
+}
+
 func copyStates(c tfclient.ClientContexts) error {
 	// Get the source workspaces properties
 	srcWorkspaces, err := discoverSrcWorkspaces(tfclient.GetClientContexts())
@@ -146,6 +165,7 @@ func copyStates(c tfclient.ClientContexts) error {
 			if exists {
 				fmt.Println("State Exists in destination will not migrate", srcstate.Serial)
 			} else {
+				downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
 				srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 					Type:             "",
 					Lineage:          new(string),
