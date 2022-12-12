@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"crypto/md5"
+
 	"github.com/hashicorp-services/tfe-mig/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
@@ -75,6 +77,7 @@ func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersi
 	return destStates, nil
 }
 
+// Check the existence of the state in the destination using the unique serial number
 func doesStateExist(stateSerial int64, s []*tfe.StateVersion) bool {
 	for _, state := range s {
 		if stateSerial == state.Serial {
@@ -114,22 +117,43 @@ func findDestWorkspaceId() (string, error) {
 	return stateVersionsWsId, err
 }
 
-func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) error {
+func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) ([]byte, error) {
 	o.AddMessageUserProvided("Creating temp dir to download states from: ", c.SourceHostname)
 
 	o.AddMessageUserProvided("Downloading State file to local host from: ", c.SourceHostname)
 
+	// Takes download URL from StateVersions.List function and stores state as a []byte type
 	state, err := c.SourceClient.StateVersions.Download(c.SourceContext, downloadUrl)
 	if err != nil {
-		return err
+		return state, err
 	}
 
+	// Need to generate the file name based on workspacename
+	//
+	//
+
+	// Need to store state files in /tmp for unix or /temp for windows
+	//
+	//
+
+	// Writes the state to a provided filename. If file does not exist, os.WriteFile will create it
 	if err := os.WriteFile("/Users/joshuatracy/temp-git-edits/go/tfe-migrate/file", state, 0644); err != nil {
 		panic(err)
 	}
 
-	return nil
+	return state, nil
 	//defer os.RemoveAll(dir)
+}
+
+// Calculate MD5 from the state
+func calculateMD5(state []byte) []byte {
+	data := state
+	md5 := md5.Sum(data)
+
+	fmt.Println("MD5 Calcualted:", md5)
+
+	return md5[:]
+
 }
 
 func copyStates(c tfclient.ClientContexts) error {
@@ -165,11 +189,14 @@ func copyStates(c tfclient.ClientContexts) error {
 			if exists {
 				fmt.Println("State Exists in destination will not migrate", srcstate.Serial)
 			} else {
-				downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
+				state, err := downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
+				calculateMD5(state)
+				// Turn MD5 from []byte to string
+				md5String := string(state)
 				srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 					Type:             "",
 					Lineage:          new(string),
-					MD5:              new(string),
+					MD5:              &md5String,
 					Serial:           &srcstate.Serial,
 					State:            new(string),
 					Force:            new(bool),
