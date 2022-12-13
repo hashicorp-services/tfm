@@ -1,10 +1,10 @@
 package copy
 
 import (
+	"crypto/md5"
+	b64 "encoding/base64"
 	"fmt"
 	"os"
-
-	"crypto/md5"
 
 	"github.com/hashicorp-services/tfe-mig/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
@@ -88,33 +88,14 @@ func doesStateExist(stateSerial int64, s []*tfe.StateVersion) bool {
 }
 
 // Finds the destination Workspace ID of the workspace with a matching name as a workspace in the source
-func findDestWorkspaceId() (string, error) {
-	// Get source workspace details
-	srcWorkspaces, err := discoverSrcWorkspaces(tfclient.GetClientContexts())
+func getWorkspaceId(c tfclient.ClientContexts, ws string) (string, error) {
+	w, err := c.DestinationClient.Workspaces.Read(c.DestinationContext, c.DestinationOrganizationName, ws)
 
-	// Get Dest Workspace details
-	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
-
-	var srcWsName string
-
-	for _, srcworkspace := range srcWorkspaces {
-		srcWsName = srcworkspace.Name
+	if err != nil {
+		return "", err
 	}
 
-	var stateVersionsWsId string
-	var destWsName string
-	var destWsId string
-
-	for _, destworkspace := range destWorkspaces {
-		destWsName = destworkspace.Name
-		destWsId = destworkspace.ID
-
-		if srcWsName == destWsName {
-			stateVersionsWsId = destWsId
-		}
-
-	}
-	return stateVersionsWsId, err
+	return w.ID, nil
 }
 
 func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) ([]byte, error) {
@@ -145,15 +126,14 @@ func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) ([]byte,
 	//defer os.RemoveAll(dir)
 }
 
-// Calculate MD5 from the state
-func calculateMD5(state []byte) []byte {
-	data := state
-	md5 := md5.Sum(data)
+func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) {
+	message := "Uploading State"
 
-	fmt.Println("MD5 Calcualted:", md5)
+	c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
+		Reason: &message,
+	})
 
-	return md5[:]
-
+	fmt.Println("Locking Workspace: ", destWorkspaceId)
 }
 
 func copyStates(c tfclient.ClientContexts) error {
@@ -163,52 +143,72 @@ func copyStates(c tfclient.ClientContexts) error {
 		return errors.Wrap(err, "failed to list Workspaces from source")
 	}
 
+	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
+	if err != nil {
+		return errors.Wrap(err, "failed to list Workspaces from source")
+	}
+
 	for _, srcworkspace := range srcWorkspaces {
+		exists := doesWorkspaceExist(srcworkspace.Name, destWorkspaces)
 
-		destWorkspaceId, err := findDestWorkspaceId()
-		if err != nil {
-			return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace")
-		}
-
-		// Get the source teams properties
-		srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name)
-		if err != nil {
-			return errors.Wrap(err, "failed to list state files for workspace from source")
-		}
-
-		// Get the destination teams properties
-		destStates, err := discoverDestStates(tfclient.GetClientContexts(), srcworkspace.Name)
-		if err != nil {
-			return errors.Wrap(err, "failed to list state files for workspace from destination")
-		}
-
-		// Loop each team in the srcTeams slice, check for the team existence in the destination,
-		// and if a team exists in the destination, then do nothing, else create team in destination.
-		for _, srcstate := range srcStates {
-			exists := doesStateExist(srcstate.Serial, destStates)
-			if exists {
-				fmt.Println("State Exists in destination will not migrate", srcstate.Serial)
-			} else {
-				state, err := downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
-				calculateMD5(state)
-				// Turn MD5 from []byte to string
-				md5String := string(state)
-				srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
-					Type:             "",
-					Lineage:          new(string),
-					MD5:              &md5String,
-					Serial:           &srcstate.Serial,
-					State:            new(string),
-					Force:            new(bool),
-					Run:              &tfe.Run{},
-					JSONState:        new(string),
-					JSONStateOutputs: new(string),
-				})
-				if err != nil {
-					return err
-				}
-				o.AddDeferredMessageRead("Migrated", srcstate.Serial)
+		if exists {
+			destWorkspaceId, err := getWorkspaceId(tfclient.GetClientContexts(), srcworkspace.Name)
+			if err != nil {
+				return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace")
 			}
+
+			fmt.Println("dest ws id is", destWorkspaceId)
+
+			// Get the source teams properties
+			srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name)
+			if err != nil {
+				return errors.Wrap(err, "failed to list state files for workspace from source")
+			}
+
+			// Get the destination teams properties
+			destStates, err := discoverDestStates(tfclient.GetClientContexts(), srcworkspace.Name)
+			if err != nil {
+				return errors.Wrap(err, "failed to list state files for workspace from destination")
+			}
+
+			// Loop each team in the srcTeams slice, check for the team existence in the destination,
+			// and if a team exists in the destination, then do nothing, else create team in destination.
+			for _, srcstate := range srcStates {
+				exists := doesStateExist(srcstate.Serial, destStates)
+				if exists {
+					fmt.Println("State Exists in destination will not migrate", srcstate.Serial)
+				} else {
+					// Download state from source
+					state, err := downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
+
+					// Base64 encode the state as a string
+					stringState := b64.StdEncoding.EncodeToString(state)
+
+					// Get the MD5 hash of the state
+					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
+
+					// Lock the destination workspace
+					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
+					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
+						Type:             "",
+						Lineage:          new(string),
+						MD5:              tfe.String(md5String),
+						Serial:           &srcstate.Serial,
+						State:            tfe.String(stringState),
+						Force:            new(bool),
+						Run:              &tfe.Run{},
+						JSONState:        new(string),
+						JSONStateOutputs: new(string),
+					})
+
+					if err != nil {
+						return err
+					}
+					o.AddDeferredMessageRead("Migrated", srcstate.Serial)
+				}
+			}
+		} else {
+			fmt.Println("Source workspace does not exist in destination")
 		}
 
 	}
