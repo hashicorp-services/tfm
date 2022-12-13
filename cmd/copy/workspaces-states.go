@@ -20,7 +20,7 @@ import (
 // 7. Create MD5 checksum
 // 8. Use the StateVersions.Create to upload state tot destination
 func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
-	o.AddMessageUserProvided("Getting list of states from workspace ", ws)
+	o.AddMessageUserProvided("Getting list of states from source workspace ", ws)
 	srcStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
@@ -49,7 +49,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersio
 }
 
 func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
-	o.AddMessageUserProvided("Getting list of States from Workspace ", ws)
+	o.AddMessageUserProvided("Getting list of States from destination Workspace ", ws)
 	destStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
@@ -99,10 +99,6 @@ func getWorkspaceId(c tfclient.ClientContexts, ws string) (string, error) {
 }
 
 func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) ([]byte, error) {
-	o.AddMessageUserProvided("Creating temp dir to download states from: ", c.SourceHostname)
-
-	o.AddMessageUserProvided("Downloading State file to local host from: ", c.SourceHostname)
-
 	// Takes download URL from StateVersions.List function and stores state as a []byte type
 	state, err := c.SourceClient.StateVersions.Download(c.SourceContext, downloadUrl)
 	if err != nil {
@@ -204,11 +200,13 @@ func copyStates(c tfclient.ClientContexts) error {
 					if err != nil {
 						return err
 					}
-					o.AddDeferredMessageRead("Migrated", srcstate.Serial)
+
+					fmt.Printf("Migrated state version %v serial %v for workspace %v\n", srcstate.StateVersion, srcstate.Serial, srcworkspace.Name)
+					//o.AddDeferredMessageRead("Migrated State Serial # ", srcstate.Serial)
 				}
 			}
 		} else {
-			fmt.Printf("Source workspace named %v does not exist in destination", srcworkspace.Name)
+			fmt.Printf("Source workspace named %v does not exist in destination. No states to migrate\n", srcworkspace.Name)
 		}
 
 	}
