@@ -20,7 +20,7 @@ import (
 // 7. Create MD5 checksum
 // 8. Use the StateVersions.Create to upload state tot destination
 func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
-	o.AddMessageUserProvided("Getting list of workspaces states: ", c.SourceHostname)
+	o.AddMessageUserProvided("Getting list of states from workspace ", ws)
 	srcStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
@@ -36,7 +36,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersio
 
 		srcStates = append(srcStates, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d Workspaces states", len(srcStates))
+		o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -49,7 +49,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersio
 }
 
 func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
-	o.AddMessageUserProvided("Getting list of workspaces states: ", c.DestinationHostname)
+	o.AddMessageUserProvided("Getting list of States from Workspace ", ws)
 	destStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
@@ -65,7 +65,7 @@ func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersi
 
 		destStates = append(destStates, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d Workspaces states", len(destStates))
+		o.AddFormattedMessageCalculated("Found %d Workspace states", len(destStates))
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -157,26 +157,26 @@ func copyStates(c tfclient.ClientContexts) error {
 				return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace")
 			}
 
-			fmt.Println("dest ws id is", destWorkspaceId)
+			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing existing States...\n", srcworkspace.Name, srcworkspace.Name, destWorkspaceId)
 
-			// Get the source teams properties
+			// Get the source states
 			srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name)
 			if err != nil {
 				return errors.Wrap(err, "failed to list state files for workspace from source")
 			}
 
-			// Get the destination teams properties
+			// Get the destination
 			destStates, err := discoverDestStates(tfclient.GetClientContexts(), srcworkspace.Name)
 			if err != nil {
 				return errors.Wrap(err, "failed to list state files for workspace from destination")
 			}
 
-			// Loop each team in the srcTeams slice, check for the team existence in the destination,
-			// and if a team exists in the destination, then do nothing, else create team in destination.
+			// Loop each state for each source workspace with a matching workspace name in the destination,
+			// check for the existence of that states serial in destination, upload state if serial doesnt exist
 			for _, srcstate := range srcStates {
 				exists := doesStateExist(srcstate.Serial, destStates)
 				if exists {
-					fmt.Println("State Exists in destination will not migrate", srcstate.Serial)
+					fmt.Printf("State Version %v with Serial %v exists in destination will not migrate\n", srcstate.StateVersion, srcstate.Serial)
 				} else {
 					// Download state from source
 					state, err := downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
@@ -208,7 +208,7 @@ func copyStates(c tfclient.ClientContexts) error {
 				}
 			}
 		} else {
-			fmt.Println("Source workspace does not exist in destination")
+			fmt.Printf("Source workspace named %v does not exist in destination", srcworkspace.Name)
 		}
 
 	}
