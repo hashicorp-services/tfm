@@ -43,14 +43,17 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 		},
 	}
 
+	//get all variables in workspace
 	workspaceVars, err := c.SourceClient.Variables.List(c.SourceContext, sourceWorkspaceID, &variableListOpts )
 
 	if err != nil {
-		fmt.Println("Could not create workspace variable.\n\n Error:", err.Error())
+		fmt.Println("Could not list workspace variables.\n\n Error:", err.Error())
 		return err
 	}
 
 	for _, workspaceVar := range workspaceVars.Items {
+		
+		//gather variables from source workspace. Variables marked as sensitive will be set to "" in the destination
 		variableOpts := tfe.VariableCreateOptions{ 
 			Type: "",
 			Key: &workspaceVar.Key,
@@ -61,7 +64,9 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 			Sensitive: &workspaceVar.Sensitive,
 		}
 		
+		//Create the variable
 		_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
+		
 		if err != nil {
 			fmt.Println("Could not create Workspace variable.\n\n Error:", err.Error())
 			return err
