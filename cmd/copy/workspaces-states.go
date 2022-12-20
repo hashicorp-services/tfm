@@ -16,9 +16,12 @@ import (
 // 3. Compare state serials between 2 workspaces
 // 4. Get the WS ID of the WS Name to copy state too
 // 5. Get the download URL of the source state
-// 6. Download the State
+// 6. Download the State into memory
 // 7. Create MD5 checksum
-// 8. Use the StateVersions.Create to upload state tot destination
+// 8. Incremenet the serial #
+// 9. Lock the workspace if not locked
+// 10. Use the StateVersions.Create to upload state to destination
+// 11. Unlock the workspace if locked
 func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
 	o.AddMessageUserProvided("Getting list of states from source workspace ", ws)
 	srcStates := []*tfe.StateVersion{}
@@ -122,14 +125,34 @@ func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) ([]byte,
 	//defer os.RemoveAll(dir)
 }
 
-func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) {
+func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 	message := "Uploading State"
 
-	c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
-		Reason: &message,
-	})
+	wsProperties, err := c.DestinationClient.Workspaces.ReadByID(c.DestinationContext, destWorkspaceId)
+	if err != nil {
+		return err
+	}
 
-	fmt.Println("Locking Workspace: ", destWorkspaceId)
+	if wsProperties.Locked == false {
+		c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
+			Reason: &message,
+		})
+		fmt.Println("Locking Workspace: ", destWorkspaceId)
+	}
+	return nil
+}
+
+func unlockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
+	wsProperties, err := c.DestinationClient.Workspaces.ReadByID(c.DestinationContext, destWorkspaceId)
+	if err != nil {
+		return err
+	}
+
+	if wsProperties.Locked == true {
+		c.DestinationClient.Workspaces.Unlock(c.DestinationContext, destWorkspaceId)
+		fmt.Println("Unlocking Workspace: ", destWorkspaceId)
+	}
+	return nil
 }
 
 func copyStates(c tfclient.ClientContexts) error {
@@ -174,6 +197,7 @@ func copyStates(c tfclient.ClientContexts) error {
 				if exists {
 					fmt.Printf("State Version %v with Serial %v exists in destination will not migrate\n", srcstate.StateVersion, srcstate.Serial)
 				} else {
+
 					// Download state from source
 					state, err := downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
 
@@ -183,13 +207,22 @@ func copyStates(c tfclient.ClientContexts) error {
 					// Get the MD5 hash of the state
 					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
 
+					newSerial := int64(0)
+
+					currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)
+
+					if currentState != nil {
+						newSerial = currentState.Serial + 1
+					}
+
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
+					fmt.Printf("Migrating state version %v serial %v for workspace %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name)
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 						Type:             "",
 						Lineage:          new(string),
 						MD5:              tfe.String(md5String),
-						Serial:           &srcstate.Serial,
+						Serial:           &newSerial,
 						State:            tfe.String(stringState),
 						Force:            new(bool),
 						Run:              &tfe.Run{},
@@ -201,14 +234,13 @@ func copyStates(c tfclient.ClientContexts) error {
 						return err
 					}
 
-					fmt.Printf("Migrated state version %v serial %v for workspace %v\n", srcstate.StateVersion, srcstate.Serial, srcworkspace.Name)
-					//o.AddDeferredMessageRead("Migrated State Serial # ", srcstate.Serial)
+					o.AddDeferredMessageRead("Migrated State Serial # ", srcstate.Serial)
 				}
 			}
+			unlockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 		} else {
 			fmt.Printf("Source workspace named %v does not exist in destination. No states to migrate\n", srcworkspace.Name)
 		}
-
 	}
 	return nil
 }
