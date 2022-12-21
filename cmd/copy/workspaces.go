@@ -13,6 +13,8 @@ import (
 
 var (
 	state bool
+	//vars  bool
+	//teamaccess bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -27,6 +29,12 @@ var (
 			case state:
 				return copyStates(tfclient.GetClientContexts())
 			}
+			//case vars:
+			//return variableCopy(tfclient.GetClientContexts())
+			//}
+			//case teamaccess:
+			//return copyTeamAccess(tfclient.GetClientContexts())
+			//}
 			return copyWorkspaces(
 				tfclient.GetClientContexts())
 		},
@@ -44,6 +52,8 @@ func init() {
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
 	workspacesCopyCmd.Flags().BoolP("vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "s", false, "Copy workspace states")
+	//workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "v", false, "Copy workspace vars")
+	//workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "ta", false, "Copy workspace Team Access")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
