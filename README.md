@@ -63,4 +63,4 @@ go run . -v
 
 ## Reporting Issues
 
-If you believe you have found a defect in `tfm` or its documentation, use the [GitHub issue tracker](https://github.com/hashicorp-services/tfmrate/issues) to report the problem to the `tfm` maintainers.
+If you believe you have found a defect in `tfm` or its documentation, use the [GitHub issue tracker](https://github.com/hashicorp-services/tfm/issues) to report the problem to the `tfm` maintainers.

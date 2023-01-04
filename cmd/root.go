@@ -52,7 +52,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:              "tfmrate",
+	Use:              "tfm",
 	Short:            "A CLI to assist with TFE Migration.",
 	SilenceUsage:     true,
 	SilenceErrors:    true,
@@ -98,7 +98,7 @@ func init() {
 	// viper.BindEnv("source-organization", "SOURCE_ORGANIZATION")
 	// viper.BindEnv("source-token", "SOURCE_TOKEN")
 
-	// Available commands required after "tfmrate"
+	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
 	RootCmd.AddCommand(list.ListCmd)
 	// Turn off completion option
