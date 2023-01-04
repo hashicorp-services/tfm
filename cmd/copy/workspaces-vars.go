@@ -3,37 +3,10 @@ package copy
 
 import (
 	"fmt"
-	"github.com/hashicorp-services/tfe-mig/tfclient"
+	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
-	//"github.com/spf13/cobra"
 )
 
-/*
-var (
-
-	// `tfemigrate copy workspaces` command
-	variableCopyCmd = &cobra.Command{
-		Use:     "var",
-		Aliases: []string{"var"},
-		Short:   "Copy Variables",
-		Long:    "Copy Variables from source to destination workspace",
-		Run: func(cmd *cobra.Command, args []string) {
-			variableCopyHelper(tfclient.GetClientContexts())
-
-		},
-	}
-)
-
-func init() {
-	CopyCmd.AddCommand(variableCopyCmd)
-}
-
-func variableCopyHelper(c tfclient.ClientContexts) {
-	fmt.Print(variableCopy(c, "ws-VPw9i3fJhi2K5EqM", "ws-4gn2wuKYDJPohw5u"))
-}
-
-*/
-// above is not going to be used except for testing. Function below will be utilized by workspace copy cmd
 func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinationWorkspaceID string) error {
 
 	variableListOpts := tfe.VariableListOptions{
