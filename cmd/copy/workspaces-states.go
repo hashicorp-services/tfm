@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hashicorp-services/tfe-mig/tfclient"
+	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
 )

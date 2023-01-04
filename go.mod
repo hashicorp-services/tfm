@@ -1,4 +1,4 @@
-module github.com/hashicorp-services/tfe-mig
+module github.com/hashicorp-services/tfm
 
 go 1.19
 

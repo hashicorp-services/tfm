@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// `tfe-migrate copy` commands
+// `tfm copy` commands
 var CopyCmd = &cobra.Command{
 	Use:   "copy",
 	Short: "Copy command",

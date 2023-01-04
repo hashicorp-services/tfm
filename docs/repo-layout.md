@@ -12,7 +12,7 @@ Information on how this repository is structured.
 `cmds/` - Directory for all commands/subcommands
 `cmds/submcommand` - each subcommand is placed into it's own directory package
 `cmds/helper_viper.go` - This file creates an easy set of functions to cleanly retrieve flag values regardless of how they were set
-`foo.go` - All the `tfe-mig foo` commands and related functions
+`foo.go` - All the `tfm foo` commands and related functions
 `tfclient` - Package for to setup a `go-tfe` source and destination context to interact with the TFC/TFE APIs. 
 `output` - Package to assist with outputing information for the user. 
  `docs` - Directory for documentation about the tool.
