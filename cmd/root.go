@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp-services/tfe-mig/cmd/copy"
-	"github.com/hashicorp-services/tfe-mig/cmd/list"
-	"github.com/hashicorp-services/tfe-mig/output"
-	"github.com/hashicorp-services/tfe-mig/version"
+	"github.com/hashicorp-services/tfm/cmd/copy"
+	"github.com/hashicorp-services/tfm/cmd/list"
+	"github.com/hashicorp-services/tfm/output"
+	"github.com/hashicorp-services/tfm/version"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -39,7 +39,7 @@ import (
 var (
 	cfgFile string
 	o       *output.Output
-	side string
+	side    string
 
 	// Required to leverage viper defaults for optional Flags
 	bindPFlags = func(cmd *cobra.Command, args []string) {
@@ -52,7 +52,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:              "tfe-migrate",
+	Use:              "tfm",
 	Short:            "A CLI to assist with TFE Migration.",
 	SilenceUsage:     true,
 	SilenceErrors:    true,
@@ -82,7 +82,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfx-src.hcl).")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfm-src.hcl).")
 	RootCmd.PersistentFlags().StringVar(&side, "side", "", "Specify source or destination side to process")
 	// rootCmd.PersistentFlags().String("source-hostname", "", "The source hostname. Can also be set with the environment variable SOURCE_HOSTNAME.")
 	// rootCmd.PersistentFlags().String("source-organization", "", "The source Organization. Can also be set with the environment variable SOURCE_ORGANIZATION.")
@@ -98,7 +98,7 @@ func init() {
 	// viper.BindEnv("source-organization", "SOURCE_ORGANIZATION")
 	// viper.BindEnv("source-token", "SOURCE_TOKEN")
 
-	// Available commands required after "tfe-migrate"
+	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
 	RootCmd.AddCommand(list.ListCmd)
 	// Turn off completion option
@@ -116,11 +116,11 @@ func initConfig() {
 		home, err := homedir.Dir()
 		cobra.CheckErr(err)
 
-		// Search config in current & home directory with name ".tfe-mig" (without extension).
+		// Search config in current & home directory with name ".tfm" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("hcl")
 		viper.AddConfigPath(".")
-		viper.SetConfigName(".tfx.hcl")
+		viper.SetConfigName(".tfm.hcl")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

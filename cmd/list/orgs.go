@@ -23,9 +23,9 @@ package list
 import (
 	"fmt"
 
-	"github.com/hashicorp-services/tfe-mig/cmd/helper"
-	"github.com/hashicorp-services/tfe-mig/output"
-	"github.com/hashicorp-services/tfe-mig/tfclient"
+	"github.com/hashicorp-services/tfm/cmd/helper"
+	"github.com/hashicorp-services/tfm/output"
+	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
@@ -34,7 +34,7 @@ import (
 var (
 	o output.Output
 
-	// `tfe-migrate list organization` command
+	// `tfm list organization` command
 	orgListCmd = &cobra.Command{
 		Use:     "organization",
 		Aliases: []string{"orgs"},
@@ -48,7 +48,7 @@ var (
 		},
 	}
 
-	// `tfe-mig org show org-id` command
+	// `tfm org show org-id` command
 	orgShowCmd = &cobra.Command{
 		Use:   "show",
 		Short: "Show org attributes",
