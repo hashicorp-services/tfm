@@ -12,9 +12,12 @@ import (
 )
 
 var (
-	state      bool
-	vars       bool
-	teamaccess bool
+	state             bool
+	vars              bool
+	teamaccess        bool
+	agents            bool
+	sourcePoolID      string
+	destinationPoolID string
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -32,8 +35,8 @@ var (
 				return copyVariables(tfclient.GetClientContexts())
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
-				//case agents:
-				//return assignAgentPool(tfclient.GetClientContexts()) tfm copy workspaces --agents --source-pool-id x --destination-pool-id
+			case agents:
+				return createAgentPoolAssignment(tfclient.GetClientContexts(), sourcePoolID, destinationPoolID) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
 			}
 			return copyWorkspaces(
 				tfclient.GetClientContexts())
@@ -53,6 +56,10 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "v", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "s", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "t", false, "Copy workspace Team Access")
+	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "g", false, "Assign Agent Pool IDs based on source Pool ID")
+	workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
+	workspacesCopyCmd.Flags().StringVarP(&destinationPoolID, "destination-pool-id", "n", "", "the destination Agent Pool ID (required if agent set)")
+	workspacesCopyCmd.MarkFlagsRequiredTogether("agents", "source-pool-id", "destination-pool-id")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
