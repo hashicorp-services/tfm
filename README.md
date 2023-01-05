@@ -1,5 +1,7 @@
 # tfm
 
+![TFM](images/TFM-black.png)
+
 HashiCorp IS has identified a need to develop a purpose built tool to assist our engagments and customers during a TFE to TFC migration. 
 
 ## Overview
