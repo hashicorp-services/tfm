@@ -32,6 +32,8 @@ var (
 				return copyVariables(tfclient.GetClientContexts())
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
+				//case agents:
+				//return assignAgentPool(tfclient.GetClientContexts()) tfm copy workspaces --agents --source-pool-id x --destination-pool-id
 			}
 			return copyWorkspaces(
 				tfclient.GetClientContexts())
@@ -115,9 +117,9 @@ func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error)
 	return destWorkspaces, nil
 }
 
-// Takes a team name and a slice of teams as type []*tfe.Team and
-// returns true if the team name exists within the provided slice of teams.
-// Used to compare source team names to the destination team names.
+// Takes a workspace name and a slice of workspace as type []*tfe.Workspace and
+// returns true if the workspacee name exists within the provided slice of workspaces.
+// Used to compare source workspace names to the destination workspace names.
 func doesWorkspaceExist(workspaceName string, ws []*tfe.Workspace) bool {
 	for _, w := range ws {
 		if workspaceName == w.Name {

@@ -71,7 +71,7 @@ func copyVariables(c tfclient.ClientContexts) error {
 				return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace")
 			}
 
-			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing existing States...\n", srcworkspace.Name, srcworkspace.Name, destWorkspaceId)
+			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing existing variables...\n", srcworkspace.Name, srcworkspace.Name, destWorkspaceId)
 
 			// Copy Variables from Source to Destination Workspace
 			variableCopy(c, srcworkspace.ID, destWorkspaceId)
