@@ -1,5 +1,7 @@
 # tfm
 
+![TFM](images/TFM-black.png)
+
 HashiCorp IS has identified a need to develop a purpose built tool to assist our engagments and customers during a TFE to TFC migration. 
 
 ## Overview
@@ -21,6 +23,20 @@ sourceToken="<user token from source TFE/TFC with owner permissions>"
 destinationHostname="app.terraform.io"
 destinationOrganization="companyxyz"
 destinationToken="<user token from destination TFE/TFC with owner permissions>"
+```
+
+## Workspace List
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target. 
+
+```hcl
+#List of Workspaces to create/check are migrated across to new TFC
+"workspaces" = [
+  "appAFrontEnd",
+  "appABackEnd",
+  "appBDataLake",
+  "appBInfra"
+]
+
 ```
 
 ### Environment Variables
