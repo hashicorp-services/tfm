@@ -49,19 +49,19 @@ var (
 	}
 
 	// `tfm org show org-id` command
-	orgShowCmd = &cobra.Command{
-		Use:   "show",
-		Short: "Show org attributes",
-		Long:  "Show the attributes of a specific org.",
-		Run: func(cmd *cobra.Command, args []string) {
-			// return orgShow(
-			// 	viper.GetString("name"))
-			fmt.Println(tfclient.Foo())
-		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			o.Close()
-		},
-	}
+	// orgShowCmd = &cobra.Command{
+	// 	Use:   "show",
+	// 	Short: "Show org attributes",
+	// 	Long:  "Show the attributes of a specific org.",
+	// 	Run: func(cmd *cobra.Command, args []string) {
+	// 		// return orgShow(
+	// 		// 	viper.GetString("name"))
+	// 		fmt.Println(tfclient.Foo())
+	// 	},
+	// 	PostRun: func(cmd *cobra.Command, args []string) {
+	// 		o.Close()
+	// 	},
+	// }
 )
 
 func init() {
@@ -72,13 +72,13 @@ func init() {
 	orgListCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// `tfe-discover organization show` command
-	orgShowCmd.Flags().Int16P("id", "i", 0, "id of foo.")
-	orgShowCmd.MarkFlagRequired("name")
-	orgShowCmd.Flags().String("name", "n", "name of foo")
+	// orgShowCmd.Flags().Int16P("id", "i", 0, "id of foo.")
+	// orgShowCmd.MarkFlagRequired("name")
+	// orgShowCmd.Flags().String("name", "n", "name of foo")
 
 	// Add commands
 	ListCmd.AddCommand(orgListCmd)
-	ListCmd.AddCommand(orgShowCmd)
+	// ListCmd.AddCommand(orgShowCmd)
 
 }
 

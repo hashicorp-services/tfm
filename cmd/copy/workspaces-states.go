@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	b64 "encoding/base64"
 	"fmt"
-	"os"
 
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
@@ -117,9 +116,9 @@ func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) ([]byte,
 	//
 
 	// Writes the state to a provided filename. If file does not exist, os.WriteFile will create it
-	if err := os.WriteFile("/Users/joshuatracy/temp-git-edits/go/tfe-migrate/file", state, 0644); err != nil {
-		panic(err)
-	}
+	// if err := os.WriteFile("/Users/joshuatracy/temp-git-edits/go/tfe-migrate/file", state, 0644); err != nil {
+	// 	panic(err)
+	// }
 
 	return state, nil
 	//defer os.RemoveAll(dir)
