@@ -1,11 +1,10 @@
 package copy
 
 import (
-	"fmt"
-
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 )
 
 // All functions related to copying/assigning agent pools to workspaces
@@ -34,12 +33,17 @@ func assignAgentPool(c tfclient.ClientContexts, org string, destPoolId string, w
 		return nil, err
 	}
 
-	fmt.Printf("Agent Pool ID %v added to to workspace %v", destPoolId, workspace)
-
 	return workspace, nil
 }
 
-func createAgentPoolAssignment(c tfclient.ClientContexts, userProvidedSrcPoolId string, destPoolId string) error {
+func createAgentPoolAssignment(c tfclient.ClientContexts) error {
+
+	// Get Workspaces from Config
+	srcAgentPoolsCfg := viper.GetStringSlice("srcagentpool")
+	destAgentPoolsCfg := viper.GetStringSlice("destagentpool")
+
+	o.AddFormattedMessageCalculated("Found %d source agent pools in Configuration", len(srcAgentPoolsCfg))
+	o.AddFormattedMessageCalculated("Found %d destination agent pools in Configuration", len(destAgentPoolsCfg))
 
 	// Get the source workspaces properties
 	srcWorkspaces, err := discoverSrcWorkspaces(c)
@@ -52,14 +56,21 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, userProvidedSrcPoolId 
 	// the user provided agent pool ID that exists in the destination.
 	for _, ws := range srcWorkspaces {
 		isagent := checkExecution(c, ws)
-		if isagent {
-			fmt.Printf("source agent pool id is %v and user provided pool id is %v", ws.AgentPoolID, userProvidedSrcPoolId)
-			if ws.AgentPoolID == userProvidedSrcPoolId {
-				fmt.Printf("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", ws.Name, destPoolId)
-				assignAgentPool(c, c.DestinationOrganizationName, destPoolId, ws.Name)
-			}
-		} else {
+
+		if !isagent {
 			o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
+		} else {
+			if ws.AgentPool != nil {
+				if ws.AgentPool.ID != srcAgentPoolsCfg[0] {
+					o.AddMessageUserProvided("Assigned Agent Pool ID does not match the user provided ID: ", srcAgentPoolsCfg[0])
+				} else {
+					o.AddFormattedMessageUserProvided2("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", ws.Name, destAgentPoolsCfg[0])
+					assignAgentPool(c, c.DestinationOrganizationName, destAgentPoolsCfg[0], ws.Name)
+				}
+			} else {
+				o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
+			}
+
 		}
 	}
 	return nil
