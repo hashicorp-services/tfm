@@ -52,7 +52,7 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 
 func copyVariables(c tfclient.ClientContexts) error {
 	// Get the source workspaces properties
-	srcWorkspaces, err := discoverSrcWorkspaces(tfclient.GetClientContexts())
+	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
 		return errors.Wrap(err, "failed to list Workspaces from source")
 	}
