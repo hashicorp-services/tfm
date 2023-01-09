@@ -94,7 +94,48 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 	return srcWorkspaces, nil
 }
 
-func getSrcWorkspaces(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
+func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
+	// Get Workspaces from Config
+	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
+	var srcWorkspaces []*tfe.Workspace
+
+	o.AddFormattedMessageCalculated("Found %d Workspaces in Configuration", len(srcWorkspacesCfg))
+	var err error
+	// If not workspaces found in config, default to just assume all workspaces from source will be chosen
+	if len(srcWorkspacesCfg) > 0 {
+		// use config workspaces
+		fmt.Println("Using workspaces config list:", srcWorkspacesCfg)
+
+		//get source workspaces
+		srcWorkspaces, err = getSrcWorkspacesFilter(tfclient.GetClientContexts(), srcWorkspacesCfg)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to list teams from source")
+		}
+
+	} else {
+		// Get ALL source workspaces
+		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to list teams from source")
+		}
+	}
+
+	// Check Workspaces exist in source from config
+	for _, s := range srcWorkspacesCfg {
+		fmt.Println("\nFound Workspace in config:", s, " exists in", viper.GetString("sourceHostname"))
+		exists := doesWorkspaceExist(s, srcWorkspaces)
+		if !exists {
+			fmt.Printf("Defined Workspace in Config %s does not exist in %s", s, viper.GetString("sourceHostname"))
+			break
+		}
+	}
+
+	return srcWorkspaces, nil
+
+}
+
+
+func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
 	o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 	
@@ -126,6 +167,40 @@ func getSrcWorkspaces(c tfclient.ClientContexts, wsList []string) ([]*tfe.Worksp
 	}
 
 	return srcWorkspaces, nil
+}
+
+func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
+	o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+	dstWorkspaces := []*tfe.Workspace{}
+	
+	fmt.Println("Workspace list from config:", wsList)
+
+	for _, ws := range wsList {
+
+		for {
+			opts := tfe.WorkspaceListOptions{
+				ListOptions: tfe.ListOptions{
+					PageNumber: 1,
+					PageSize:   100},
+					Search: ws,
+			}
+	
+			items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts) // This should only return 1 result
+			if err != nil {
+				return nil, err
+			}
+	
+			dstWorkspaces = append(dstWorkspaces, items.Items...)
+		
+			if items.CurrentPage >= items.TotalPages {
+				break
+			}
+			opts.PageNumber = items.NextPage
+
+		}
+	}
+
+	return dstWorkspaces, nil
 }
 
 func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
@@ -179,38 +254,43 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 
 	// Get Workspaces from Config
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
-	var srcWorkspaces []*tfe.Workspace
 
 	o.AddFormattedMessageCalculated("Found %d Workspaces in Configuration", len(srcWorkspacesCfg))
-	var err error
-	// If not workspaces found in config, default to just assume all workspaces from source will be chosen
-	if len(srcWorkspacesCfg) > 0 {
-		// use config workspaces
-		fmt.Println("Using workspaces config list:", srcWorkspacesCfg)
 
-		//get source workspaces
-		srcWorkspaces, err = getSrcWorkspaces(tfclient.GetClientContexts(), srcWorkspacesCfg)
-		if err != nil {
-			return errors.Wrap(err, "failed to list teams from source")
-		}
-
-	} else {
-		// Get the source workspaces
-		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
-		if err != nil {
-			return errors.Wrap(err, "failed to list teams from source")
-		}
+	srcWorkspaces, err := getSrcWorkspacesCfg(c)
+	if err != nil {
+		return errors.Wrap(err, "failed to list teams from source")
 	}
+	
+	// var err error
+	// // If not workspaces found in config, default to just assume all workspaces from source will be chosen
+	// if len(srcWorkspacesCfg) > 0 {
+	// 	// use config workspaces
+	// 	fmt.Println("Using workspaces config list:", srcWorkspacesCfg)
 
-	// Check Workspaces exist in source from config
-	for _, s := range srcWorkspacesCfg {
-		fmt.Println("\nFound Workspace in config:", s, " exists in", viper.GetString("sourceHostname"))
-		exists := doesWorkspaceExist(s, srcWorkspaces)
-		if !exists {
-			fmt.Printf("Defined Workspace in Config %s does not exist in %s", s, viper.GetString("sourceHostname"))
-			break
-		}
-	}
+	// 	//get source workspaces
+	// 	srcWorkspaces, err = getSrcWorkspaces(tfclient.GetClientContexts(), srcWorkspacesCfg)
+	// 	if err != nil {
+	// 		return errors.Wrap(err, "failed to list teams from source")
+	// 	}
+
+	// } else {
+	// 	// Get the source workspaces
+	// 	srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
+	// 	if err != nil {
+	// 		return errors.Wrap(err, "failed to list teams from source")
+	// 	}
+	// }
+
+	// // Check Workspaces exist in source from config
+	// for _, s := range srcWorkspacesCfg {
+	// 	fmt.Println("\nFound Workspace in config:", s, " exists in", viper.GetString("sourceHostname"))
+	// 	exists := doesWorkspaceExist(s, srcWorkspaces)
+	// 	if !exists {
+	// 		fmt.Printf("Defined Workspace in Config %s does not exist in %s", s, viper.GetString("sourceHostname"))
+	// 		break
+	// 	}
+	// }
 
 
 	// Get the destination Workspace properties
