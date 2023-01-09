@@ -25,6 +25,7 @@ import (
 	"log"
 
 	"github.com/hashicorp-services/tfm/cmd/copy"
+	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/cmd/list"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/version"
@@ -137,7 +138,7 @@ func initConfig() {
 	postInitCommands(RootCmd.Commands())
 
 	// // Initialize output
-	o = output.New(*ViperBool("json"))
+	o = output.New(*helper.ViperBool("json"))
 
 	// Print if config file was found
 	if isConfigFile {

@@ -1,10 +1,11 @@
 package copy
 
 import (
+	"fmt"
+
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 )
 
 // All functions related to copying/assigning agent pools to workspaces
@@ -36,41 +37,42 @@ func assignAgentPool(c tfclient.ClientContexts, org string, destPoolId string, w
 	return workspace, nil
 }
 
-func createAgentPoolAssignment(c tfclient.ClientContexts) error {
+func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]string) error {
 
-	// Get Workspaces from Config
-	srcAgentPoolsCfg := viper.GetStringSlice("srcagentpool")
-	destAgentPoolsCfg := viper.GetStringSlice("destagentpool")
+	fmt.Println(agentpools)
+	o.AddFormattedMessageCalculated("Found %d agent pool mappings in Configuration", len(agentpools))
 
-	o.AddFormattedMessageCalculated("Found %d source agent pools in Configuration", len(srcAgentPoolsCfg))
-	o.AddFormattedMessageCalculated("Found %d destination agent pools in Configuration", len(destAgentPoolsCfg))
+	for key, element := range agentpools {
+		srcpool := key
+		destpool := element
 
-	// Get the source workspaces properties
-	srcWorkspaces, err := discoverSrcWorkspaces(c)
-	if err != nil {
-		return errors.Wrap(err, "failed to list Workspaces from source while checking source agent pool IDs")
-	}
+		// Get the source workspaces properties
+		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		if err != nil {
+			return errors.Wrap(err, "failed to list Workspaces from source while checking source agent pool IDs")
+		}
 
-	// For each source workspace with an execution mode of "agent", compare the source agent pool ID to the
-	// user provided source pool ID. If they match, update the matching destination workspace with
-	// the user provided agent pool ID that exists in the destination.
-	for _, ws := range srcWorkspaces {
-		isagent := checkExecution(c, ws)
+		// For each source workspace with an execution mode of "agent", compare the source agent pool ID to the
+		// user provided source pool ID. If they match, update the matching destination workspace with
+		// the user provided agent pool ID that exists in the destination.
+		for _, ws := range srcWorkspaces {
+			isagent := checkExecution(c, ws)
 
-		if !isagent {
-			o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
-		} else {
-			if ws.AgentPool != nil {
-				if ws.AgentPool.ID != srcAgentPoolsCfg[0] {
-					o.AddMessageUserProvided("Assigned Agent Pool ID does not match the user provided ID: ", srcAgentPoolsCfg[0])
-				} else {
-					o.AddFormattedMessageUserProvided2("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", ws.Name, destAgentPoolsCfg[0])
-					assignAgentPool(c, c.DestinationOrganizationName, destAgentPoolsCfg[0], ws.Name)
-				}
-			} else {
+			if !isagent {
 				o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
-			}
+			} else {
+				if ws.AgentPool != nil {
+					if ws.AgentPool.ID != srcpool {
+						o.AddFormattedMessageUserProvided2("Workspace %v assigned agent pool ID does not match provided source ID %v. Skipping.", ws.Name, srcpool)
+					} else {
+						o.AddFormattedMessageUserProvided2("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", ws.Name, destpool)
+						assignAgentPool(c, c.DestinationOrganizationName, destpool, ws.Name)
+					}
+				} else {
+					o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
+				}
 
+			}
 		}
 	}
 	return nil
