@@ -1,6 +1,8 @@
 package list
 
 import (
+	"fmt"
+
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
@@ -57,6 +59,7 @@ func listSrcSSHKeys(c tfclient.ClientContexts) error {
 			return err
 		}
 
+		fmt.Println()
 		keys = append(keys, k.Items...)
 
 		o.AddFormattedMessageCalculated("Found %d SSH keys", len(keys))
