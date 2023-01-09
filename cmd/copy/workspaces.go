@@ -252,46 +252,11 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	// This function will only work with a configuration file as we expect the migration to be automated in a pipeline
 	// thus repeatable as migration of workspaces occur.
 
-	// Get Workspaces from Config
-	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
-
-	o.AddFormattedMessageCalculated("Found %d Workspaces in Configuration", len(srcWorkspacesCfg))
-
+	// Get Workspaces from Config OR get ALL workspaces from source
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
 		return errors.Wrap(err, "failed to list teams from source")
 	}
-	
-	// var err error
-	// // If not workspaces found in config, default to just assume all workspaces from source will be chosen
-	// if len(srcWorkspacesCfg) > 0 {
-	// 	// use config workspaces
-	// 	fmt.Println("Using workspaces config list:", srcWorkspacesCfg)
-
-	// 	//get source workspaces
-	// 	srcWorkspaces, err = getSrcWorkspaces(tfclient.GetClientContexts(), srcWorkspacesCfg)
-	// 	if err != nil {
-	// 		return errors.Wrap(err, "failed to list teams from source")
-	// 	}
-
-	// } else {
-	// 	// Get the source workspaces
-	// 	srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
-	// 	if err != nil {
-	// 		return errors.Wrap(err, "failed to list teams from source")
-	// 	}
-	// }
-
-	// // Check Workspaces exist in source from config
-	// for _, s := range srcWorkspacesCfg {
-	// 	fmt.Println("\nFound Workspace in config:", s, " exists in", viper.GetString("sourceHostname"))
-	// 	exists := doesWorkspaceExist(s, srcWorkspaces)
-	// 	if !exists {
-	// 		fmt.Printf("Defined Workspace in Config %s does not exist in %s", s, viper.GetString("sourceHostname"))
-	// 		break
-	// 	}
-	// }
-
 
 	// Get the destination Workspace properties
 	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
