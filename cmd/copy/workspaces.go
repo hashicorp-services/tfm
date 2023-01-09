@@ -2,7 +2,6 @@ package copy
 
 import (
 	"fmt"
-
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
@@ -95,6 +94,40 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 	return srcWorkspaces, nil
 }
 
+func getSrcWorkspaces(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
+	o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+	srcWorkspaces := []*tfe.Workspace{}
+	
+	fmt.Println("Workspace list from config:", wsList)
+
+	for _, ws := range wsList {
+
+		for {
+			opts := tfe.WorkspaceListOptions{
+				ListOptions: tfe.ListOptions{
+					PageNumber: 1,
+					PageSize:   100},
+					Search: ws,
+			}
+	
+			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts) // This should only return 1 result
+			if err != nil {
+				return nil, err
+			}
+	
+			srcWorkspaces = append(srcWorkspaces, items.Items...)
+		
+			if items.CurrentPage >= items.TotalPages {
+				break
+			}
+			opts.PageNumber = items.NextPage
+
+		}
+	}
+
+	return srcWorkspaces, nil
+}
+
 func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
 	destWorkspaces := []*tfe.Workspace{}
@@ -146,19 +179,27 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 
 	// Get Workspaces from Config
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
+	var srcWorkspaces []*tfe.Workspace
 
 	o.AddFormattedMessageCalculated("Found %d Workspaces in Configuration", len(srcWorkspacesCfg))
+	var err error
+	// If not workspaces found in config, default to just assume all workspaces from source will be chosen
+	if len(srcWorkspacesCfg) > 0 {
+		// use config workspaces
+		fmt.Println("Using workspaces config list:", srcWorkspacesCfg)
 
-	// Get the source workspaces properties
-	srcWorkspaces, err := discoverSrcWorkspaces(tfclient.GetClientContexts())
-	if err != nil {
-		return errors.Wrap(err, "failed to list teams from source")
-	}
+		//get source workspaces
+		srcWorkspaces, err = getSrcWorkspaces(tfclient.GetClientContexts(), srcWorkspacesCfg)
+		if err != nil {
+			return errors.Wrap(err, "failed to list teams from source")
+		}
 
-	// Get the destination Workspace properties
-	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
-	if err != nil {
-		return errors.Wrap(err, "failed to list teams from destination")
+	} else {
+		// Get the source workspaces
+		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
+		if err != nil {
+			return errors.Wrap(err, "failed to list teams from source")
+		}
 	}
 
 	// Check Workspaces exist in source from config
@@ -169,6 +210,13 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 			fmt.Printf("Defined Workspace in Config %s does not exist in %s", s, viper.GetString("sourceHostname"))
 			break
 		}
+	}
+
+
+	// Get the destination Workspace properties
+	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
+	if err != nil {
+		return errors.Wrap(err, "failed to list teams from destination")
 	}
 
 	// Loop each team in the srcWorkspaces slice, check for the workspace existence in the destination,
