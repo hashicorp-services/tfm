@@ -88,6 +88,17 @@ func (o Output) AddFormattedMessageCalculated(description string, value interfac
 	fmt.Printf(description+"\n", aurora.Yellow(value))
 }
 
+// Add FORMATTED display information to show progress to terminal users
+// This will be printed immediately for DefaultOutput
+func (o Output) AddFormattedMessageCalculated2(description string, value interface{}, value2 interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Printf(description+"\n", aurora.Yellow(value), aurora.Yellow(value2))
+}
+
 // Adds a message that will not print until Close() is called, to print and align
 // Single primitive Value (string, int, bool)
 func (o *Output) AddDeferredMessageRead(description string, value interface{}) {
