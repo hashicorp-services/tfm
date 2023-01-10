@@ -110,7 +110,7 @@ func discoverDestVariableSets(c tfclient.ClientContexts, output bool) ([]*tfe.Va
 
 func createVariableSets(c tfclient.ClientContexts, variableSet *tfe.VariableSet) (string, error) {
 
-	o.AddMessageUserProvided("Copying variable sets for org:", c.SourceOrganizationName)
+	o.AddFormattedMessageUserProvided2("Copying variable set %v for org %v", variableSet.Name, c.SourceOrganizationName)
 
 	//Create the variable sets
 	varset, err := c.DestinationClient.VariableSets.Create(c.DestinationContext, c.DestinationOrganizationName, &tfe.VariableSetCreateOptions{
@@ -232,7 +232,7 @@ func discoverDestVariableSetVariables(c tfclient.ClientContexts, destVarSetID st
 }
 
 func createVariableSetVars(c tfclient.ClientContexts, destVarSetID string, destVarSetName string, variables *tfe.VariableSetVariable) error {
-	o.AddMessageUserProvided("Copying variables for variable set:", destVarSetName)
+	o.AddFormattedMessageUserProvided2("Copying variable %v for variable set %v", variables.Key, destVarSetName)
 
 	//Create the variables in the variable set
 	vars, err := c.DestinationClient.VariableSetVariables.Create(c.DestinationContext, destVarSetID, &tfe.VariableSetVariableCreateOptions{
@@ -331,6 +331,8 @@ func copyVarSetVars(c tfclient.ClientContexts) error {
 
 		if exists {
 			o.AddFormattedMessageUserProvided2("Variable set named %v exist in org: %v. Checking variables.", set.Name, c.DestinationOrganizationName)
+
+			o.AddDeferredMessageRead("Copied a variable for variable set: ", set.Name)
 
 			srcvariables, err := discoverSrcVariableSetVariables(c, set.ID, set.Name)
 			if err != nil {
