@@ -131,7 +131,7 @@ func vcsListAll(c tfclient.ClientContexts) error {
 			vcsName = *i.Name
 		}
 
-		o.AddTableRows(i.Organization.Name, vcsName, i.ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
+		o.AddTableRows(i.Organization.Name, vcsName, i.OAuthTokens[0].ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
 	}
 
 	return nil
