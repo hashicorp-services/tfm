@@ -46,6 +46,15 @@ func (o *Output) AddMessageUserProvided(description string, value interface{}) {
 	fmt.Println(description, aurora.Green(value))
 }
 
+func (o *Output) AddErrorUserProvided(value string) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(aurora.Red(value))
+}
+
 // Add FORMATTED display information to show progress to terminal users
 // This will be printed immediately for DefaultOutput
 func (o *Output) AddFormattedMessageUserProvided(description string, value interface{}) {
@@ -64,6 +73,15 @@ func (o *Output) AddFormattedMessageUserProvided2(description string, value inte
 	}
 
 	fmt.Printf(description+"\n", aurora.Yellow(value), aurora.Yellow(value2))
+}
+
+func (o *Output) AddFormattedMessageUserProvided3(description string, value interface{}, value2 interface{}, value3 interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Printf(description+"\n", aurora.Yellow(value), aurora.Yellow(value2), aurora.Yellow(value3))
 }
 
 // Add display information to show progress to terminal users

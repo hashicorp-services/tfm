@@ -39,7 +39,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces fro
 
 ```
 
-## Assign Agent Pools
+## Assign Agent Pools to Workspaces
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-agent-pool-ID=destination-agent-pool-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --agents` to look at all workspaces in the source host with the assigned source agent pool ID and assign the matching named workspace in the destination with the mapped destination agent pool ID.
 ```hcl
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID.
@@ -48,6 +48,21 @@ agentpools = [
   "apool-DgzkahoomwHsBHc3=apool-vbrJZKLnPy6aLVx4",
   "apool-DgzkahoomwHsB125=apool-vbrJZKLnPy6adwe3",
   "test=beep"
+]
+```
+
+## Copy Variable Sets
+To copy ALL variable sets from the source to the destination run the command:
+`tfm copy varsets`
+
+To copy only desired variable sets, provide an HCL list in the `.tfm.hcl` configuration file using the snyntax `"source-varset-name=destination-varset-name"`. This list will be converted to a map. tfm will copy only the source variable sets provided on the left side of the `=`. The right side of the `=` can optionally be a different name to allow you to copy the variable set with a new name. Both sides of the `=` must be populated and `varsets-map` cannot be empty if it is defined.
+
+Example configuration file:
+```hcl
+varsets-map = [
+  "Azure-creds=New-Azure-Creds",
+  "aws-creds2=New-AWS-Creds",
+  "SourceVarSet=DestVarSet"
 ]
 ```
 

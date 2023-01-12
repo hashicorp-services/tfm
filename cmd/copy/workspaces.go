@@ -28,9 +28,9 @@ var (
 		//ValidArgs: []string{"state", "vars"},
 		//Args:      cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			agentpools, err := helper.ViperStringSliceMap("agentpools")
+			agentpools, err := helper.ViperStringSliceMap("agentpools-map")
 			if err != nil {
-				return errors.New("invalid input for 'agentpools'")
+				return errors.New("invalid input for 'agentpools-map'")
 			}
 			switch {
 			case state:
