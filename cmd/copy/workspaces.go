@@ -15,6 +15,7 @@ var (
 	vars              bool
 	teamaccess        bool
 	agents            bool
+	vcs 			  bool
 	sourcePoolID      string
 	destinationPoolID string
 
@@ -31,6 +32,10 @@ var (
 			if err != nil {
 				return errors.New("invalid input for 'agentpools'")
 			}
+			vcsIDs, err := helper.ViperStringSliceMap("vcs-map")
+			if err != nil {
+				return errors.New("invalid input for vcs")
+			}
 			switch {
 			case state:
 				return copyStates(tfclient.GetClientContexts())
@@ -40,6 +45,8 @@ var (
 				return copyWsTeamAccess(tfclient.GetClientContexts())
 			case agents:
 				return createAgentPoolAssignment(tfclient.GetClientContexts(), agentpools) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
+			case vcs:
+				return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
 			}
 			return copyWorkspaces(
 				tfclient.GetClientContexts())
@@ -60,7 +67,9 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "s", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "t", false, "Copy workspace Team Access")
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "g", false, "Assign Agent Pool IDs based on source Pool ID")
-	workspacesCopyCmd.Flags().StringSliceP("agnetpools-map", "p", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
+	workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "p", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
+	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "o", false, "Assign VCS Oauth IDs based on source VCS Oauth ID")
+	workspacesCopyCmd.Flags().StringSliceP("vcs-map", "m", []string{}, "Mapping of source vcs oauth id to destination vcs oath id. Can be supplied multiple times. (optional, i.e. '--vcs='oc-UAgBKNE4WNUH4kPM=oc-A324BNKExwefmo13')")
 	//workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.Flags().StringVarP(&destinationPoolID, "destination-pool-id", "n", "", "the destination Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.MarkFlagsRequiredTogether("agents", "source-pool-id", "destination-pool-id")
@@ -305,7 +314,7 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 				TerraformVersion:           &srcworkspace.TerraformVersion,
 				// TriggerPrefixes:            []string{},
 				// TriggerPatterns:            []string{},
-				VCSRepo: &tfe.VCSRepoOptions{},
+				//VCSRepo: &tfe.VCSRepoOptions{},
 				// WorkingDirectory: new(string),
 				Tags: tag,
 			})
