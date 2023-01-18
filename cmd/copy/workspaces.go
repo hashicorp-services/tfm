@@ -148,11 +148,10 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 }
 
-
 func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
 	o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
-	
+
 	fmt.Println("Workspace list from config:", wsList)
 
 	for _, ws := range wsList {
@@ -162,16 +161,16 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 				ListOptions: tfe.ListOptions{
 					PageNumber: 1,
 					PageSize:   100},
-					Search: ws,
+				Search: ws,
 			}
-	
+
 			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts) // This should only return 1 result
 			if err != nil {
 				return nil, err
 			}
-	
+
 			srcWorkspaces = append(srcWorkspaces, items.Items...)
-		
+
 			if items.CurrentPage >= items.TotalPages {
 				break
 			}
@@ -186,7 +185,7 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
 	o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
 	dstWorkspaces := []*tfe.Workspace{}
-	
+
 	fmt.Println("Workspace list from config:", wsList)
 
 	for _, ws := range wsList {
@@ -196,16 +195,16 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 				ListOptions: tfe.ListOptions{
 					PageNumber: 1,
 					PageSize:   100},
-					Search: ws,
+				Search: ws,
 			}
-	
+
 			items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts) // This should only return 1 result
 			if err != nil {
 				return nil, err
 			}
-	
+
 			dstWorkspaces = append(dstWorkspaces, items.Items...)
-		
+
 			if items.CurrentPage >= items.TotalPages {
 				break
 			}
