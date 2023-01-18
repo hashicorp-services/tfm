@@ -15,7 +15,7 @@ var (
 	vars              bool
 	teamaccess        bool
 	agents            bool
-	vcs 			  bool
+	vcs               bool
 	sourcePoolID      string
 	destinationPoolID string
 
@@ -285,6 +285,7 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 
 		// Copy tags over
 		var tag []*tfe.Tag
+		workspaceSource := "tfm"
 
 		for _, t := range srcworkspace.TagNames {
 			tag = append(tag, &tfe.Tag{Name: t})
@@ -295,27 +296,27 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 		} else {
 			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
-				// AgentPoolID:        new(string),
-				AllowDestroyPlan: &srcworkspace.AllowDestroyPlan,
-				// AssessmentsEnabled: new(bool),
-				// AutoApply:          new(bool),
-				Description:   &srcworkspace.Description,
-				ExecutionMode: &srcworkspace.ExecutionMode,
-				// FileTriggersEnabled:        new(bool),
-				// GlobalRemoteState:          new(bool),
-				// MigrationEnvironment:       new(string),
-				Name: &srcworkspace.Name,
-				// QueueAllRuns:               new(bool),
-				// SpeculativeEnabled:         new(bool),
-				// SourceName:                 new(string),
-				// SourceURL:                  &srcworkspace.SourceURL,
+				// AgentPoolID:        new(string), covered with `assignAgentPool` function
+				AllowDestroyPlan:    &srcworkspace.AllowDestroyPlan,
+				AssessmentsEnabled:  &srcworkspace.AssessmentsEnabled,
+				AutoApply:           &srcworkspace.AutoApply,
+				Description:         &srcworkspace.Description,
+				ExecutionMode:       &srcworkspace.ExecutionMode,
+				FileTriggersEnabled: &srcworkspace.FileTriggersEnabled,
+				GlobalRemoteState:   &srcworkspace.GlobalRemoteState,
+				// MigrationEnvironment:       new(string), legacy usage only will not add
+				Name:               &srcworkspace.Name,
+				QueueAllRuns:       &srcworkspace.QueueAllRuns,
+				SpeculativeEnabled: &srcworkspace.SpeculativeEnabled,
+				SourceName:         &workspaceSource, // beta may remove
+				// SourceURL:                  &srcworkspace.SourceURL, // beta
 				StructuredRunOutputEnabled: &srcworkspace.StructuredRunOutputEnabled,
 				TerraformVersion:           &srcworkspace.TerraformVersion,
-				// TriggerPrefixes:            []string{},
-				// TriggerPatterns:            []string{},
-				//VCSRepo: &tfe.VCSRepoOptions{},
-				// WorkingDirectory: new(string),
-				Tags: tag,
+				TriggerPrefixes:            srcworkspace.TriggerPrefixes,
+				TriggerPatterns:            srcworkspace.TriggerPatterns,
+				//VCSRepo: &tfe.VCSRepoOptions{}, covered with `configureVCSsettings` function`
+				WorkingDirectory: &srcworkspace.WorkingDirectory,
+				Tags:             tag,
 			})
 			if err != nil {
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
