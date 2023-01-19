@@ -156,7 +156,7 @@ func unlockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 
 func copyStates(c tfclient.ClientContexts) error {
 	// Get the source workspaces properties
-	srcWorkspaces, err := discoverSrcWorkspaces(tfclient.GetClientContexts())
+	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
 		return errors.Wrap(err, "failed to list Workspaces from source")
 	}
