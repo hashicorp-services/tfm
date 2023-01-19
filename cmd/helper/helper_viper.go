@@ -49,6 +49,17 @@ func ViperStringSliceMap(flag string) (map[string]string, error) {
 			return nil, errors.New("invalid env var or configuration file.")
 		}
 		m[s[0]] = s[1]
+		s1 := s[0]
+		s2 := s[1]
+
+		if s1 == "" {
+			return m, errors.New("invalid input provided on left side of a mapping inside the configuration file")
+		}
+
+		if s2 == "" {
+			return m, errors.New("invalid input provided on right side of a mapping inside the configuration file")
+		}
+
 	}
 	return m, nil
 }
@@ -67,6 +78,14 @@ func ViperMapKeyValuePair(flag string) (string, string, error) {
 		}
 		s1 := s[0]
 		s2 := s[1]
+
+		if s1 == "" {
+			return "", "", errors.New("invalid source provided on varsets-map left side")
+		}
+
+		if s2 == "" {
+			return "", "", errors.New("invalid destination provided on varsets-map right side")
+		}
 
 		return s1, s2, nil
 	}

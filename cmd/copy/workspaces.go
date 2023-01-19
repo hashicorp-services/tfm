@@ -30,7 +30,7 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			agentpools, err := helper.ViperStringSliceMap("agentpools-map")
 			if err != nil {
-				return errors.New("invalid input for 'agentpools'")
+				return errors.New("invalid input for 'agentpools-map'")
 			}
 			vcsIDs, err := helper.ViperStringSliceMap("vcs-map")
 			if err != nil {
