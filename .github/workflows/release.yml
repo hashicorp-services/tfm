@@ -1,0 +1,64 @@
+name: Release `tfm`
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'tfm version number'
+        required: true
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      #Need to fix, using code version not workflow version
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux darwin windows" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm2/version.Version=${{ github.event.inputs.version }}' -X 'github.com/hashicorp-services/tfm2/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm2/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm2/version.BuiltBy=github'" \
+            -arch="amd64 arm64" \
+            -output "./pkg/tfm-{{.OS}}-{{.Arch}}" \
+            .
+
+      - name: Print version
+        run: ./pkg/tfm-linux-amd64 --version
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: tfm-artifacts
+          path: ./pkg/*     
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: |
+            ./pkg/tfm-darwin-amd64
+            ./pkg/tfm-darwin-arm64
+            ./pkg/tfm-linux-amd64
+            ./pkg/tfm-windows-amd64.exe
+
