@@ -32,12 +32,11 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install zip -q
 
-      #Need to fix, using code version not workflow version
       - name: Cross compile
         run: |
           gox \
             -os="linux darwin windows" \
-            -ldflags="-X 'github.com/hashicorp-services/tfm2/version.Version=${{ github.event.inputs.version }}' -X 'github.com/hashicorp-services/tfm2/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm2/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm2/version.BuiltBy=github'" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Version=${{ github.event.inputs.version }}' -X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
             -arch="amd64 arm64" \
             -output "./pkg/tfm-{{.OS}}-{{.Arch}}" \
             .
