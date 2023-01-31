@@ -2,7 +2,7 @@
 
 ![TFM](images/TFM-black.png)
 
-HashiCorp IS has identified a need to develop a purpose built tool to assist our engagments and customers during a TFE to TFC migration. 
+HashiCorp IS has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
 
 ## Overview
 
@@ -30,7 +30,8 @@ destinationToken="<user token from destination TFE/TFC with owner permissions>"
 ```
 
 ## Workspace List
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target. 
+
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target.
 
 ```hcl
 #List of Workspaces to create/check are migrated across to new TFC
@@ -44,7 +45,9 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces fro
 ```
 
 ## Assign Agent Pools to Workspaces
+
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-agent-pool-ID=destination-agent-pool-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --agents` to look at all workspaces in the source host with the assigned source agent pool ID and assign the matching named workspace in the destination with the mapped destination agent pool ID.
+
 ```hcl
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID.
 agentpools-map = [
@@ -55,14 +58,15 @@ agentpools-map = [
 ]
 ```
 
-
 ## Copy Variable Sets
+
 To copy ALL variable sets from the source to the destination run the command:
 `tfm copy varsets`
 
 To copy only desired variable sets, provide an HCL list in the `.tfm.hcl` configuration file using the snyntax `"source-varset-name=destination-varset-name"`. This list will be converted to a map. tfm will copy only the source variable sets provided on the left side of the `=`. The right side of the `=` can optionally be a different name to allow you to copy the variable set with a new name. Both sides of the `=` must be populated and `varsets-map` cannot be empty if it is defined.
 
 Example configuration file:
+
 ```hcl
 varsets-map = [
   "Azure-creds=New-Azure-Creds",
@@ -71,8 +75,10 @@ varsets-map = [
  ]
  ```
 
-## Assign VCS 
+## Assign VCS
+
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-vcs-oauth-ID=destination-vcs-oauth-id-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --vcs` to look at all workspaces in the source host with the assigned source agent pool ID and assign the matching named workspace in the destination with the mapped destination agent pool ID.
+
 ```hcl
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID.
 vcs-map=[
@@ -119,6 +125,18 @@ make build-local
 ```bash
 go run . -v
 ```
+
+## To release
+
+To create a new release of TFM
+
+Use GitHub Action `Release tfm`
+Specify a version number. Please follow semantic versioning for the release.
+This action will do the following steps
+
+- Compile TFM for Linux, Mac, Windows with amd64 and arm64 versions
+- upload the artifacts
+- create a new release + tag on the repo at the current main
 
 ## Reporting Issues
 
