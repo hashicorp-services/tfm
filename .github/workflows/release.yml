@@ -1,4 +1,4 @@
-name: Release `tfm`
+name: Release tfm
 
 on:
   workflow_dispatch:
