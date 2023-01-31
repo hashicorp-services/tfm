@@ -6,7 +6,11 @@ HashiCorp IS has identified a need to develop a purpose built tool to assist our
 
 ## Overview
 
-This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows us the ability to offer a standardized offering to our customers. 
+This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows us the ability to offer a standardized offering to our customers.
+
+## Installation
+
+Binaries are created as part of a release, check out the [Release Page](https://github.com/hashicorp-services/tfm/releases) for the latest version.
 
 ## Pre-Requisites
 
