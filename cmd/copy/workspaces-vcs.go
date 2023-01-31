@@ -19,14 +19,14 @@ func checkVCSConnection(c tfclient.ClientContexts, ws *tfe.Workspace) bool {
 }
 
 // Update workspace execution mode to agent and assign an agent pool ID to a workspace.
-//func configureVCSsettings(c tfclient.ClientContexts, org string, vcsSettings *tfe.VCSRepoOptions, ws string) (*tfe.Workspace, error) {
+// func configureVCSsettings(c tfclient.ClientContexts, org string, vcsSettings *tfe.VCSRepoOptions, ws string) (*tfe.Workspace, error) {
 func configureVCSsettings(c tfclient.ClientContexts, org string, vcsOptions tfe.VCSRepoOptions, ws string) (*tfe.Workspace, error) {
 
 	workspaceOptions := tfe.WorkspaceUpdateOptions{
-		Type: "",
+		Type:    "",
 		VCSRepo: &vcsOptions,
 	}
-	
+
 	workspace, err := c.DestinationClient.Workspaces.Update(c.DestinationContext, c.DestinationOrganizationName, ws, workspaceOptions)
 	if err != nil {
 		return nil, err
@@ -64,15 +64,15 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 						o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
 					} else {
 						o.AddFormattedMessageUserProvided2("Updating destination workspace %v VCS Settings and OauthID %v", ws.Name, destvcs)
-					
-						vcsConfig := tfe.VCSRepoOptions {
-							Branch: &ws.VCSRepo.Branch,
-							Identifier: &ws.VCSRepo.Identifier,
+
+						vcsConfig := tfe.VCSRepoOptions{
+							Branch:            &ws.VCSRepo.Branch,
+							Identifier:        &ws.VCSRepo.Identifier,
 							IngressSubmodules: &ws.VCSRepo.IngressSubmodules,
-							OAuthTokenID: &destvcs,
-							TagsRegex: &ws.VCSRepo.TagsRegex,
+							OAuthTokenID:      &destvcs,
+							TagsRegex:         &ws.VCSRepo.TagsRegex,
 						}
-					
+
 						configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, ws.Name)
 					}
 				} else {
