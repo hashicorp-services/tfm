@@ -12,7 +12,7 @@ build-local:
 
 # Updated go packages (will touch go.mod and go.sum)
 update:
-	go get -update
+	go get -u
 	go mod tidy
 
 format:
