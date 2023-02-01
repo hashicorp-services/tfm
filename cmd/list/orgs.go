@@ -69,7 +69,7 @@ func init() {
 	// Flags().StringP, etc... - the "P" gives us the option for a short hand
 
 	// `tfe-discover organization list` command
-	orgListCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
+	//orgListCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// `tfe-discover organization show` command
 	// orgShowCmd.Flags().Int16P("id", "i", 0, "id of foo.")
@@ -83,37 +83,69 @@ func init() {
 }
 
 func orgList(c tfclient.ClientContexts) error {
-	o.AddMessageUserProvided("List of Organizations at: ", c.SourceHostname)
-	allItems := []*tfe.Organization{}
 
+	allItems := []*tfe.Organization{}
 	opts := tfe.OrganizationListOptions{
 		ListOptions: tfe.ListOptions{
 			PageNumber: 1,
 			PageSize:   100},
 	}
 
-	for {
-		items, err := c.SourceClient.Organizations.List(c.SourceContext, &opts)
-		if err != nil {
-			helper.LogError(err, "failed to list orgs")
+	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
+
+		o.AddMessageUserProvided("List of Organizations at: ", c.SourceHostname)
+
+		for {
+			items, err := c.SourceClient.Organizations.List(c.SourceContext, &opts)
+			if err != nil {
+				helper.LogError(err, "failed to list orgs")
+			}
+
+			allItems = append(allItems, items.Items...)
+
+			o.AddFormattedMessageCalculated("Found %d Organizations", len(allItems))
+
+			if items.CurrentPage >= items.TotalPages {
+				break
+			}
+			opts.PageNumber = items.NextPage
 		}
 
-		allItems = append(allItems, items.Items...)
+		o.AddTableHeaders("Name", "Created On", "Email")
+		for _, i := range allItems {
+			cr_created_at := helper.FormatDateTime(i.CreatedAt)
 
-		o.AddFormattedMessageCalculated("Found %d Organizations", len(allItems))
-
-		if items.CurrentPage >= items.TotalPages {
-			break
+			o.AddTableRows(i.Name, cr_created_at, i.Email)
 		}
-		opts.PageNumber = items.NextPage
+	}
+	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+
+		o.AddMessageUserProvided("List of Organizations at: ", c.DestinationHostname)
+
+		for {
+			items, err := c.DestinationClient.Organizations.List(c.DestinationContext, &opts)
+			if err != nil {
+				helper.LogError(err, "failed to list orgs")
+			}
+
+			allItems = append(allItems, items.Items...)
+
+			o.AddFormattedMessageCalculated("Found %d Organizations", len(allItems))
+
+			if items.CurrentPage >= items.TotalPages {
+				break
+			}
+			opts.PageNumber = items.NextPage
+		}
+
+		o.AddTableHeaders("Name", "Created On", "Email")
+		for _, i := range allItems {
+			cr_created_at := helper.FormatDateTime(i.CreatedAt)
+
+			o.AddTableRows(i.Name, cr_created_at, i.Email)
+		}
 	}
 
-	o.AddTableHeaders("Name", "Created On", "Email")
-	for _, i := range allItems {
-		cr_created_at := helper.FormatDateTime(i.CreatedAt)
-
-		o.AddTableRows(i.Name, cr_created_at, i.Email)
-	}
 	return nil
 }
 
