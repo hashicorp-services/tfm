@@ -59,17 +59,17 @@ var (
 
 func init() {
 	// `tfemigrate copy workspaces --all` command
-	workspacesCopyCmd.Flags().BoolP("all", "a", false, "Copy all Workspaces found in configuration file")
+	//workspacesCopyCmd.Flags().BoolP("all", "a", false, "Copy all Workspaces found in configuration file")
 
 	// `tfemigrate copy workspaces --workspace-id [WORKSPACEID]`
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
-	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "v", false, "Copy workspace variables")
-	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "s", false, "Copy workspace states")
-	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "t", false, "Copy workspace Team Access")
-	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "g", false, "Assign Agent Pool IDs based on source Pool ID")
-	workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "p", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
-	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "o", false, "Assign VCS Oauth IDs based on source VCS Oauth ID")
-	workspacesCopyCmd.Flags().StringSliceP("vcs-map", "m", []string{}, "Mapping of source vcs oauth id to destination vcs oath id. Can be supplied multiple times. (optional, i.e. '--vcs='oc-UAgBKNE4WNUH4kPM=oc-A324BNKExwefmo13')")
+	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
+	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
+	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "", false, "Copy workspace Team Access")
+	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Assign Agent Pool IDs based on source Pool ID")
+	workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
+	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Assign VCS Oauth IDs based on source VCS Oauth ID")
+	workspacesCopyCmd.Flags().StringSliceP("vcs-map", "", []string{}, "Mapping of source vcs oauth id to destination vcs oath id. Can be supplied multiple times. (optional, i.e. '--vcs='oc-UAgBKNE4WNUH4kPM=oc-A324BNKExwefmo13')")
 	//workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.Flags().StringVarP(&destinationPoolID, "destination-pool-id", "n", "", "the destination Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.MarkFlagsRequiredTogether("agents", "source-pool-id", "destination-pool-id")

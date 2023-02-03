@@ -33,7 +33,7 @@ func init() {
 	// Flags().StringP, etc... - the "P" gives us the option for a short hand
 
 	// `tfm copy teams all` command
-	teamCopyCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
+	//teamCopyCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// Add commands
 	CopyCmd.AddCommand(teamCopyCmd)
