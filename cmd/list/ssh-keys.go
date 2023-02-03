@@ -35,7 +35,7 @@ func init() {
 	// Flags().StringP, etc... - the "P" gives us the option for a short hand
 
 	// `tfm list ssh all` command
-	sshListCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
+	//sshListCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// Add commands
 	ListCmd.AddCommand(sshListCmd)
@@ -43,7 +43,7 @@ func init() {
 }
 
 func listSrcSSHKeys(c tfclient.ClientContexts) error {
-	o.AddMessageUserProvided("Getting list of SSH keys from: ", c.SourceHostname)
+
 	keys := []*tfe.SSHKey{}
 
 	opts := tfe.SSHKeyListOptions{
@@ -53,28 +53,62 @@ func listSrcSSHKeys(c tfclient.ClientContexts) error {
 		},
 	}
 
-	for {
-		k, err := c.SourceClient.SSHKeys.List(c.SourceContext, c.SourceOrganizationName, &opts)
-		if err != nil {
-			return err
+	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
+
+		o.AddMessageUserProvided("Getting list of SSH keys from: ", c.SourceHostname)
+
+		for {
+			k, err := c.SourceClient.SSHKeys.List(c.SourceContext, c.SourceOrganizationName, &opts)
+			if err != nil {
+				return err
+			}
+
+			fmt.Println()
+			keys = append(keys, k.Items...)
+
+			o.AddFormattedMessageCalculated("Found %d SSH keys", len(keys))
+
+			if k.CurrentPage >= k.TotalPages {
+				break
+			}
+			opts.PageNumber = k.NextPage
+
 		}
+		o.AddTableHeaders("Key Name", "Key ID")
+		for _, i := range keys {
 
-		fmt.Println()
-		keys = append(keys, k.Items...)
+			o.AddTableRows(i.Name, i.ID)
 
-		o.AddFormattedMessageCalculated("Found %d SSH keys", len(keys))
-
-		if k.CurrentPage >= k.TotalPages {
-			break
 		}
-		opts.PageNumber = k.NextPage
-
 	}
-	o.AddTableHeaders("Key Name", "Key ID")
-	for _, i := range keys {
 
-		o.AddTableRows(i.Name, i.ID)
+	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
 
+		o.AddMessageUserProvided("Getting list of SSH keys from: ", c.DestinationHostname)
+
+		for {
+			k, err := c.DestinationClient.SSHKeys.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
+			if err != nil {
+				return err
+			}
+
+			fmt.Println()
+			keys = append(keys, k.Items...)
+
+			o.AddFormattedMessageCalculated("Found %d SSH keys", len(keys))
+
+			if k.CurrentPage >= k.TotalPages {
+				break
+			}
+			opts.PageNumber = k.NextPage
+
+		}
+		o.AddTableHeaders("Key Name", "Key ID")
+		for _, i := range keys {
+
+			o.AddTableRows(i.Name, i.ID)
+
+		}
 	}
 
 	return nil

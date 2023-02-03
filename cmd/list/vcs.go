@@ -73,6 +73,7 @@ func organizationListAll(c tfclient.ClientContexts) ([]*tfe.Organization, error)
 
 		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
+			o.AddMessageUserProvided("Getting list of VCS Providers from from: ", c.SourceHostname)
 			items, err = c.SourceClient.Organizations.List(c.SourceContext, &opts)
 			if err != nil {
 				return nil, err
@@ -85,6 +86,8 @@ func organizationListAll(c tfclient.ClientContexts) ([]*tfe.Organization, error)
 			opts.PageNumber = items.NextPage
 		}
 		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+
+			o.AddMessageUserProvided("Getting list of VCS Providers from from: ", c.DestinationHostname)
 			items, err = c.DestinationClient.Organizations.List(c.DestinationContext, &opts)
 			if err != nil {
 				return nil, err

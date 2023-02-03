@@ -40,7 +40,7 @@ var (
 func init() {
 
 	// `tfm copy varsets all` command
-	varSetCopyCmd.Flags().BoolP("all", "a", false, "Copy all variable sets (optional)")
+	//varSetCopyCmd.Flags().BoolP("all", "a", false, "Copy all variable sets (optional)")
 
 	// Add commands
 	CopyCmd.AddCommand(varSetCopyCmd)
