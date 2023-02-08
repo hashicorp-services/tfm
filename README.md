@@ -130,13 +130,14 @@ go run . -v
 
 To create a new release of TFM
 
-Use GitHub Action `Release tfm`
-Specify a version number. Please follow semantic versioning for the release.
+- Use GitHub Action `Release tfm`
+- Specify a version number. Please follow semantic versioning for the release.
+
 This action will do the following steps
 
 - Compile TFM for Linux, Mac, Windows with amd64 and arm64 versions
-- upload the artifacts
-- create a new release + tag on the repo at the current main
+- Upload the artifacts
+- Create a new release + tag on the repo at the current main
 
 ## Reporting Issues
 
