@@ -19,6 +19,7 @@ var (
 	vcs               bool
 	sourcePoolID      string
 	destinationPoolID string
+	ssh               bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -37,6 +38,10 @@ var (
 			if err != nil {
 				return errors.New("invalid input for vcs")
 			}
+			sshIDs, err := helper.ViperStringSliceMap("ssh-map")
+			if err != nil {
+				return errors.New("invalid input for ssh")
+			}
 			switch {
 			case state:
 				return copyStates(tfclient.GetClientContexts())
@@ -48,6 +53,8 @@ var (
 				return createAgentPoolAssignment(tfclient.GetClientContexts(), agentpools) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
 			case vcs:
 				return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
+			case ssh:
+				return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
 			}
 			return copyWorkspaces(
 				tfclient.GetClientContexts())
@@ -71,6 +78,7 @@ func init() {
 	workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Assign VCS Oauth IDs based on source VCS Oauth ID")
 	workspacesCopyCmd.Flags().StringSliceP("vcs-map", "", []string{}, "Mapping of source vcs oauth id to destination vcs oath id. Can be supplied multiple times. (optional, i.e. '--vcs='oc-UAgBKNE4WNUH4kPM=oc-A324BNKExwefmo13')")
+	workspacesCopyCmd.Flags().StringSliceP("ssh-map", "", []string{}, "Mapping of source ssh id to destination ssh id in .tfm config file")
 	//workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.Flags().StringVarP(&destinationPoolID, "destination-pool-id", "n", "", "the destination Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.MarkFlagsRequiredTogether("agents", "source-pool-id", "destination-pool-id")
