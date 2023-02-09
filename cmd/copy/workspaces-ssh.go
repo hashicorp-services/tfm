@@ -13,17 +13,22 @@ import (
 // Update destination workspace with ssh-key id.
 func configureSSHsettings(c tfclient.ClientContexts, org string, sshId string, ws string) (*tfe.Workspace, error) {
 
-	workspaceSSHOptions := tfe.WorkspaceAssignSSHKeyOptions{
-		Type:    "",
-		SSHKeyID: &sshId,
-	}
-
-	workspace, err := c.DestinationClient.Workspaces.AssignSSHKey(c.DestinationContext, ws, workspaceSSHOptions)
+	workspace, err := c.DestinationClient.Workspaces.Read(c.DestinationContext, c.DestinationOrganizationName, ws)
 	if err != nil {
 		return nil, err
 	}
 
-	return workspace, nil
+	workspaceSSHOptions := tfe.WorkspaceAssignSSHKeyOptions{
+		Type:    "",
+		SSHKeyID: &sshId,
+	}
+	
+	workspaceSSH, err := c.DestinationClient.Workspaces.AssignSSHKey(c.DestinationContext, workspace.ID, workspaceSSHOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	return workspaceSSH, nil
 }
 
 func createSSHConfiguration(c tfclient.ClientContexts, sshConfig map[string]string) error {
@@ -46,22 +51,18 @@ func createSSHConfiguration(c tfclient.ClientContexts, sshConfig map[string]stri
 		// the user provided SSH ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
 
-			if ws.SSHKey.ID != "" {
+			if ws.SSHKey.ID == "" {
 				o.AddMessageUserProvided("No SSH ID Assigned to source Workspace: ", ws.Name)
 			} else {
-				if ws.SSHKey.ID != "" {
-					if ws.SSHKey.ID != srcSsh {
-						o.AddFormattedMessageUserProvided2("Workspace %v configured SSH ID does not match provided source ID %v. Skipping.", ws.Name, srcSsh)
-					} else {
-						o.AddFormattedMessageUserProvided2("Updating destination workspace %v VCS Settings and OauthID %v", ws.Name, destSsh)
-
-						configureSSHsettings(c, c.DestinationOrganizationName, destSsh, ws.ID)
-					}
+				if ws.SSHKey.ID != srcSsh {
+					o.AddFormattedMessageUserProvided2("Workspace %v configured SSH ID does not match provided source ID %v. Skipping.", ws.Name, srcSsh)
 				} else {
-					o.AddMessageUserProvided("No VCS configured to source Workspace: ", ws.Name)
-				}
+					o.AddFormattedMessageUserProvided2("Updating destination workspace %v SSH ID %v", ws.Name, destSsh)
+
+					configureSSHsettings(c, c.DestinationOrganizationName, destSsh, ws.Name)
+					}
+				} 
 			}
 		}
-	}
 	return nil
 }

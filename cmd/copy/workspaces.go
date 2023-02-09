@@ -78,7 +78,7 @@ func init() {
 	workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Assign VCS Oauth IDs based on source VCS Oauth ID")
 	workspacesCopyCmd.Flags().StringSliceP("vcs-map", "", []string{}, "Mapping of source vcs oauth id to destination vcs oath id. Can be supplied multiple times. (optional, i.e. '--vcs='oc-UAgBKNE4WNUH4kPM=oc-A324BNKExwefmo13')")
-	workspacesCopyCmd.Flags().StringSliceP("ssh-map", "", []string{}, "Mapping of source ssh id to destination ssh id in .tfm config file")
+	workspacesCopyCmd.Flags().BoolVarP(&ssh, "ssh", "", false, "Mapping of source ssh id to destination ssh id in .tfm config file")
 	//workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.Flags().StringVarP(&destinationPoolID, "destination-pool-id", "n", "", "the destination Agent Pool ID (required if agent set)")
 	//workspacesCopyCmd.MarkFlagsRequiredTogether("agents", "source-pool-id", "destination-pool-id")
