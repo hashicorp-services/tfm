@@ -51,7 +51,7 @@ func createSSHConfiguration(c tfclient.ClientContexts, sshConfig map[string]stri
 		// the user provided SSH ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
 
-			if ws.SSHKey.ID == "" {
+			if ws.SSHKey == nil {
 				o.AddMessageUserProvided("No SSH ID Assigned to source Workspace: ", ws.Name)
 			} else {
 				if ws.SSHKey.ID != srcSsh {
