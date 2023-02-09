@@ -88,6 +88,19 @@ vcs-map=[
 ]
 ```
 
+## Rename Workspaces in destination during a copy
+
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name. 
+*NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names.*
+
+```hcl
+# A list of source=destination workspace names. TFM will look at each source workspace and recreate the workspace with the specified destination name.
+"workspace-map" = [
+   "tf-demo-workflow=dst-demo-workflow",
+   "api-test=dst-api-test"
+]
+```
+
 ### Environment Variables
 
 If no config file is found, the following environment variables can be set or used to override existing config file values.
