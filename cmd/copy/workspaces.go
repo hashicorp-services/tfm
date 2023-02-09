@@ -187,7 +187,7 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	// Check Workspaces exist in source from config
 	for _, s := range srcWorkspacesCfg {
-		fmt.Println("\nFound Workspace in config:", s, " exists in", viper.GetString("sourceHostname"))
+		fmt.Println("\nFound Workspace ", s, "in config, check if it exists in", viper.GetString("sourceHostname"))
 		exists := doesWorkspaceExist(s, srcWorkspaces)
 		if !exists {
 			fmt.Printf("Defined Workspace in Config %s DOES NOT exist in %s. \n Please validate your configuration.", s, viper.GetString("sourceHostname"))
@@ -322,6 +322,12 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 		return errors.Wrap(err, "failed to list teams from source")
 	}
 
+	// Get/Check if Workspace map exists
+	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+	if err != nil {
+		fmt.Println("invalid input for workspace-map")
+	}
+
 	// Get the destination Workspace properties
 	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
 	if err != nil {
@@ -333,6 +339,7 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	// Most values will be
 	for _, srcworkspace := range srcWorkspaces {
 		exists := doesWorkspaceExist(srcworkspace.Name, destWorkspaces)
+		destWorkSpaceName := srcworkspace.Name
 
 		// Copy tags over
 		var tag []*tfe.Tag
@@ -340,6 +347,13 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 
 		for _, t := range srcworkspace.TagNames {
 			tag = append(tag, &tfe.Tag{Name: t})
+		}
+
+		// Check if Destination Workspace Name to be Change
+		if len(wsMapCfg) > 0 {
+			fmt.Println("Using WS Map:", wsMapCfg)
+			fmt.Println("Source Workspace:", srcworkspace.Name, "\nDestination Workspace:", wsMapCfg[srcworkspace.Name])
+			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
 		if exists {
@@ -356,7 +370,7 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 				FileTriggersEnabled: &srcworkspace.FileTriggersEnabled,
 				GlobalRemoteState:   &srcworkspace.GlobalRemoteState,
 				// MigrationEnvironment:       new(string), legacy usage only will not add
-				Name:               &srcworkspace.Name,
+				Name:               &destWorkSpaceName,
 				QueueAllRuns:       &srcworkspace.QueueAllRuns,
 				SpeculativeEnabled: &srcworkspace.SpeculativeEnabled,
 				SourceName:         &workspaceSource, // beta may remove
