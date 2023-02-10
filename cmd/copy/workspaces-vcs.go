@@ -37,7 +37,7 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 		destvcs := element
 
 		// Get the source workspaces properties
-		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		srcWorkspaces, err := getSrcWorkspacesCfg(c)
 		if err != nil {
 			return errors.Wrap(err, "failed to list Workspaces from source while checking source VCS IDs")
 		}

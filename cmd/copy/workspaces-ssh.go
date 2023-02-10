@@ -41,7 +41,7 @@ func createSSHConfiguration(c tfclient.ClientContexts, sshConfig map[string]stri
 		destSsh := element
 
 		// Get the source workspaces properties
-		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		srcWorkspaces, err := getSrcWorkspacesCfg(c)
 		if err != nil {
 			return errors.Wrap(err, "failed to list Workspaces from source while checking source VCS IDs")
 		}

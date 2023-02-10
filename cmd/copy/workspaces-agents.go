@@ -47,7 +47,7 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]
 		destpool := element
 
 		// Get the source workspaces properties
-		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		srcWorkspaces, err := getSrcWorkspacesCfg(c)
 		if err != nil {
 			return errors.Wrap(err, "failed to list Workspaces from source while checking source agent pool IDs")
 		}
