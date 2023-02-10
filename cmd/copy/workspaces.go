@@ -17,8 +17,8 @@ var (
 	teamaccess        bool
 	agents            bool
 	vcs               bool
-	sourcePoolID      string
-	destinationPoolID string
+	//sourcePoolID      string
+	//destinationPoolID string
 	ssh               bool
 
 	// `tfemigrate copy workspaces` command
@@ -30,9 +30,9 @@ var (
 		//ValidArgs: []string{"state", "vars"},
 		//Args:      cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			agentpools, err := helper.ViperStringSliceMap("agentpools-map")
+			agentPoolsID, err := helper.ViperStringSliceMap("agents-map")
 			if err != nil {
-				return errors.New("invalid input for 'agentpools-map'")
+				return errors.New("invalid input for 'agents'")
 			}
 			vcsIDs, err := helper.ViperStringSliceMap("vcs-map")
 			if err != nil {
@@ -50,7 +50,7 @@ var (
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
 			case agents:
-				return createAgentPoolAssignment(tfclient.GetClientContexts(), agentpools) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
+				return createAgentPoolAssignment(tfclient.GetClientContexts(), agentPoolsID) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
 			case vcs:
 				return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
 			case ssh:
@@ -74,6 +74,8 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "", false, "Copy workspace Team Access")
+	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
+	//workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Mapping of source vcs Oauth ID to destination vcs Oath in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&ssh, "ssh", "", false, "Mapping of source ssh id to destination ssh id in config file")
 	//workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
