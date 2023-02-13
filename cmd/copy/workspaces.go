@@ -338,8 +338,8 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
 	// Most values will be
 	for _, srcworkspace := range srcWorkspaces {
-		exists := doesWorkspaceExist(srcworkspace.Name, destWorkspaces)
 		destWorkSpaceName := srcworkspace.Name
+		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		// Copy tags over
 		var tag []*tfe.Tag
