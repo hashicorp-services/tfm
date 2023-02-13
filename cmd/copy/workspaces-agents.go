@@ -3,6 +3,7 @@ package copy
 import (
 	"fmt"
 
+	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
@@ -52,11 +53,23 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]
 			return errors.Wrap(err, "failed to list Workspaces from source while checking source agent pool IDs")
 		}
 
+		// Get/Check if Workspace map exists
+		wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+		if err != nil {
+			fmt.Println("invalid input for workspace-map")
+		}
+
 		// For each source workspace with an execution mode of "agent", compare the source agent pool ID to the
 		// user provided source pool ID. If they match, update the matching destination workspace with
 		// the user provided agent pool ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
 			isagent := checkExecution(c, ws)
+			destWorkSpaceName := ws.Name
+
+			// Check if Destination Workspace Name to be Change
+			if len(wsMapCfg) > 0 {
+				destWorkSpaceName = wsMapCfg[ws.Name]
+			}
 
 			if !isagent {
 				o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
@@ -65,8 +78,8 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]
 					if ws.AgentPool.ID != srcpool {
 						o.AddFormattedMessageUserProvided2("Workspace %v assigned agent pool ID does not match provided source ID %v. Skipping.", ws.Name, srcpool)
 					} else {
-						o.AddFormattedMessageUserProvided2("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", ws.Name, destpool)
-						assignAgentPool(c, c.DestinationOrganizationName, destpool, ws.Name)
+						o.AddFormattedMessageUserProvided2("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", destWorkSpaceName, destpool)
+						assignAgentPool(c, c.DestinationOrganizationName, destpool, destWorkSpaceName)
 					}
 				} else {
 					o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)

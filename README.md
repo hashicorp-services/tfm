@@ -88,12 +88,24 @@ vcs-map=[
 ]
 ```
 
+## Rename Workspaces in destination during a copy
+
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name. 
+*NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names.*
+
+```hcl
+# A list of source=destination workspace names. TFM will look at each source workspace and recreate the workspace with the specified destination name.
+"workspace-map" = [
+   "tf-demo-workflow=dst-demo-workflow",
+   "api-test=dst-api-test"
+```
+
 ## Assign SSH
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
 
 ```hcl
-# A list of source=destination VCS oauth IDs. TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID.
+# A list of source=destination SSH IDs. TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID.
 ssh-map=[
   "sshkey-sPLAKMcqnWtHPSgx=sshkey-CRLmPJpoHwsNFAoN",
 ]
