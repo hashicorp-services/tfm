@@ -10,14 +10,6 @@ import (
 
 // All functions related to copying/assigning vcs provider to workspaces
 
-// Check workspace properties for execution type.
-func checkVCSConnection(c tfclient.ClientContexts, ws *tfe.Workspace) bool {
-	if ws.VCSRepo.OAuthTokenID != "" {
-		return true
-	}
-	return false
-}
-
 // Update workspace execution mode to agent and assign an agent pool ID to a workspace.
 // func configureVCSsettings(c tfclient.ClientContexts, org string, vcsSettings *tfe.VCSRepoOptions, ws string) (*tfe.Workspace, error) {
 func configureVCSsettings(c tfclient.ClientContexts, org string, vcsOptions tfe.VCSRepoOptions, ws string) (*tfe.Workspace, error) {
@@ -45,7 +37,7 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 		destvcs := element
 
 		// Get the source workspaces properties
-		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		srcWorkspaces, err := getSrcWorkspacesCfg(c)
 		if err != nil {
 			return errors.Wrap(err, "failed to list Workspaces from source while checking source VCS IDs")
 		}
@@ -54,12 +46,10 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 		// user provided source pool ID. If they match, update the matching destination workspace with
 		// the user provided agent pool ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
-			isvcs := checkVCSConnection(c, ws)
 
-			if !isvcs {
+			if ws.VCSRepo == nil {
 				o.AddMessageUserProvided("No VCS ID Assigned to source Workspace: ", ws.Name)
 			} else {
-				if ws.VCSRepo.OAuthTokenID != "" {
 					if ws.VCSRepo.OAuthTokenID != srcvcs {
 						o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
 					} else {
@@ -75,11 +65,9 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 
 						configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, ws.Name)
 					}
-				} else {
-					o.AddMessageUserProvided("No VCS configured to source Workspace: ", ws.Name)
-				}
+				} 
 			}
 		}
-	}
 	return nil
 }
+
