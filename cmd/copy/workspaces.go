@@ -351,11 +351,11 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
 				// AgentPoolID:        new(string), covered with `assignAgentPool` function
-				AllowDestroyPlan:    &srcworkspace.AllowDestroyPlan,
-				AssessmentsEnabled:  &srcworkspace.AssessmentsEnabled,
-				AutoApply:           &srcworkspace.AutoApply,
-				Description:         &srcworkspace.Description,
-				ExecutionMode:       &srcworkspace.ExecutionMode,
+				AllowDestroyPlan:   &srcworkspace.AllowDestroyPlan,
+				AssessmentsEnabled: &srcworkspace.AssessmentsEnabled,
+				AutoApply:          &srcworkspace.AutoApply,
+				Description:        &srcworkspace.Description,
+				//ExecutionMode:       &srcworkspace.ExecutionMode,
 				FileTriggersEnabled: &srcworkspace.FileTriggersEnabled,
 				GlobalRemoteState:   &srcworkspace.GlobalRemoteState,
 				// MigrationEnvironment:       new(string), legacy usage only will not add
