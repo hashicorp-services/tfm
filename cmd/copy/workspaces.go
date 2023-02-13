@@ -12,14 +12,14 @@ import (
 )
 
 var (
-	state             bool
-	vars              bool
-	teamaccess        bool
-	agents            bool
-	vcs               bool
+	state      bool
+	vars       bool
+	teamaccess bool
+	agents     bool
+	vcs        bool
 	//sourcePoolID      string
 	//destinationPoolID string
-	ssh               bool
+	ssh bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -30,10 +30,6 @@ var (
 		//ValidArgs: []string{"state", "vars"},
 		//Args:      cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			agentPoolsID, err := helper.ViperStringSliceMap("agents-map")
-			if err != nil {
-				return errors.New("invalid input for 'agents'")
-			}
 			vcsIDs, err := helper.ViperStringSliceMap("vcs-map")
 			if err != nil {
 				return errors.New("invalid input for vcs")
@@ -50,7 +46,15 @@ var (
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
 			case agents:
-				return createAgentPoolAssignment(tfclient.GetClientContexts(), agentPoolsID) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
+				valid, apoolIDs, err := validateAgentMapping(tfclient.GetClientContexts())
+				if err != nil {
+					return err
+				}
+
+				if valid {
+					return createAgentPoolAssignment(tfclient.GetClientContexts(), apoolIDs) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
+				}
+
 			case vcs:
 				return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
 			case ssh:
