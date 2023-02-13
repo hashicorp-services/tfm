@@ -50,7 +50,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-agent-
 
 ```hcl
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID.
-agentpools-map = [
+agents-map = [
   "apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE",
   "apool-DgzkahoomwHsBHc3=apool-vbrJZKLnPy6aLVx4",
   "apool-DgzkahoomwHsB125=apool-vbrJZKLnPy6adwe3",
@@ -98,6 +98,16 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 "workspace-map" = [
    "tf-demo-workflow=dst-demo-workflow",
    "api-test=dst-api-test"
+```
+
+## Assign SSH
+
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
+
+```hcl
+# A list of source=destination SSH IDs. TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID.
+ssh-map=[
+  "sshkey-sPLAKMcqnWtHPSgx=sshkey-CRLmPJpoHwsNFAoN",
 ]
 ```
 

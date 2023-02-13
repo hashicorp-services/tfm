@@ -11,14 +11,6 @@ import (
 
 // All functions related to copying/assigning vcs provider to workspaces
 
-// Check workspace properties for execution type.
-func checkVCSConnection(c tfclient.ClientContexts, ws *tfe.Workspace) bool {
-	if ws.VCSRepo.OAuthTokenID != "" {
-		return true
-	}
-	return false
-}
-
 // Update workspace execution mode to agent and assign an agent pool ID to a workspace.
 // func configureVCSsettings(c tfclient.ClientContexts, org string, vcsSettings *tfe.VCSRepoOptions, ws string) (*tfe.Workspace, error) {
 func configureVCSsettings(c tfclient.ClientContexts, org string, vcsOptions tfe.VCSRepoOptions, ws string) (*tfe.Workspace, error) {
@@ -61,7 +53,6 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 		// user provided source pool ID. If they match, update the matching destination workspace with
 		// the user provided agent pool ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
-			isvcs := checkVCSConnection(c, ws)
 			destWorkSpaceName := ws.Name
 
 			// Check if Destination Workspace Name to come from Map
@@ -69,27 +60,23 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 				destWorkSpaceName = wsMapCfg[ws.Name]
 			}
 
-			if !isvcs {
+			if ws.VCSRepo == nil {
 				o.AddMessageUserProvided("No VCS ID Assigned to source Workspace: ", ws.Name)
 			} else {
-				if ws.VCSRepo.OAuthTokenID != "" {
-					if ws.VCSRepo.OAuthTokenID != srcvcs {
-						o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
-					} else {
-						o.AddFormattedMessageUserProvided2("Updating destination workspace %v VCS Settings and OauthID %v", destWorkSpaceName, destvcs)
-
-						vcsConfig := tfe.VCSRepoOptions{
-							Branch:            &ws.VCSRepo.Branch,
-							Identifier:        &ws.VCSRepo.Identifier,
-							IngressSubmodules: &ws.VCSRepo.IngressSubmodules,
-							OAuthTokenID:      &destvcs,
-							TagsRegex:         &ws.VCSRepo.TagsRegex,
-						}
-
-						configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, destWorkSpaceName)
-					}
+				if ws.VCSRepo.OAuthTokenID != srcvcs {
+					o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
 				} else {
-					o.AddMessageUserProvided("No VCS configured to source Workspace: ", ws.Name)
+					o.AddFormattedMessageUserProvided2("Updating destination workspace %v VCS Settings and OauthID %v", destWorkSpaceName, destvcs)
+
+					vcsConfig := tfe.VCSRepoOptions{
+						Branch:            &ws.VCSRepo.Branch,
+						Identifier:        &ws.VCSRepo.Identifier,
+						IngressSubmodules: &ws.VCSRepo.IngressSubmodules,
+						OAuthTokenID:      &destvcs,
+						TagsRegex:         &ws.VCSRepo.TagsRegex,
+					}
+
+					configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, destWorkSpaceName)
 				}
 			}
 		}
