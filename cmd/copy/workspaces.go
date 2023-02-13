@@ -327,7 +327,6 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	// Most values will be
 	for _, srcworkspace := range srcWorkspaces {
 		destWorkSpaceName := srcworkspace.Name
-		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		// Copy tags over
 		var tag []*tfe.Tag
@@ -343,6 +342,8 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 			fmt.Println("Source Workspace:", srcworkspace.Name, "\nDestination Workspace:", wsMapCfg[srcworkspace.Name])
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
+
+		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		if exists {
 			fmt.Println("Exists in destination will not migrate", srcworkspace.Name)
