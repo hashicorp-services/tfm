@@ -3,6 +3,7 @@ package copy
 import (
 	"fmt"
 
+	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
@@ -45,9 +46,15 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 		destvcs := element
 
 		// Get the source workspaces properties
-		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		srcWorkspaces, err := getSrcWorkspacesCfg(c)
 		if err != nil {
 			return errors.Wrap(err, "failed to list Workspaces from source while checking source VCS IDs")
+		}
+
+		// Get/Check if Workspace map exists
+		wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+		if err != nil {
+			fmt.Println("invalid input for workspace-map")
 		}
 
 		// For each source workspace with an execution mode of "agent", compare the source agent pool ID to the
@@ -55,6 +62,12 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 		// the user provided agent pool ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
 			isvcs := checkVCSConnection(c, ws)
+			destWorkSpaceName := ws.Name
+
+			// Check if Destination Workspace Name to come from Map
+			if len(wsMapCfg) > 0 {
+				destWorkSpaceName = wsMapCfg[ws.Name]
+			}
 
 			if !isvcs {
 				o.AddMessageUserProvided("No VCS ID Assigned to source Workspace: ", ws.Name)
@@ -63,7 +76,7 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 					if ws.VCSRepo.OAuthTokenID != srcvcs {
 						o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
 					} else {
-						o.AddFormattedMessageUserProvided2("Updating destination workspace %v VCS Settings and OauthID %v", ws.Name, destvcs)
+						o.AddFormattedMessageUserProvided2("Updating destination workspace %v VCS Settings and OauthID %v", destWorkSpaceName, destvcs)
 
 						vcsConfig := tfe.VCSRepoOptions{
 							Branch:            &ws.VCSRepo.Branch,
@@ -73,7 +86,7 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 							TagsRegex:         &ws.VCSRepo.TagsRegex,
 						}
 
-						configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, ws.Name)
+						configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, destWorkSpaceName)
 					}
 				} else {
 					o.AddMessageUserProvided("No VCS configured to source Workspace: ", ws.Name)
