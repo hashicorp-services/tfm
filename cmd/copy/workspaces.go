@@ -2,6 +2,7 @@ package copy
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -63,8 +64,9 @@ var (
 				if err != nil {
 					return err
 				}
-
-				if valid {
+				if !valid {
+					os.Exit(0)
+				} else {
 					return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
 				}
 			}
