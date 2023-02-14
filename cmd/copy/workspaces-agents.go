@@ -1,34 +1,12 @@
 package copy
 
 import (
-	"fmt"
-
-	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
 )
 
 // All functions related to copying/assigning agent pools to workspaces
-
-// Validate the configuration file map "agents-map"
-func validateAgentMapping(c tfclient.ClientContexts) (bool, map[string]string, error) {
-	apools, err := helper.ViperStringSliceMap("agents-map")
-
-	if err != nil {
-		o.AddErrorUserProvided("Error in 'agents-map' mapping.")
-		return false, apools, err
-	}
-
-	if len(apools) <= 0 {
-		o.AddErrorUserProvided("No 'agents-map' found in configuration file.")
-	} else {
-		o.AddFormattedMessageCalculated("Found %d agent pool mappings in configuration file.", len(apools))
-		return true, apools, nil
-	}
-
-	return false, apools, nil
-}
 
 // Check workspace properties for execution type.
 func checkExecution(c tfclient.ClientContexts, ws *tfe.Workspace) bool {
@@ -58,9 +36,6 @@ func assignAgentPool(c tfclient.ClientContexts, org string, destPoolId string, w
 }
 
 func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]string) error {
-
-	fmt.Println(agentpools)
-	o.AddFormattedMessageCalculated("Found %d agent pool mappings in Configuration", len(agentpools))
 
 	for key, element := range agentpools {
 		srcpool := key

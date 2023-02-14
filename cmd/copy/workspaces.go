@@ -46,7 +46,7 @@ var (
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
 			case agents:
-				valid, apoolIDs, err := validateAgentMapping(tfclient.GetClientContexts())
+				valid, apoolIDs, err := validateMap(tfclient.GetClientContexts(), "agents-map")
 				if err != nil {
 					return err
 				}
