@@ -30,14 +30,7 @@ var (
 		//ValidArgs: []string{"state", "vars"},
 		//Args:      cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			vcsIDs, err := helper.ViperStringSliceMap("vcs-map")
-			if err != nil {
-				return errors.New("invalid input for vcs")
-			}
-			sshIDs, err := helper.ViperStringSliceMap("ssh-map")
-			if err != nil {
-				return errors.New("invalid input for ssh")
-			}
+
 			switch {
 			case state:
 				return copyStates(tfclient.GetClientContexts())
@@ -52,13 +45,28 @@ var (
 				}
 
 				if valid {
-					return createAgentPoolAssignment(tfclient.GetClientContexts(), apoolIDs) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
+					return createAgentPoolAssignment(tfclient.GetClientContexts(), apoolIDs)
 				}
 
 			case vcs:
-				return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
+				valid, vcsIDs, err := validateMap(tfclient.GetClientContexts(), "vcs-map")
+				if err != nil {
+					return err
+				}
+
+				if valid {
+					return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
+				}
+
 			case ssh:
-				return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
+				valid, sshIDs, err := validateMap(tfclient.GetClientContexts(), "ssh-map")
+				if err != nil {
+					return err
+				}
+
+				if valid {
+					return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
+				}
 			}
 			return copyWorkspaces(
 				tfclient.GetClientContexts())
