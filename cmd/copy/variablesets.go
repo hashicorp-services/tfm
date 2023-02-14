@@ -3,7 +3,6 @@ package copy
 import (
 	"fmt"
 
-	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
@@ -18,7 +17,7 @@ var (
 		Short: "Copy Variable Sets",
 		Long:  "Copy Variable Sets from source to destination org",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			valid, varsets, err := validateVarSetMapping(tfclient.GetClientContexts())
+			valid, varsets, err := validateMap(tfclient.GetClientContexts(), "varsets-map")
 			if err != nil {
 				return err
 			}
@@ -39,9 +38,6 @@ var (
 
 func init() {
 
-	// `tfm copy varsets all` command
-	//varSetCopyCmd.Flags().BoolP("all", "a", false, "Copy all variable sets (optional)")
-
 	// Add commands
 	CopyCmd.AddCommand(varSetCopyCmd)
 
@@ -53,24 +49,6 @@ func init() {
 // 3. Get the created destinatin variable set ID and name
 // 4. Get the variable sets variables in the source variable set
 // 5. Recreate the variable sets variables in the destination variable set
-
-func validateVarSetMapping(c tfclient.ClientContexts) (bool, map[string]string, error) {
-	varsets, err := helper.ViperStringSliceMap("varsets-map")
-
-	if err != nil {
-		o.AddErrorUserProvided("Error in 'varsets-map' mapping.")
-		return false, varsets, err
-	}
-
-	if len(varsets) <= 0 {
-		o.AddMessageUserProvided("No 'varsets-map' found in configuration file. Copying all variable sets from source org: ", c.SourceOrganizationName)
-	} else {
-		o.AddFormattedMessageCalculated("Found %d variable set mappings in configuration file.", len(varsets))
-		return true, varsets, nil
-	}
-
-	return false, varsets, nil
-}
 
 func discoverSrcVariableSets(c tfclient.ClientContexts, output bool) ([]*tfe.VariableSet, error) {
 	varSets := []*tfe.VariableSet{}
