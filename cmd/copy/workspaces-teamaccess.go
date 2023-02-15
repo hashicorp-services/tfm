@@ -3,6 +3,7 @@ package copy
 import (
 	"fmt"
 
+	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
@@ -223,6 +224,12 @@ func copyWsTeamAccess(c tfclient.ClientContexts) error {
 		return errors.Wrap(err, "failed to list Workspaces from source")
 	}
 
+	// Get/Check if Workspace map exists
+	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+	if err != nil {
+		fmt.Println("invalid input for workspace-map")
+	}
+
 	// Get the destination workspace properties
 	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
 	if err != nil {
@@ -231,13 +238,19 @@ func copyWsTeamAccess(c tfclient.ClientContexts) error {
 
 	// For each srcworkspace check to see if a workspace with the same name exists in the destination
 	for _, srcworkspace := range srcWorkspaces {
+		destWorkSpaceName := srcworkspace.Name
 
-		if !doesWorkspaceExist(srcworkspace.Name, destWorkspaces) {
+		// Check if Destination Workspace Name to be Change
+		if len(wsMapCfg) > 0 {
+			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
+		}
+
+		if !doesWorkspaceExist(destWorkSpaceName, destWorkspaces) {
 			return errors.New("Workspace not found")
 		}
 
 		// Get the destination workspace ID
-		destWorkspaceId, err := getWorkspaceId(tfclient.GetClientContexts(), srcworkspace.Name)
+		destWorkspaceId, err := getWorkspaceId(tfclient.GetClientContexts(), destWorkSpaceName)
 		if err != nil {
 			return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace")
 		}
@@ -248,7 +261,7 @@ func copyWsTeamAccess(c tfclient.ClientContexts) error {
 			return errors.Wrap(err, "failed to list Team Access for source workspace")
 		}
 
-		destTeamAccess, err := discoverDestWsTeamAccess(tfclient.GetClientContexts(), destWorkspaceId, srcworkspace.Name)
+		destTeamAccess, err := discoverDestWsTeamAccess(tfclient.GetClientContexts(), destWorkspaceId, destWorkSpaceName)
 		if err != nil {
 			return errors.Wrap(err, "failed to list Team Access for dest workspace")
 		}
