@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
@@ -18,9 +17,7 @@ var (
 	teamaccess bool
 	agents     bool
 	vcs        bool
-	//sourcePoolID      string
-	//destinationPoolID string
-	ssh bool
+	ssh        bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -39,26 +36,34 @@ var (
 				return copyVariables(tfclient.GetClientContexts())
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
+
+			// A map is required if the --agents flag is provided. Check for a valid map.
 			case agents:
 				valid, apoolIDs, err := validateMap(tfclient.GetClientContexts(), "agents-map")
 				if err != nil {
 					return err
 				}
 
-				if valid {
+				if !valid {
+					os.Exit(0)
+				} else {
 					return createAgentPoolAssignment(tfclient.GetClientContexts(), apoolIDs)
 				}
 
+			// A map is required if the --vcs flag is provided. Check for a valid map.
 			case vcs:
 				valid, vcsIDs, err := validateMap(tfclient.GetClientContexts(), "vcs-map")
 				if err != nil {
 					return err
 				}
 
-				if valid {
+				if !valid {
+					os.Exit(0)
+				} else {
 					return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
 				}
 
+			// A map is required if the --ssh flag is provided. Check for a valid map.
 			case ssh:
 				valid, sshIDs, err := validateMap(tfclient.GetClientContexts(), "ssh-map")
 				if err != nil {
@@ -89,12 +94,8 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "", false, "Copy workspace Team Access")
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
-	//workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Mapping of source vcs Oauth ID to destination vcs Oath in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&ssh, "ssh", "", false, "Mapping of source ssh id to destination ssh id in config file")
-	//workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
-	//workspacesCopyCmd.Flags().StringVarP(&destinationPoolID, "destination-pool-id", "n", "", "the destination Agent Pool ID (required if agent set)")
-	//workspacesCopyCmd.MarkFlagsRequiredTogether("agents", "source-pool-id", "destination-pool-id")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
@@ -132,6 +133,7 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 
 func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	// Get Workspaces from Config
+
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
 	var srcWorkspaces []*tfe.Workspace
 
@@ -139,20 +141,21 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	var err error
 	// If not workspaces found in config, default to just assume all workspaces from source will be chosen
 	if len(srcWorkspacesCfg) > 0 {
+
 		// use config workspaces
 		fmt.Println("Using workspaces config list:", srcWorkspacesCfg)
 
 		//get source workspaces
 		srcWorkspaces, err = getSrcWorkspacesFilter(tfclient.GetClientContexts(), srcWorkspacesCfg)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to list teams from source")
+			return nil, errors.Wrap(err, "failed to list workspaces from source")
 		}
 
 	} else {
 		// Get ALL source workspaces
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to list teams from source")
+			return nil, errors.Wrap(err, "failed to list workspaces from source")
 		}
 	}
 
@@ -290,18 +293,17 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 	// Get Workspaces from Config OR get ALL workspaces from source
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
-		return errors.Wrap(err, "failed to list teams from source")
+		return errors.Wrap(err, "failed to list workspaces from source")
 	}
 
 	// Get the destination Workspace properties
 	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
 	if err != nil {
-		return errors.Wrap(err, "failed to list teams from destination")
+		return errors.Wrap(err, "failed to list workspaces from destination")
 	}
 
-	// Loop each team in the srcWorkspaces slice, check for the workspace existence in the destination,
+	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
 	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
-	// Most values will be
 	for _, srcworkspace := range srcWorkspaces {
 		exists := doesWorkspaceExist(srcworkspace.Name, destWorkspaces)
 
@@ -348,38 +350,4 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 		}
 	}
 	return nil
-}
-
-func workspaceExists(c tfclient.ClientContexts, ws []string) error {
-	allItems := []*tfe.Workspace{}
-
-	opts := tfe.WorkspaceListOptions{
-		ListOptions: tfe.ListOptions{
-			PageNumber: 1,
-			PageSize:   100},
-	}
-
-	for {
-		items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
-		if err != nil {
-			helper.LogError(err, "failed to list workspace")
-		}
-
-		allItems = append(allItems, items.Items...)
-
-		o.AddFormattedMessageCalculated("Found %d Workspaces", len(allItems))
-
-		if items.CurrentPage >= items.TotalPages {
-			break
-		}
-		opts.PageNumber = items.NextPage
-	}
-
-	o.AddTableHeaders("Name")
-	for _, i := range allItems {
-		o.AddTableRows(i.Name)
-	}
-
-	return nil
-
 }
