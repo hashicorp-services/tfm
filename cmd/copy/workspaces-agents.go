@@ -38,8 +38,10 @@ func assignAgentPool(c tfclient.ClientContexts, org string, destPoolId string, w
 	return workspace, nil
 }
 
+// Main function for --agents flag
 func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]string) error {
 
+	// for each `sourceID=destID` string in the map, define the source agent pool ID and the target agent pool ID
 	for key, element := range agentpools {
 		srcpool := key
 		destpool := element
@@ -57,23 +59,27 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]
 		}
 
 		// For each source workspace with an execution mode of "agent", compare the source agent pool ID to the
-		// user provided source pool ID. If they match, update the matching destination workspace with
+		// user provided source pool ID. If they match, update the destination workspace with
 		// the user provided agent pool ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
 			isagent := checkExecution(c, ws)
 			destWorkSpaceName := ws.Name
 
-			// Check if Destination Workspace Name to be Change
+			// Check if the destination Workspace name differs from the source name
 			if len(wsMapCfg) > 0 {
 				destWorkSpaceName = wsMapCfg[ws.Name]
 			}
 
+			// If the source Workspace execution type is not `agent` then do nothing and inform the user
 			if !isagent {
 				o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
 			} else {
+				// If the source Workspace assigned agent pool ID does not match the one provided by the user on the left side of the `agents-map`, do nothing and inform the user
 				if ws.AgentPool != nil {
 					if ws.AgentPool.ID != srcpool {
 						o.AddFormattedMessageUserProvided2("Workspace %v assigned agent pool ID does not match provided source ID %v. Skipping.", ws.Name, srcpool)
+						// If the source Workspace assigned agent pool ID matches the one provided by the user on the left side of the `agents-map`, update the destination Workspace
+						// with the agent pool ID provided by the user on the right side of the `agents-map`
 					} else {
 						o.AddFormattedMessageUserProvided2("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", destWorkSpaceName, destpool)
 						assignAgentPool(c, c.DestinationOrganizationName, destpool, destWorkSpaceName)

@@ -49,9 +49,9 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 			fmt.Println("invalid input for workspace-map")
 		}
 
-		// For each source workspace with an execution mode of "agent", compare the source agent pool ID to the
-		// user provided source pool ID. If they match, update the matching destination workspace with
-		// the user provided agent pool ID that exists in the destination.
+		// For each source workspace with a VCS connection, compare the source oauth ID to the
+		// user provided oauth ID. If they match, update the destination workspace with
+		// the user provided oauth ID that exists in the destination.
 		for _, ws := range srcWorkspaces {
 			destWorkSpaceName := ws.Name
 
