@@ -34,9 +34,8 @@ jobs:
       #   run: ls -l site/docs/about 
       - name: Deploy MkDocs
         # You may pin to the exact commit or the version.
-        uses: mhausenblas/mkdocs-deploy-gh-pages@1.25
+        uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # CUSTOM_DOMAIN: tfx.rocks
           CONFIG_FILE: site/mkdocs.yml
           EXTRA_PACKAGES: build-base
