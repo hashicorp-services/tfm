@@ -208,11 +208,29 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 			}
 
 			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts) // This should only return 1 result
+
+			indexMatch := 0
+
+			// If multiple workspaces named similar, find exact match
+			if len(items.Items) > 1 {
+				fmt.Printf("Searched for %v and found the following %v\n", ws, items.Items)
+				for _, result := range items.Items {
+					fmt.Printf("- %v\n", result.Name)
+					if ws == result.Name {
+						fmt.Printf("WS: %v, matches  %v\n", ws, result.Name)
+						break
+					}
+					indexMatch++
+				}
+			}
+
+			fmt.Printf("Final Matching %v, Src WS: %v, Matching %v\n", indexMatch, ws, items.Items[indexMatch].Name)
+
 			if err != nil {
 				return nil, err
 			}
 
-			srcWorkspaces = append(srcWorkspaces, items.Items...)
+			srcWorkspaces = append(srcWorkspaces, items.Items[indexMatch])
 
 			if items.CurrentPage >= items.TotalPages {
 				break
