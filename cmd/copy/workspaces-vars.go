@@ -19,15 +19,23 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 		},
 	}
 
-	//Get all variables in the workspace
-	workspaceVars, err := c.SourceClient.Variables.List(c.SourceContext, sourceWorkspaceID, &variableListOpts)
+	//Get all variables in source the workspace
+	srcWsVars, err := c.SourceClient.Variables.List(c.SourceContext, sourceWorkspaceID, &variableListOpts)
 	if err != nil {
-		fmt.Println("Could not list workspace variables.\n\n Error:", err.Error())
+		fmt.Println("Could not list soruce workspace variables.\n\n Error:", err.Error())
 		return err
 	}
 
-	// For each variable in the worksapce
-	for _, workspaceVar := range workspaceVars.Items {
+	//Get all variables in destination the workspace
+	destWsVars, err := c.DestinationClient.Variables.List(c.DestinationContext, destinationWorkspaceID, &variableListOpts)
+	if err != nil {
+		fmt.Println("Could not list destination workspace variables.\n\n Error:", err.Error())
+		return err
+	}
+
+	// For each variable in the source worksapce
+	for _, workspaceVar := range srcWsVars.Items {
+		destVarName := workspaceVar.Key
 
 		//gather variables properties from source workspace. Variables marked as sensitive will be set to "" in the destination
 		variableOpts := tfe.VariableCreateOptions{
@@ -40,15 +48,30 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 			Sensitive:   &workspaceVar.Sensitive,
 		}
 
-		//Create the variable in the destination workspace
-		_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
-		if err != nil {
-			fmt.Println("Could not create Workspace variable.\n\n Error:", err.Error())
-			return err
+		exists := doesVarExist(destVarName, destWsVars)
+
+		if exists {
+			o.AddMessageUserProvided("Exists in destination will not migrate", destVarName)
+		} else {
+			//Create the variable in the destination workspace
+			_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
+			if err != nil {
+				fmt.Println("Could not create Workspace variable.\n\n Error:", err.Error())
+				return err
+			}
 		}
 	}
 
 	return nil
+}
+
+func doesVarExist(workspaceName string, v *tfe.VariableList) bool {
+	for _, w := range v.Items {
+		if workspaceName == w.Key {
+			return true
+		}
+	}
+	return false
 }
 
 // Main function used for --vars flag
