@@ -208,11 +208,25 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 			}
 
 			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts) // This should only return 1 result
+
+			indexMatch := 0
+
+			// If multiple workspaces named similar, find exact match
+			if len(items.Items) > 1 {
+				for _, result := range items.Items {
+					if ws == result.Name {
+						// Finding matching workspace name
+						break
+					}
+					indexMatch++
+				}
+			}
+
 			if err != nil {
 				return nil, err
 			}
 
-			srcWorkspaces = append(srcWorkspaces, items.Items...)
+			srcWorkspaces = append(srcWorkspaces, items.Items[indexMatch])
 
 			if items.CurrentPage >= items.TotalPages {
 				break
@@ -246,7 +260,20 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 				return nil, err
 			}
 
-			dstWorkspaces = append(dstWorkspaces, items.Items...)
+			indexMatch := 0
+
+			// If multiple workspaces named similar, find exact match
+			if len(items.Items) > 1 {
+				for _, result := range items.Items {
+					if ws == result.Name {
+						// Finding matching workspace name
+						break
+					}
+					indexMatch++
+				}
+			}
+
+			dstWorkspaces = append(dstWorkspaces, items.Items[indexMatch])
 
 			if items.CurrentPage >= items.TotalPages {
 				break
