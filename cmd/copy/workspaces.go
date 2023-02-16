@@ -264,7 +264,22 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 				return nil, err
 			}
 
-			dstWorkspaces = append(dstWorkspaces, items.Items...)
+			indexMatch := 0
+
+			// If multiple workspaces named similar, find exact match
+			if len(items.Items) > 1 {
+				fmt.Printf("Searched for %v and found the following %v\n", ws, items.Items)
+				for _, result := range items.Items {
+					fmt.Printf("- %v\n", result.Name)
+					if ws == result.Name {
+						fmt.Printf("WS: %v, matches  %v\n", ws, result.Name)
+						break
+					}
+					indexMatch++
+				}
+			}
+
+			dstWorkspaces = append(dstWorkspaces, items.Items[indexMatch])
 
 			if items.CurrentPage >= items.TotalPages {
 				break
