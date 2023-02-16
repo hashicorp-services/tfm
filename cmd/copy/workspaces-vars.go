@@ -48,12 +48,17 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 			Sensitive:   &workspaceVar.Sensitive,
 		}
 
+		// Check for the existence of the variable with the same Key name in the destination
 		exists := doesVarExist(destVarName, destWsVars)
 
+		// If the variable exists in the destination, do nothing and inform the user
 		if exists {
 			o.AddMessageUserProvided("Exists in destination will not migrate", destVarName)
+
 		} else {
+
 			//Create the variable in the destination workspace
+			o.AddMessageUserProvided("Copying", destVarName)
 			_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
 			if err != nil {
 				fmt.Println("Could not create Workspace variable.\n\n Error:", err.Error())
@@ -65,6 +70,7 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 	return nil
 }
 
+// Compares the source variable key to existing destination variable keys
 func doesVarExist(workspaceName string, v *tfe.VariableList) bool {
 	for _, w := range v.Items {
 		if workspaceName == w.Key {
@@ -114,7 +120,7 @@ func copyVariables(c tfclient.ClientContexts) error {
 				return errors.Wrap(err, "Failed to get the ID of the destination Workspace.")
 			}
 
-			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing existing variables...\n", srcworkspace.Name, destWorkSpaceName, destWorkspaceId)
+			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing and copying existing variables...\n", srcworkspace.Name, destWorkSpaceName, destWorkspaceId)
 
 			// Copy Variables from Source to Destination Workspace
 			variableCopy(c, srcworkspace.ID, destWorkspaceId)
