@@ -102,7 +102,9 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 
 ## Assign SSH
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. To obtain the ssh-ids the `tfm list ssh --side=[source/destination]` command can be used.
+
+`tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
 
 ```hcl
 # A list of source=destination SSH IDs. TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID.
@@ -110,6 +112,7 @@ ssh-map=[
   "sshkey-sPLAKMcqnWtHPSgx=sshkey-CRLmPJpoHwsNFAoN",
 ]
 ```
+
 
 ### Environment Variables
 
