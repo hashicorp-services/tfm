@@ -8,6 +8,10 @@ theme:
 
 nav:
   - Home: index.md
+  - Migration Planning:
+    - Migration Journey: migration/journey.md
+    - Pre-requisites: migration/pre-requisites.md
+    - Example Scenarios: migration/example_scenarios.md
   - Commands:
     - Copy: 
       - General: commands/copy.md
