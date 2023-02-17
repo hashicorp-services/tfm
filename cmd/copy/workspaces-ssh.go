@@ -19,10 +19,10 @@ func configureSSHsettings(c tfclient.ClientContexts, org string, sshId string, w
 	}
 
 	workspaceSSHOptions := tfe.WorkspaceAssignSSHKeyOptions{
-		Type:    "",
+		Type:     "",
 		SSHKeyID: &sshId,
 	}
-	
+
 	workspaceSSH, err := c.DestinationClient.Workspaces.AssignSSHKey(c.DestinationContext, workspace.ID, workspaceSSHOptions)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func createSSHConfiguration(c tfclient.ClientContexts, sshConfig map[string]stri
 		// Get the source workspaces properties
 		srcWorkspaces, err := getSrcWorkspacesCfg(c)
 		if err != nil {
-			return errors.Wrap(err, "failed to list Workspaces from source while checking source VCS IDs")
+			return errors.Wrap(err, "failed to list Workspaces from source while checking source SSH-Key IDs")
 		}
 
 		// For each source workspace with a configured ssh key compare the source SSH ID to the
@@ -60,9 +60,9 @@ func createSSHConfiguration(c tfclient.ClientContexts, sshConfig map[string]stri
 					o.AddFormattedMessageUserProvided2("Updating destination workspace %v SSH ID %v", ws.Name, destSsh)
 
 					configureSSHsettings(c, c.DestinationOrganizationName, destSsh, ws.Name)
-					}
-				} 
+				}
 			}
 		}
+	}
 	return nil
 }

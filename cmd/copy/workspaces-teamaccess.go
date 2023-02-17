@@ -11,7 +11,7 @@ import (
 
 // Get source workspace team access permissions.
 func discoverSrcWsTeamAccess(c tfclient.ClientContexts, wsId string, wsName string) ([]*tfe.TeamAccess, error) {
-	o.AddMessageUserProvided("Getting workspace team access permissions from source workspace ", wsName)
+	o.AddMessageUserProvided("Getting workspace Team access permissions from source Workspace ", wsName)
 	srcTeamAccess := []*tfe.TeamAccess{}
 
 	opts := tfe.TeamAccessListOptions{
@@ -26,7 +26,7 @@ func discoverSrcWsTeamAccess(c tfclient.ClientContexts, wsId string, wsName stri
 
 		srcTeamAccess = append(srcTeamAccess, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d sets of Workspace Team Access Permissions", len(srcTeamAccess))
+		o.AddFormattedMessageCalculated("Found %d sets of Workspace Team access permissions", len(srcTeamAccess))
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -40,7 +40,7 @@ func discoverSrcWsTeamAccess(c tfclient.ClientContexts, wsId string, wsName stri
 
 // Get destination workspace team access permissions.
 func discoverDestWsTeamAccess(c tfclient.ClientContexts, wsId string, wsName string) ([]*tfe.TeamAccess, error) {
-	o.AddMessageUserProvided("Getting workspace team access permissions from destination workspace ", wsName)
+	o.AddMessageUserProvided("Getting Workspace Team access permissions from destination Workspace ", wsName)
 	destTeamAccess := []*tfe.TeamAccess{}
 
 	opts := tfe.TeamAccessListOptions{
@@ -55,7 +55,7 @@ func discoverDestWsTeamAccess(c tfclient.ClientContexts, wsId string, wsName str
 
 		destTeamAccess = append(destTeamAccess, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d sets of Workspace Team Access Permissions", len(destTeamAccess))
+		o.AddFormattedMessageCalculated("Found %d sets of Workspace Team access permissions", len(destTeamAccess))
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -67,7 +67,7 @@ func discoverDestWsTeamAccess(c tfclient.ClientContexts, wsId string, wsName str
 	return destTeamAccess, nil
 }
 
-// Get a source teams name based on the team ID taken from source workspace team access permissions
+// Get a source team's name based on the team ID taken from source workspace team access permissions
 func getSrcTeamAccessName(c tfclient.ClientContexts, srcteamId string) (string, error) {
 	var srcTeamName string
 
@@ -81,7 +81,7 @@ func getSrcTeamAccessName(c tfclient.ClientContexts, srcteamId string) (string, 
 	return srcTeamName, nil
 }
 
-// Get the properties of a specigic destination team filtering by name.
+// Get the properties of a specific destination team filtering by name.
 func discoverDestTeamsNameFilter(c tfclient.ClientContexts, teamName string) ([]*tfe.Team, error) {
 	destTeams := []*tfe.Team{}
 
@@ -115,7 +115,7 @@ func getDestTeamAccessNameAndID(c tfclient.ClientContexts, teamName string) (str
 
 	destTeams, err := discoverDestTeamsNameFilter(tfclient.GetClientContexts(), teamName)
 	if err != nil {
-		fmt.Println("failed to list teams from destination")
+		fmt.Println("Failed to list teams from destination")
 	}
 
 	for _, destteams := range destTeams {
@@ -136,7 +136,7 @@ func doesTeamNameMatch(srcTeamName string, destTeamName string) bool {
 	return srcTeamName == destTeamName
 }
 
-// Check the destination workspace team access permissions for existing permissions.
+// Check the destination Workspace Team access permissions for existing permissions.
 func doesTeamAccessPermissionsExist(c tfclient.ClientContexts, teamName string, destTeamAccess []*tfe.TeamAccess, destWorkspaceId string) (bool, error) {
 	var destTeamName string
 
@@ -155,7 +155,7 @@ func doesTeamAccessPermissionsExist(c tfclient.ClientContexts, teamName string, 
 
 }
 
-// Check workspace permissions for custom access type.
+// Check Workspace permissions for custom access type.
 func checkCustom(c tfclient.ClientContexts, srcteramaccess *tfe.TeamAccess) bool {
 	if srcteramaccess.Access == "custom" {
 		return true
@@ -163,9 +163,9 @@ func checkCustom(c tfclient.ClientContexts, srcteramaccess *tfe.TeamAccess) bool
 	return false
 }
 
-// Default workspace access permissions creation. Seperate functions required for custom and default permission creation.
+// Default Workspace access permissions creation. Seperate functions required for custom and default permission creation.
 func createTeamAccess(c tfclient.ClientContexts, srcTeamName string, destTeamId string, destWorkspaceId string, srcworkspace *tfe.Workspace, srcteam *tfe.TeamAccess) error {
-	o.AddMessageUserProvided("Migrating team access permissions for: ", srcTeamName)
+	o.AddMessageUserProvided("Migrating Team access permissions for: ", srcTeamName)
 
 	teamaccess, err := c.DestinationClient.TeamAccess.Add(c.DestinationContext, tfe.TeamAccessAddOptions{
 		Type:   "",
@@ -187,7 +187,7 @@ func createTeamAccess(c tfclient.ClientContexts, srcTeamName string, destTeamId 
 	return nil
 }
 
-// Custom workspace access permissions. These can only be edited when Access is 'custom'; otherwise, they are
+// Custom Workspace access permissions. These can only be edited when Access is 'custom'; otherwise, they are
 // read-only and reflect the Access level's implicit permissions.
 func createCustomTeamAccess(c tfclient.ClientContexts, srcTeamName string, destTeamId string, destWorkspaceId string, srcworkspace *tfe.Workspace, srcteam *tfe.TeamAccess) error {
 	o.AddMessageUserProvided("Migrating team access permissions for: ", srcTeamName)
@@ -217,53 +217,56 @@ func createCustomTeamAccess(c tfclient.ClientContexts, srcTeamName string, destT
 	return nil
 }
 
+// Main function for the `--teamaccess`` flag
 func copyWsTeamAccess(c tfclient.ClientContexts) error {
-	// Get the source workspaces properties
+
+	// Get the source Workspaces properties
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
-		return errors.Wrap(err, "failed to list Workspaces from source")
+		return errors.Wrap(err, "Failed to list Workspaces from source")
 	}
 
 	// Get/Check if Workspace map exists
 	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
 	if err != nil {
-		fmt.Println("invalid input for workspace-map")
+		fmt.Println("Invalid input for workspace-map")
 	}
 
-	// Get the destination workspace properties
-	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
+	// Get the destination Workspace properties
+	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts(), true)
 	if err != nil {
-		return errors.Wrap(err, "failed to list Workspaces from source")
+		return errors.Wrap(err, "Failed to list Workspaces from source")
 	}
 
 	// For each srcworkspace check to see if a workspace with the same name exists in the destination
 	for _, srcworkspace := range srcWorkspaces {
 		destWorkSpaceName := srcworkspace.Name
 
-		// Check if Destination Workspace Name to be Change
+		// Check if the destination Workspace name differs from the source name
 		if len(wsMapCfg) > 0 {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
 		if !doesWorkspaceExist(destWorkSpaceName, destWorkspaces) {
-			return errors.New("Workspace not found")
+			return errors.New(" Destination Workspace not found")
 		}
 
 		// Get the destination workspace ID
 		destWorkspaceId, err := getWorkspaceId(tfclient.GetClientContexts(), destWorkSpaceName)
 		if err != nil {
-			return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace")
+			return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the source Workspace")
 		}
 
 		// Get the source team access permissions for the source workspace
 		srcTeamAccess, err := discoverSrcWsTeamAccess(tfclient.GetClientContexts(), srcworkspace.ID, srcworkspace.Name)
 		if err != nil {
-			return errors.Wrap(err, "failed to list Team Access for source workspace")
+			return errors.Wrap(err, "Failed to list Team Access for source Workspace")
 		}
 
+		// Get the destination team access permissions for the destination workspace
 		destTeamAccess, err := discoverDestWsTeamAccess(tfclient.GetClientContexts(), destWorkspaceId, destWorkSpaceName)
 		if err != nil {
-			return errors.Wrap(err, "failed to list Team Access for dest workspace")
+			return errors.Wrap(err, "Failed to list Team Access for destination Workspace")
 		}
 
 		// If The source team access permissions contians teams, get the source team names filtering by Team ID
@@ -271,13 +274,13 @@ func copyWsTeamAccess(c tfclient.ClientContexts) error {
 			if len(srcTeamAccess) > 0 {
 				srcTeamName, err := getSrcTeamAccessName(tfclient.GetClientContexts(), srcteam.Team.ID)
 				if err != nil {
-					return errors.Wrap(err, "failed to find source team name")
+					return errors.Wrap(err, "Failed to find source Team name")
 				}
 
 				// Get the matching destination team names and their IDs
 				destTeamNames, destTeamId, err := getDestTeamAccessNameAndID(tfclient.GetClientContexts(), srcTeamName)
 				if err != nil {
-					return errors.Wrap(err, "failed to find destination team name")
+					return errors.Wrap(err, "Failed to find destination Team name")
 				}
 
 				// Ensure the team names match between the source and destination
@@ -287,10 +290,10 @@ func copyWsTeamAccess(c tfclient.ClientContexts) error {
 					// For each team access setting, check for an existing access setting in the destination
 					exists, err := doesTeamAccessPermissionsExist(tfclient.GetClientContexts(), srcTeamName, destTeamAccess, destWorkspaceId)
 					if err != nil {
-						return errors.Wrap(err, "failed to get destination permissions")
+						return errors.Wrap(err, "Failed to get destination Team permissions")
 					}
 					if exists {
-						o.AddMessageUserProvided("Team access exists in destination workspace, skipping migration for: ", srcTeamName)
+						o.AddMessageUserProvided("Team access exists in destination Workspace, skipping migration for: ", srcTeamName)
 					} else {
 						custom := checkCustom(c, srcteam)
 						if custom {
@@ -304,10 +307,10 @@ func copyWsTeamAccess(c tfclient.ClientContexts) error {
 				}
 
 				if err != nil {
-					return errors.Wrap(err, "failed to find destination team name and ID")
+					return errors.Wrap(err, "Failed to find destination Team Name and ID")
 				}
 			} else {
-				fmt.Println("No team access permissions found on source workspace")
+				fmt.Println("No Team access permissions found on source Workspace")
 			}
 		}
 	}

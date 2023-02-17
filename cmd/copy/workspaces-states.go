@@ -22,6 +22,8 @@ import (
 // 9. Lock the workspace if not locked
 // 10. Use the StateVersions.Create to upload state to destination
 // 11. Unlock the workspace if locked
+
+// Get the source workspace state files from the provided workspace
 func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
 	o.AddMessageUserProvided("Getting list of states from source workspace ", ws)
 	srcStates := []*tfe.StateVersion{}
@@ -51,6 +53,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersio
 	return srcStates, nil
 }
 
+// Get the destination workspace state files from the provided workspace
 func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
 	o.AddMessageUserProvided("Getting list of States from destination Workspace ", ws)
 	destStates := []*tfe.StateVersion{}
@@ -102,29 +105,17 @@ func getWorkspaceId(c tfclient.ClientContexts, ws string) (string, error) {
 }
 
 func downloadSourceState(c tfclient.ClientContexts, downloadUrl string) ([]byte, error) {
+
 	// Takes download URL from StateVersions.List function and stores state as a []byte type
 	state, err := c.SourceClient.StateVersions.Download(c.SourceContext, downloadUrl)
 	if err != nil {
 		return state, err
 	}
 
-	// Need to generate the file name based on workspacename
-	//
-	//
-
-	// Need to store state files in /tmp for unix or /temp for windows
-	//
-	//
-
-	// Writes the state to a provided filename. If file does not exist, os.WriteFile will create it
-	// if err := os.WriteFile("/Users/joshuatracy/temp-git-edits/go/tfe-migrate/file", state, 0644); err != nil {
-	// 	panic(err)
-	// }
-
 	return state, nil
-	//defer os.RemoveAll(dir)
 }
 
+// Locks the workspace provided
 func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 	message := "Uploading State"
 
@@ -142,6 +133,7 @@ func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 	return nil
 }
 
+// Unlocks the workspace provided
 func unlockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 	wsProperties, err := c.DestinationClient.Workspaces.ReadByID(c.DestinationContext, destWorkspaceId)
 	if err != nil {
@@ -155,8 +147,10 @@ func unlockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 	return nil
 }
 
+// Main function for `--state` flag
 func copyStates(c tfclient.ClientContexts) error {
-	// Get the source workspaces properties
+
+	// Get the source target workspaces
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
 		return errors.Wrap(err, "failed to list Workspaces from source")
@@ -168,7 +162,8 @@ func copyStates(c tfclient.ClientContexts) error {
 		fmt.Println("invalid input for workspace-map")
 	}
 
-	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
+	// Get the destination target workspaces
+	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts(), true)
 	if err != nil {
 		return errors.Wrap(err, "failed to list Workspaces from source")
 	}
@@ -176,10 +171,12 @@ func copyStates(c tfclient.ClientContexts) error {
 	for _, srcworkspace := range srcWorkspaces {
 		destWorkSpaceName := srcworkspace.Name
 
-		// Check if Destination Workspace Name to be Change
+		// Check if the destination Workspace name differs from the source name
 		if len(wsMapCfg) > 0 {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
+
+		// Check for the exsitence of the destination workspace in the destination target
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		if exists {
@@ -190,13 +187,13 @@ func copyStates(c tfclient.ClientContexts) error {
 
 			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing existing States...\n", srcworkspace.Name, destWorkSpaceName, destWorkspaceId)
 
-			// Get the source states
+			// Get the source workspace states
 			srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name)
 			if err != nil {
 				return errors.Wrap(err, "failed to list state files for workspace from source")
 			}
 
-			// Get the destination
+			// Get the destination workspace states
 			destStates, err := discoverDestStates(tfclient.GetClientContexts(), destWorkSpaceName)
 			if err != nil {
 				return errors.Wrap(err, "failed to list state files for workspace from destination")
@@ -219,10 +216,13 @@ func copyStates(c tfclient.ClientContexts) error {
 					// Get the MD5 hash of the state
 					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
 
+					// Create an empty int
 					newSerial := int64(0)
 
+					// Get properties of the state
 					currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)
 
+					// Of if there is a state file, set the newSerial variable to the current state serial + 1
 					if currentState != nil {
 						newSerial = currentState.Serial + 1
 					}

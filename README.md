@@ -31,7 +31,7 @@ destinationToken="<user token from destination TFE/TFC with owner permissions>"
 
 ## Workspace List
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target.
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target with the same name.
 
 ```hcl
 #List of Workspaces to create/check are migrated across to new TFC

@@ -2,6 +2,7 @@ package copy
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -28,18 +29,16 @@ var (
 		//ValidArgs: []string{"state", "vars"},
 		//Args:      cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			agentPoolsID, err := helper.ViperStringSliceMap("agents-map")
+
+			// Validate `workspace-map` if it exists before any other functions can run.
+			valid, wsMapCfg, err := validateMap(tfclient.GetClientContexts(), "workspace-map")
 			if err != nil {
-				return errors.New("invalid input for 'agents'")
+				return err
 			}
-			vcsIDs, err := helper.ViperStringSliceMap("vcs-map")
-			if err != nil {
-				return errors.New("invalid input for vcs")
-			}
-			sshIDs, err := helper.ViperStringSliceMap("ssh-map")
-			if err != nil {
-				return errors.New("invalid input for ssh")
-			}
+
+			// Continue the application if `workspace-map` is not provided. The valid and map output arent needed.
+			_ = valid
+
 			switch {
 			case state:
 				return copyStates(tfclient.GetClientContexts())
@@ -47,15 +46,48 @@ var (
 				return copyVariables(tfclient.GetClientContexts())
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
+
+			// A map is required if the --agents flag is provided. Check for a valid map.
 			case agents:
-				return createAgentPoolAssignment(tfclient.GetClientContexts(), agentPoolsID) //tfm copy workspaces --agents --source-pool-id x --destination-pool-id
+				valid, apoolIDs, err := validateMap(tfclient.GetClientContexts(), "agents-map")
+				if err != nil {
+					return err
+				}
+
+				if !valid {
+					os.Exit(0)
+				} else {
+					return createAgentPoolAssignment(tfclient.GetClientContexts(), apoolIDs)
+				}
+
+			// A map is required if the --vcs flag is provided. Check for a valid map.
 			case vcs:
-				return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
+				valid, vcsIDs, err := validateMap(tfclient.GetClientContexts(), "vcs-map")
+				if err != nil {
+					return err
+				}
+
+				if !valid {
+					os.Exit(0)
+				} else {
+					return createVCSConfiguration(tfclient.GetClientContexts(), vcsIDs)
+				}
+
+			// A map is required if the --ssh flag is provided. Check for a valid map.
 			case ssh:
-				return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
+				valid, sshIDs, err := validateMap(tfclient.GetClientContexts(), "ssh-map")
+				if err != nil {
+					return err
+				}
+				if !valid {
+					os.Exit(0)
+				} else {
+					return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
+				}
 			}
+
 			return copyWorkspaces(
-				tfclient.GetClientContexts())
+				tfclient.GetClientContexts(), wsMapCfg)
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			o.Close()
@@ -64,8 +96,6 @@ var (
 )
 
 func init() {
-	// `tfemigrate copy workspaces --all` command
-	//workspacesCopyCmd.Flags().BoolP("all", "a", false, "Copy all Workspaces found in configuration file")
 
 	// `tfemigrate copy workspaces --workspace-id [WORKSPACEID]`
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
@@ -73,20 +103,17 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "", false, "Copy workspace Team Access")
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
-	//workspacesCopyCmd.Flags().StringSliceP("agentpools-map", "", []string{}, "Mapping of source agent pool to destination agent pool. Can be supplied multiple times. (optional, i.e. '--agentpools='apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE')")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Mapping of source vcs Oauth ID to destination vcs Oath in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&ssh, "ssh", "", false, "Mapping of source ssh id to destination ssh id in config file")
-	//workspacesCopyCmd.Flags().StringVarP(&sourcePoolID, "source-pool-id", "m", "", "The source Agent Pool ID (required if agent set)")
-	//workspacesCopyCmd.Flags().StringVarP(&destinationPoolID, "destination-pool-id", "n", "", "the destination Agent Pool ID (required if agent set)")
-	//workspacesCopyCmd.MarkFlagsRequiredTogether("agents", "source-pool-id", "destination-pool-id")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
 
 }
 
+// Gets all workspaces from the source target
 func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+	o.AddMessageUserProvided("Getting list of Workspaces from: ", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -114,75 +141,66 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 	return srcWorkspaces, nil
 }
 
-// This struct is meant to be used with Workspace maps
-// This is house the source and destination name of a workspace
-type workspaceMigrate struct {
-	srcWorkspaceName string
-	dstWorkspaceName string
-}
-
+// Gets all workspaces defined in the configuration file `workspaces` or `workspaces-map` lists from the source target
 func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
+
 	var srcWorkspaces []*tfe.Workspace
 
-	// Get Workspace List from Config
+	// Get source Workspace list from config list `workspaces` if it exists
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
 
-	// Get workspace Map from Config
-	fmt.Println("Reading WS Map")
 	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
 	if err != nil {
-		return srcWorkspaces, errors.New("invalid input for workspace-map")
+		return srcWorkspaces, errors.New("Invalid input for workspace-map")
 	}
-	fmt.Println(" WS Map Config Is: ")
-	fmt.Println(wsMapCfg)
 
-	o.AddFormattedMessageCalculated("Found %d Workspaces in a Map in Configuration", len(wsMapCfg))
-
-	o.AddFormattedMessageCalculated("Found %d Workspaces List in Configuration", len(srcWorkspacesCfg))
+	if len(srcWorkspacesCfg) > 0 {
+		o.AddFormattedMessageCalculated("Found %d workspaces in `workspaces` list", len(srcWorkspacesCfg))
+	}
 
 	// If no workspaces found in config (list or map), default to just assume all workspaces from source will be chosen
 	if len(wsMapCfg) > 0 {
+
 		// use config workspaces from map
-		fmt.Println("Using workspaces config map:", wsMapCfg)
 		var wsList []string
 
 		for key := range wsMapCfg {
 			wsList = append(wsList, key)
-			fmt.Println("key:", key)
 		}
 
-		fmt.Println("Source WS List from Map:", wsList)
+		o.AddMessageUserProvided("Source Workspaces found in `workspace-map`:", wsList)
 
 		// Set source workspaces
 		srcWorkspaces, err = getSrcWorkspacesFilter(tfclient.GetClientContexts(), wsList)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to list teams from source")
+			return nil, errors.Wrap(err, "Failed to list Workspaces in map from source")
 		}
 
 	} else if len(srcWorkspacesCfg) > 0 {
 		// use config workspaces from list
-		fmt.Println("Using workspaces config list:", srcWorkspacesCfg)
+
+		fmt.Println("Using Workspaces config list:", srcWorkspacesCfg)
 
 		//get source workspaces
 		srcWorkspaces, err = getSrcWorkspacesFilter(tfclient.GetClientContexts(), srcWorkspacesCfg)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to list teams from source")
+			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
 		}
 
 	} else {
 		// Get ALL source workspaces
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to list teams from source")
+			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
 		}
 	}
 
 	// Check Workspaces exist in source from config
 	for _, s := range srcWorkspacesCfg {
-		fmt.Println("\nFound Workspace ", s, "in config, check if it exists in", viper.GetString("sourceHostname"))
+		//fmt.Println("\nFound Workspace ", s, "in config, check if it exists in", viper.GetString("sourceHostname"))
 		exists := doesWorkspaceExist(s, srcWorkspaces)
 		if !exists {
-			fmt.Printf("Defined Workspace in Config %s DOES NOT exist in %s. \n Please validate your configuration.", s, viper.GetString("sourceHostname"))
+			fmt.Printf("Defined Workspace in config %s DOES NOT exist in %s. \n Please validate your configuration.", s, viper.GetString("sourceHostname"))
 			break
 		}
 	}
@@ -192,10 +210,10 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 }
 
 func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+	o.AddMessageUserProvided("Getting list of Workspaces from: ", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 
-	fmt.Println("Workspace list from config:", wsList)
+	//fmt.Println("Workspace list from config:", wsList)
 
 	for _, ws := range wsList {
 
@@ -240,7 +258,7 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 }
 
 func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+	o.AddMessageUserProvided("Getting list of Workspaces from: ", c.DestinationHostname)
 	dstWorkspaces := []*tfe.Workspace{}
 
 	fmt.Println("Workspace list from config:", wsList)
@@ -255,7 +273,8 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 				Search: ws,
 			}
 
-			items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts) // This should only return 1 result
+			// This should only return 1 result
+			items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
 			if err != nil {
 				return nil, err
 			}
@@ -286,7 +305,7 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 	return dstWorkspaces, nil
 }
 
-func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
+func discoverDestWorkspaces(c tfclient.ClientContexts, output bool) ([]*tfe.Workspace, error) {
 	o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
 	destWorkspaces := []*tfe.Workspace{}
 
@@ -303,7 +322,9 @@ func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error)
 
 		destWorkspaces = append(destWorkspaces, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d Workspaces", len(destWorkspaces))
+		if output {
+			o.AddFormattedMessageCalculated("Found %d Workspaces in destination target", len(destWorkspaces))
+		}
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -316,7 +337,7 @@ func discoverDestWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error)
 }
 
 // Takes a workspace name and a slice of workspace as type []*tfe.Workspace and
-// returns true if the workspacee name exists within the provided slice of workspaces.
+// returns true if the workspace name exists within the provided slice of workspaces.
 // Used to compare source workspace names to the destination workspace names.
 func doesWorkspaceExist(workspaceName string, ws []*tfe.Workspace) bool {
 	for _, w := range ws {
@@ -329,33 +350,22 @@ func doesWorkspaceExist(workspaceName string, ws []*tfe.Workspace) bool {
 
 // Gets all source workspaces and ensure destination workspaces exist and recreates
 // the workspace in the destination if the workspace does not exist in the destination.
-func copyWorkspaces(c tfclient.ClientContexts) error {
-
-	// Get list of workspaces from configuration file
-	// This function will only work with a configuration file as we expect the migration to be automated in a pipeline
-	// thus repeatable as migration of workspaces occur.
+func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error {
 
 	// Get Workspaces from Config OR get ALL workspaces from source
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
-		return errors.Wrap(err, "failed to list teams from source")
-	}
-
-	// Get/Check if Workspace map exists
-	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
-	if err != nil {
-		fmt.Println("invalid input for workspace-map")
+		return errors.Wrap(err, "Failed to list workspaces from source target")
 	}
 
 	// Get the destination Workspace properties
-	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
+	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts(), false)
 	if err != nil {
-		return errors.Wrap(err, "failed to list teams from destination")
+		return errors.Wrap(err, "Failed to list workspaces from destination target")
 	}
 
-	// Loop each team in the srcWorkspaces slice, check for the workspace existence in the destination,
+	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
 	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
-	// Most values will be
 	for _, srcworkspace := range srcWorkspaces {
 		destWorkSpaceName := srcworkspace.Name
 
@@ -367,17 +377,16 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 			tag = append(tag, &tfe.Tag{Name: t})
 		}
 
-		// Check if Destination Workspace Name to be Change
+		// Check if the destination Workspace name differs from the source name
 		if len(wsMapCfg) > 0 {
-			fmt.Println("Using WS Map:", wsMapCfg)
-			fmt.Println("Source Workspace:", srcworkspace.Name, "\nDestination Workspace:", wsMapCfg[srcworkspace.Name])
+			o.AddMessageUserProvided3("Source Workspace:", srcworkspace.Name, "\nDestination Workspace:", wsMapCfg[srcworkspace.Name])
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		if exists {
-			fmt.Println("Exists in destination will not migrate", srcworkspace.Name)
+			o.AddMessageUserProvided2(destWorkSpaceName, "exists in destination will not migrate", srcworkspace.Name)
 		} else {
 			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
@@ -411,38 +420,4 @@ func copyWorkspaces(c tfclient.ClientContexts) error {
 		}
 	}
 	return nil
-}
-
-func workspaceExists(c tfclient.ClientContexts, ws []string) error {
-	allItems := []*tfe.Workspace{}
-
-	opts := tfe.WorkspaceListOptions{
-		ListOptions: tfe.ListOptions{
-			PageNumber: 1,
-			PageSize:   100},
-	}
-
-	for {
-		items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
-		if err != nil {
-			helper.LogError(err, "failed to list workspace")
-		}
-
-		allItems = append(allItems, items.Items...)
-
-		o.AddFormattedMessageCalculated("Found %d Workspaces", len(allItems))
-
-		if items.CurrentPage >= items.TotalPages {
-			break
-		}
-		opts.PageNumber = items.NextPage
-	}
-
-	o.AddTableHeaders("Name")
-	for _, i := range allItems {
-		o.AddTableRows(i.Name)
-	}
-
-	return nil
-
 }

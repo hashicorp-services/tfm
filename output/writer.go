@@ -46,6 +46,24 @@ func (o *Output) AddMessageUserProvided(description string, value interface{}) {
 	fmt.Println(description, aurora.Green(value))
 }
 
+func (o *Output) AddMessageUserProvided2(value1 interface{}, description string, value2 interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(aurora.Yellow(value1), description, aurora.Yellow(value2))
+}
+
+func (o *Output) AddMessageUserProvided3(description1 string, value1 interface{}, description2 string, value2 interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(description1, aurora.Green(value1), description2, aurora.Green(value2))
+}
+
 func (o *Output) AddErrorUserProvided(value string) {
 	// only output for default
 	if o.JsonOutput {
@@ -53,6 +71,24 @@ func (o *Output) AddErrorUserProvided(value string) {
 	}
 
 	fmt.Println(aurora.Red(value))
+}
+
+func (o *Output) AddErrorUserProvided2(value string, value2 string) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(aurora.Red(value), aurora.Red(value2))
+}
+
+func (o *Output) AddErrorUserProvided3(value string, value2 string, value3 string) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(aurora.Red(value), aurora.Red(value2), aurora.Red(value3))
 }
 
 // Add FORMATTED display information to show progress to terminal users
@@ -115,6 +151,17 @@ func (o Output) AddFormattedMessageCalculated2(description string, value interfa
 	}
 
 	fmt.Printf(description+"\n", aurora.Yellow(value), aurora.Yellow(value2))
+}
+
+// Add FORMATTED display information to show progress to terminal users
+// This will be printed immediately for DefaultOutput
+func (o Output) AddFormattedMessageCalculated3(description string, value interface{}, value3 interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Printf(description, aurora.Yellow(value), aurora.Yellow(value3))
 }
 
 // Adds a message that will not print until Close() is called, to print and align
