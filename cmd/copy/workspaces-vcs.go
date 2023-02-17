@@ -38,13 +38,13 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 		// Get the source workspaces properties
 		srcWorkspaces, err := getSrcWorkspacesCfg(c)
 		if err != nil {
-			return errors.Wrap(err, "failed to list Workspaces from source while checking source VCS IDs")
+			return errors.Wrap(err, "Failed to list Workspaces from source while checking source VCS IDs")
 		}
 
 		// Get/Check if Workspace map exists
 		wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
 		if err != nil {
-			fmt.Println("invalid input for workspace-map")
+			fmt.Println("Invalid input for workspace-map")
 		}
 
 		// For each source workspace with a VCS connection, compare the source oauth ID to the
@@ -70,7 +70,7 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 					// If the source Workspace assigned VCS matches the one provided by the user on the left side of the `vcs-map`, update the destination Workspace
 					// with the VCS provided by the user on the right side of the `vcs-map`
 				} else {
-					o.AddFormattedMessageUserProvided2("Updating destination workspace %v VCS Settings and OauthID %v", destWorkSpaceName, destvcs)
+					o.AddFormattedMessageUserProvided2("Updating destination Workspace %v VCS Settings and OauthID %v", destWorkSpaceName, destvcs)
 
 					vcsConfig := tfe.VCSRepoOptions{
 						Branch:            &ws.VCSRepo.Branch,

@@ -30,16 +30,13 @@ var (
 )
 
 func init() {
-	// Flags().StringP, etc... - the "P" gives us the option for a short hand
-
-	// `tfm copy teams all` command
-	//teamCopyCmd.Flags().BoolP("all", "a", false, "List all? (optional)")
 
 	// Add commands
 	CopyCmd.AddCommand(teamCopyCmd)
 
 }
 
+// Get all source target Teams
 func discoverSrcTeams(c tfclient.ClientContexts) ([]*tfe.Team, error) {
 	o.AddMessageUserProvided("Getting list of teams from: ", c.SourceHostname)
 	srcTeams := []*tfe.Team{}
@@ -69,6 +66,7 @@ func discoverSrcTeams(c tfclient.ClientContexts) ([]*tfe.Team, error) {
 	return srcTeams, nil
 }
 
+// Get all destination target Teams
 func discoverDestTeams(c tfclient.ClientContexts) ([]*tfe.Team, error) {
 	o.AddMessageUserProvided("Getting list of teams from: ", c.DestinationHostname)
 	destTeams := []*tfe.Team{}
@@ -100,7 +98,7 @@ func discoverDestTeams(c tfclient.ClientContexts) ([]*tfe.Team, error) {
 
 // Takes a team name and a slice of teams as type []*tfe.Team and
 // returns true if the team name exists within the provided slice of teams.
-// Used to compare source team names to the destination team names.
+// Used to compare source team names to the existing destination team names.
 func doesTeamExist(teamName string, teams []*tfe.Team) bool {
 	for _, t := range teams {
 		if teamName == t.Name {

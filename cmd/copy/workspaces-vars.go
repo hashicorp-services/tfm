@@ -22,14 +22,14 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 	//Get all variables in source the workspace
 	srcWsVars, err := c.SourceClient.Variables.List(c.SourceContext, sourceWorkspaceID, &variableListOpts)
 	if err != nil {
-		fmt.Println("Could not list soruce workspace variables.\n\n Error:", err.Error())
+		fmt.Println("Could not list soruce Workspace variables.\n\n Error:", err.Error())
 		return err
 	}
 
 	//Get all variables in destination the workspace
 	destWsVars, err := c.DestinationClient.Variables.List(c.DestinationContext, destinationWorkspaceID, &variableListOpts)
 	if err != nil {
-		fmt.Println("Could not list destination workspace variables.\n\n Error:", err.Error())
+		fmt.Println("Could not list destination Workspace variables.\n\n Error:", err.Error())
 		return err
 	}
 
@@ -86,17 +86,17 @@ func copyVariables(c tfclient.ClientContexts) error {
 	// Get the source workspaces from the config file or ALL workspaces if non provided in the config file
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
-		return errors.Wrap(err, "failed to list Workspaces from source")
+		return errors.Wrap(err, "Failed to list Workspaces from source")
 	}
 
 	// Get/Check if Workspace map exists
 	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
 	if err != nil {
-		fmt.Println("invalid input for workspace-map")
+		fmt.Println("Invalid input for workspace-map")
 	}
 
 	// Get the destination workspaces
-	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts())
+	destWorkspaces, err := discoverDestWorkspaces(tfclient.GetClientContexts(), true)
 	if err != nil {
 		return errors.Wrap(err, "failed to list Workspaces from source")
 	}

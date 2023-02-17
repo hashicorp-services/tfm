@@ -46,6 +46,24 @@ func (o *Output) AddMessageUserProvided(description string, value interface{}) {
 	fmt.Println(description, aurora.Green(value))
 }
 
+func (o *Output) AddMessageUserProvided2(value1 interface{}, description string, value2 interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(aurora.Yellow(value1), description, aurora.Yellow(value2))
+}
+
+func (o *Output) AddMessageUserProvided3(description1 string, value1 interface{}, description2 string, value2 interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(description1, aurora.Green(value1), description2, aurora.Green(value2))
+}
+
 func (o *Output) AddErrorUserProvided(value string) {
 	// only output for default
 	if o.JsonOutput {

@@ -17,13 +17,20 @@ var (
 		Short: "Copy Variable Sets",
 		Long:  "Copy Variable Sets from source to destination org",
 		RunE: func(cmd *cobra.Command, args []string) error {
+
+			// Validate the map if it exists
 			valid, varsets, err := validateMap(tfclient.GetClientContexts(), "varsets-map")
 			if err != nil {
 				return err
 			}
+
+			// If the map does not exist, or is not valid, copy all variable sets from the source target
 			if !valid {
 				return copyVariableSetsAll(
 					tfclient.GetClientContexts())
+
+				// If the map exists and is valid, copy only the variable sets specified with the new desired name specified on the right side of the `varsets-map`
+				// from the configuration file
 			} else {
 				return copyVariableSetsCfg(
 					tfclient.GetClientContexts(), varsets)
@@ -50,6 +57,7 @@ func init() {
 // 4. Get the variable sets variables in the source variable set
 // 5. Recreate the variable sets variables in the destination variable set
 
+// Get source target variable sets
 func discoverSrcVariableSets(c tfclient.ClientContexts, output bool) ([]*tfe.VariableSet, error) {
 	varSets := []*tfe.VariableSet{}
 
@@ -80,6 +88,7 @@ func discoverSrcVariableSets(c tfclient.ClientContexts, output bool) ([]*tfe.Var
 	return varSets, nil
 }
 
+// Get destination target variable sets
 func discoverDestVariableSets(c tfclient.ClientContexts, output bool) ([]*tfe.VariableSet, error) {
 	varSets := []*tfe.VariableSet{}
 
@@ -110,8 +119,10 @@ func discoverDestVariableSets(c tfclient.ClientContexts, output bool) ([]*tfe.Va
 	return varSets, nil
 }
 
+// Function that creates variable sets
 func createVariableSets(c tfclient.ClientContexts, variableSet *tfe.VariableSet, destSetNameCfg string, useCfg bool) (string, error) {
 
+	// If no config file `varsets-map` is specified
 	if !useCfg {
 		o.AddFormattedMessageUserProvided2("Copying variable set %v from source org %v", variableSet.Name, c.SourceOrganizationName)
 
@@ -160,7 +171,7 @@ func createVariableSets(c tfclient.ClientContexts, variableSet *tfe.VariableSet,
 	}
 }
 
-// Get the variable set ID and name.
+// Get the variable set ID
 func getVarSetID(c tfclient.ClientContexts, srcVarSetName string) (string, error) {
 	var destVarSetID string
 
@@ -196,9 +207,7 @@ func getVarSetID(c tfclient.ClientContexts, srcVarSetName string) (string, error
 	return destVarSetID, nil
 }
 
-// Gets all variables from the variable set ID provided in the source org and recreates them
-// in the destination org and variable set.
-
+// Gets all variables from the source variable set ID provided
 func discoverSrcVariableSetVariables(c tfclient.ClientContexts, srcVarSetID string, srcVarSetName string) ([]*tfe.VariableSetVariable, error) {
 	variables := []*tfe.VariableSetVariable{}
 
@@ -228,6 +237,7 @@ func discoverSrcVariableSetVariables(c tfclient.ClientContexts, srcVarSetID stri
 	return variables, nil
 }
 
+// Gets all variables from the destination variable set ID provided
 func discoverDestVariableSetVariables(c tfclient.ClientContexts, destVarSetID string, destVarSetName string) ([]*tfe.VariableSetVariable, error) {
 	variables := []*tfe.VariableSetVariable{}
 
@@ -257,6 +267,7 @@ func discoverDestVariableSetVariables(c tfclient.ClientContexts, destVarSetID st
 	return variables, nil
 }
 
+// Function that creates variables in the destination target variable set.
 func createVariableSetVars(c tfclient.ClientContexts, destVarSetID string, destVarSetName string, variables *tfe.VariableSetVariable) error {
 	o.AddFormattedMessageUserProvided2("Copying variable %v for variable set %v", variables.Key, destVarSetName)
 
@@ -281,6 +292,7 @@ func createVariableSetVars(c tfclient.ClientContexts, destVarSetID string, destV
 	return nil
 }
 
+// Check the destination variable set existence
 func doesVariableSetExist(srcVarSetName string, destVarSets []*tfe.VariableSet) (string, bool) {
 	var destVarSetID string
 	for _, s := range destVarSets {
@@ -292,6 +304,7 @@ func doesVariableSetExist(srcVarSetName string, destVarSets []*tfe.VariableSet) 
 	return destVarSetID, false
 }
 
+// Check the destination variable set variable for existence
 func doesVariableSetVarExist(srcVarKey string, destVarName []*tfe.VariableSetVariable) bool {
 	for _, v := range destVarName {
 		if srcVarKey == v.Key {
@@ -301,15 +314,19 @@ func doesVariableSetVarExist(srcVarKey string, destVarName []*tfe.VariableSetVar
 	return false
 }
 
-// Creates variable sets and then copies the variables from source sets to destination set.
+// Main function for `--varsets` flag when no map is specified in the config file
+// Creates variable sets and then copies the variables from source set to destination set.
 // If the user specifies a "varsets-map" list in the config file, only those variable sets will
 // be copied. If they do not, all variable sets will be copied.
 func copyVariableSetsAll(c tfclient.ClientContexts) error {
+
+	// Get all source target var sets
 	srcVarSets, err := discoverSrcVariableSets(c, true)
 	if err != nil {
 		return errors.Wrap(err, "failed to list variable sets from source")
 	}
 
+	// Get all destination target varsets
 	destVarSets, err := discoverDestVariableSets(c, true)
 	if err != nil {
 		return errors.Wrap(err, "failed to list variable sets from destination")
@@ -320,7 +337,7 @@ func copyVariableSetsAll(c tfclient.ClientContexts) error {
 
 		// Check for the existence of the variable set in the destination
 		// Also get the ID if it does exist
-		// Names must match between source and destinatio variable set
+		// Names must match between source and destination variable set
 		destVarSetID, exists := doesVariableSetExist(set.Name, destVarSets)
 		if err != nil {
 			return errors.Wrap(err, "failed to get destination variable set.")
@@ -332,6 +349,7 @@ func copyVariableSetsAll(c tfclient.ClientContexts) error {
 		if exists {
 			o.AddFormattedMessageUserProvided2("Variable set named %v exist in destination org: %v. Skipping creation.", set.Name, c.DestinationOrganizationName)
 		} else {
+
 			// Create a copy of the variable set in the destination
 			srcVarSetName, err := createVariableSets(c, set, "", false)
 			if err != nil {
@@ -398,6 +416,7 @@ func copyVarSetVars(c tfclient.ClientContexts) error {
 	return nil
 }
 
+// Main function for `--varsets` flag when a map is specified in the config file
 // If variablesets-map is defined in the config file this function will be used. Because we cannot
 // list variable sets filtered by name, a seperate function is required.
 // Takes the varsets-map list from the config file after it has been converted to a map by viper.
@@ -429,6 +448,7 @@ func copyVariableSetsCfg(c tfclient.ClientContexts, varsets map[string]string) e
 		if !exists {
 			o.AddFormattedMessageUserProvided2("Variable Set named %v does not exist in source org %v. Skipping.", srcsetname, c.SourceOrganizationName)
 		} else {
+
 			// For each variable set in the source
 			for _, set := range srcVarSets {
 
@@ -436,7 +456,7 @@ func copyVariableSetsCfg(c tfclient.ClientContexts, varsets map[string]string) e
 				// If not, do nothing.
 				if set.Name != srcsetname {
 					continue
-					//o.AddFormattedMessageUserProvided2("Variable Set named %v does not exist in source org %v. Skipping.", srcsetname, c.SourceOrganizationName)
+
 				} else {
 					destVarSetID, exists := doesVariableSetExist(destsetname, destVarSets)
 					if err != nil {
@@ -494,11 +514,12 @@ func copyVarSetVarsCfg(c tfclient.ClientContexts, varsets map[string]string) err
 			o.AddFormattedMessageUserProvided2("Variable Set named %v does not exist in source org %v. Skipping.", srcsetname, c.SourceOrganizationName)
 		} else {
 			for _, set := range srcVarSets {
+
 				// Does the source variable set name match the one provided in the config file?
 				// If not, do nothing.
 				if set.Name != srcsetname {
 					continue
-					//o.AddFormattedMessageUserProvided2("Variable Set named %v does not exist in source org %v. Skipping.", srcsetname, c.SourceOrganizationName)
+
 				} else {
 					destVarSetID, exists := doesVariableSetExist(destsetname, destVarSets)
 					if err != nil {

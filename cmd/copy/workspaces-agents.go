@@ -74,10 +74,12 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]
 			if !isagent {
 				o.AddMessageUserProvided("No Agent Pool Assigned to source Workspace: ", ws.Name)
 			} else {
+
 				// If the source Workspace assigned agent pool ID does not match the one provided by the user on the left side of the `agents-map`, do nothing and inform the user
 				if ws.AgentPool != nil {
 					if ws.AgentPool.ID != srcpool {
 						o.AddFormattedMessageUserProvided2("Workspace %v assigned agent pool ID does not match provided source ID %v. Skipping.", ws.Name, srcpool)
+
 						// If the source Workspace assigned agent pool ID matches the one provided by the user on the left side of the `agents-map`, update the destination Workspace
 						// with the agent pool ID provided by the user on the right side of the `agents-map`
 					} else {
