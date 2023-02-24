@@ -7,6 +7,14 @@ set -euo pipefail
 if $RUNNUKE = "true"
 then
 
+    echo "Removing workspaces"
+
+    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-0"
+    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-1"
+    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-2"
+    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-30"
+    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-40"
+
     echo "Removing Team"
 
     TEAMID=$(curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/teams" |  jq '.data[] | select(.attributes.name == "tfc-team") | .id' | tr -d '"')
@@ -18,14 +26,6 @@ then
     VARSETID=$(curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/varsets" | jq '.data[] | select(.attributes.name == "source-varset") | .id' | tr -d '"')
 
     curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/varsets/$VARSETID"
-
-    echo "Removing workspaces"
-
-    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-0"
-    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-1"
-    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-2"
-    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-30"
-    curl --header "Authorization: Bearer $DESTINATIONTOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DESTINATIONORGANIZATION/workspaces/tfc-mig-vcs-40"
 
     echo "Target Nuked!"
 else
