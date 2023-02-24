@@ -1,0 +1,108 @@
+name: Unit Test TFM
+
+on:
+  workflow_dispatch:
+    inputs:
+      RunNuke:
+        description: 'Run Clean up script after migrations are completed'
+        requiredd: false
+        default: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env: 
+      SOURCEHOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SOURCEORGANIZATION: ${{vars.SOURCEORGANIZATION}}
+      SOURCETOKEN: ${{secrets.SOURCETOKEN}}
+      DESTINATIONHOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DESTINATIONORGANIZATION: ${{vars.DESTINATIONORGANIZATION}}
+      DESTINATIONTOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: List organization source
+        run: ./tfm list organization
+  
+      - name: List organization destination
+        run: ./tfm list organization --side destination
+
+      - name: List ssh key id source
+        run: ./tfm list ssh
+  
+      - name: List ssh key id destination
+        run: ./tfm list ssh --side destination
+
+      - name: List teams source
+        run: ./tfm list teams
+  
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: List vcs source
+        run: ./tfm list vcs
+  
+      - name: List vcs destination
+        run: ./tfm list vcs --side destination
+
+      - name: Migrate teams
+        run: ./tfm copy teams --config test/configs/.unit-test-tfm.hcl
+
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: Migrate varsets
+        run: ./tfm copy varsets --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces
+        run: ./tfm copy workspaces --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces ssh
+        run: ./tfm copy workspaces --ssh --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces state
+        run: ./tfm copy workspaces --state --config test/configs/.unit-test-tfm.hcl
+      
+      - name: Migrate Workspaces teamaccess
+        run: ./tfm copy workspaces --teamaccess --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces vars
+        run: ./tfm copy workspaces --vars --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces vcs
+        run: ./tfm copy workspaces --vcs --config test/configs/.unit-test-tfm.hcl
+
+      - name: Run TF Nuke
+        run: ./test/cleanup/nuke.sh
