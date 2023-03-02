@@ -39,16 +39,16 @@ The high level Migration path has 6 key components:
 
 #### Discovery
 - Determine current Terraform Enterprise landscape
--- Version Control Providers (Which VCS, Count, Distribution of Use)
--- Identity Platform (Which IdP, Number of Teams)
--- Modules in the Private Module Registry (Count, Publishing Method, No. of Versions, Frequency of Change)
--- Policies and Policy Sets (Count, Publishing Method, Frequency of Change)
--- Workspaces (Count, Publishing Method, Frequency of Change)
+    - Version Control Providers (Which VCS, Count, Distribution of Use)
+    - Identity Platform (Which IdP, Number of Teams)
+    - Modules in the Private Module Registry (Count, Publishing Method, No. of Versions, Frequency of Change)
+    - Policies and Policy Sets (Count, Publishing Method, Frequency of Change)
+    - Workspaces (Count, Publishing Method, Frequency of Change)
 - Inventory Terraform Enterprise footprint (Aids in tracking completed work)
 - Establish Workspace criteria required to be eligible for migration
 - Determine if Cloud Agents are required (Typically due to on-premise deployments from Terraform)
--- Identify how Cloud Agents are deployed and configured
--- Determine if any utilities are needed within the agent (Local-Exec, Custom Providers, etc...)
+    - Identify how Cloud Agents are deployed and configured
+    - Determine if any utilities are needed within the agent (Local-Exec, Custom Providers, etc...)
 - Discuss new user onboarding in Terraform Cloud (Slight differences from Terraform Enterprise)
 - Discuss State Migration on Workspaces (Latest State only)
 - Evaluate current use of Workspace Variables marked as "sensitive" (these values are read-only from the API)
@@ -59,8 +59,8 @@ The high level Migration path has 6 key components:
 - Establish Workspace Deprecation process in Terraform Enterprise (Common Options: Locking, Deleting, Archiving)
 - Establish Validation process as agreed upon with the Customer
 - Determine required API tokens needed for the migration (must have access to all needed Organizations)
--- Terraform Enterprise (Source)
--- Terraform Cloud (Destination)
+    - Terraform Enterprise (Source)
+    - Terraform Cloud (Destination)
 - Determine if Workspace Code changes are required (Module Sourcing, Provider Initialization)
 - Design Cloud Agent Pool structure and required infrastructure, including networking and authentication routes
 - Determine how to update destination Workspace Variables that are marked as "sensitive" in the source Workspace
@@ -79,12 +79,12 @@ The high level Migration path has 6 key components:
 - Perform Migration of Modules in the Private Module Registry, and Validate
 - Perform Migration of Sentinel Policies and Policy Sets, and Validate
 - Perform Migration of Workspaces in priority order, and Validate
--- Run Plan on Terraform Enterprise
--- Perform any code changes to the Terraform consumed by the Workspace
--- Migrate Workspace to Terraform Cloud
--- Run Plan on Terraform Cloud (verify it matches the Plan from Terraform Enterprise)
--- Validate
--- Deprecation of Terraform Enterprise Workspace
+    - Run Plan on Terraform Enterprise
+    - Perform any code changes to the Terraform consumed by the Workspace
+    - Migrate Workspace to Terraform Cloud
+    - Run Plan on Terraform Cloud (verify it matches the Plan from Terraform Enterprise)
+    - Validate
+    - Deprecation of Terraform Enterprise Workspace
 #### End-User Validation
 - Verify end users can access and leverage Workspaces in Terraform Cloud as they would have in Terraform Enterprise
 
