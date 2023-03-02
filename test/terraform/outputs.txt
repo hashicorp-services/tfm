@@ -1,0 +1,30 @@
+destination_agents_pool_id = "apool-ionpTPFGPTjytp58"
+destination_gh_oauth_token_id = "ot-kU1vb9khCZrk1HZY"
+destination_ssh_id = "sshkey-MFyZn4EzcqPmdnrY"
+source_agents_pool_id = "apool-E4e9fijGCqnMixgw"
+source_gh_oauth_token_id = "ot-UKM5cGmCkcsptXfq"
+source_ssh_id = "sshkey-gKJBRGBd8DvcGspu"
+source_team_id = "team-LbEpGNbGdtaPppL9"
+source_team_name = "tfc-team"
+source_workspace = [
+  {
+    "workspace_id" = "ws-DHyCaCMBGavNrmwi"
+    "workspace_name" = "tfc-mig-vcs-0"
+  },
+  {
+    "workspace_id" = "ws-EWe42jZPxQUkmyfv"
+    "workspace_name" = "tfc-mig-vcs-1"
+  },
+  {
+    "workspace_id" = "ws-nH1NAzoXziwXKVnp"
+    "workspace_name" = "tfc-mig-vcs-2"
+  },
+  {
+    "workspace_id" = "ws-Lnfe4oPq1xsXNxAg"
+    "workspace_name" = "tfc-mig-vcs-3"
+  },
+  {
+    "workspace_id" = "ws-b6RHQa2rM82TRXCk"
+    "workspace_name" = "tfc-mig-vcs-4"
+  },
+]
