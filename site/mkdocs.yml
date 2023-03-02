@@ -35,3 +35,9 @@ nav:
     - Why TFM?: about/purpose.md
     - Release Notes: about/release_notes.md
     - Contributing: about/contributing.md
+
+
+extra:
+  analytics:
+    provider: google
+    property: G-H9KF63939N
