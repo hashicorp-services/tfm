@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// 1. Get source state versions per workspace
+// 1. Get source state versions per workspace and reverse the slice
 // 2. Get dest state versions per workspace
 // 3. Compare state serials between 2 workspaces
 // 4. Get the WS ID of the WS Name to copy state too
@@ -22,6 +22,21 @@ import (
 // 9. Lock the workspace if not locked
 // 10. Use the StateVersions.Create to upload state to destination
 // 11. Unlock the workspace if locked
+
+// Iterate backwards through the srcstate slice and append each element to a new slice
+// to create a reverse ordered slice of srcStates
+func reverseSlice(input []*tfe.StateVersion) []*tfe.StateVersion {
+	inputLen := len(input)
+	output := make([]*tfe.StateVersion, inputLen)
+
+	for i, n := range input {
+		j := inputLen - i - 1
+
+		output[j] = n
+	}
+
+	return output
+}
 
 // Get the source workspace state files from the provided workspace
 func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
@@ -201,7 +216,9 @@ func copyStates(c tfclient.ClientContexts) error {
 
 			// Loop each state for each source workspace with a matching workspace name in the destination,
 			// check for the existence of that states serial in destination, upload state if serial doesnt exist
-			for _, srcstate := range srcStates {
+
+			for _, srcstate := range reverseSlice(srcStates) {
+
 				exists := doesStateExist(srcstate.Serial, destStates)
 				if exists {
 					fmt.Printf("State Version %v with Serial %v exists in destination will not migrate\n", srcstate.StateVersion, srcstate.Serial)
@@ -246,7 +263,7 @@ func copyStates(c tfclient.ClientContexts) error {
 						return err
 					}
 
-					o.AddDeferredMessageRead("Migrated State Serial # ", srcstate.Serial)
+					_ = srcstate
 				}
 			}
 			unlockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
