@@ -1,5 +1,7 @@
 # Welcome to TFM Docs
 
+![TFM](../../images/TFM-black.png)
+
 _tfm_ is a standalone CLI for Terraform Cloud and Terraform Enterprise migrations.
 
 HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
@@ -168,6 +170,10 @@ ssh-map=[
 ]
 ```
 
+
+## TFM Demo
+
+<iframe src="https://drive.google.com/file/d/1IG8B3yqPFoX642vYnE13lFLPAoUd7Wz6/preview" width="640" height="480" allow="autoplay"></iframe>
 
 
 ## Project layout
