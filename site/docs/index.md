@@ -3,9 +3,9 @@
 ![TFM](../../images/TFM-black.png)
 
 !!! warning ""
-    Note: This CLI is in Beta and currently does NOT have official support! 
+    Note: This CLI is in pre-alpha release and currently does not have official support! 
     
-    TFM is currently being tested internally and is NOT fit yet for external customer use cases. 
+    TFM is currently being tested internally and is not for external customer use cases yet. 
     
     Please reach out to one of our listed [contact methods](#contacts).
 
