@@ -31,6 +31,9 @@ theme:
         icon: material/toggle-switch
         name: Switch to system preference
 
+markdown_extensions:
+  - admonition
+
 nav:
   - Home: index.md
   - Migration Planning:
@@ -53,9 +56,10 @@ nav:
       - VCS: commands/list_vcs.md
       - workspace-filter: commands/list_workspace-filter.md
   - Development:
-    - Project Layout: code/repo-layout.md
+    - MVP Details: code/mvp.md
+    - Project Details: code/project-details.md
     - Architectual Decision Records: code/adr.md
-    - Future Work: code/future.md
+    - Future Work / Roadmap: code/future.md
   - About:
     - Why TFM?: about/purpose.md
     - Release Notes: about/release_notes.md
