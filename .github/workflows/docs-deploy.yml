@@ -34,7 +34,7 @@ jobs:
         uses: canastro/copy-action@master
         with:
           source: "ADR/adr.md"
-          target: "site/docs/about/adr.md"
+          target: "site/docs/code/adr.md"
       # - name: test copy
       #   run: ls -l site/docs/about 
       - name: Deploy MkDocs

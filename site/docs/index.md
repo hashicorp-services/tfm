@@ -50,7 +50,7 @@ curl -L -o tfm.exe "https://github.com/hashicorp-services/tfm/download/${version
 
 `tfm -h`
 
-```
+```bash
 A CLI to assist with TFE Migration.
 
 Usage:
@@ -91,7 +91,7 @@ export DESTINATIONTOKEN="<user token from source TFE/TFC with owner permissions>
 
 A HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`.
 
-```hcl
+```terraform
 sourceHostname="tf.local.com"
 sourceOrganization="companyxyz"
 sourceToken="<user token from source TFE/TFC with owner permissions>"
@@ -104,7 +104,7 @@ destinationToken="<user token from destination TFE/TFC with owner permissions>"
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target.
 
-```hcl
+```terraform
 #List of Workspaces to create/check are migrated across to new TFC
 "workspaces" = [
   "appAFrontEnd",
@@ -119,7 +119,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces fro
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-agent-pool-ID=destination-agent-pool-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --agents` to look at all workspaces in the source host with the assigned source agent pool ID and assign the matching named workspace in the destination with the mapped destination agent pool ID.
 
-```hcl
+```terraform
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID.
 agents-map = [
   "apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE",
@@ -138,19 +138,19 @@ To copy only desired variable sets, provide an HCL list in the `.tfm.hcl` config
 
 Example configuration file:
 
-```hcl
+```terraform
 varsets-map = [
   "Azure-creds=New-Azure-Creds",
   "aws-creds2=New-AWS-Creds",
   "SourceVarSet=DestVarSet"
  ]
- ```
+```
 
 ## Assign VCS
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-vcs-oauth-ID=destination-vcs-oauth-id-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --vcs` to look at all workspaces in the source host with the assigned source VCS oauth ID and assign the matching named workspace in the destination with the mapped destination VCS oauth ID.
 
-```hcl
+```terraform
 # A list of source=destination VCS oauth IDs. TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID.
 vcs-map=[
   "ot-5uwu2Kq8mEyLFPzP=ot-coPDFTEr66YZ9X9n",
@@ -164,7 +164,7 @@ vcs-map=[
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name. 
 *NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names.*
 
-```hcl
+```terraform
 # A list of source=destination workspace names. TFM will look at each source workspace and recreate the workspace with the specified destination name.
 "workspace-map" = [
    "tf-demo-workflow=dst-demo-workflow",
@@ -176,7 +176,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
 
-```hcl
+```terraform
 # A list of source=destination SSH IDs. TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID.
 ssh-map=[
   "sshkey-sPLAKMcqnWtHPSgx=sshkey-CRLmPJpoHwsNFAoN",
