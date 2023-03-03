@@ -2,11 +2,23 @@
 
 ![TFM](../../images/TFM-black.png)
 
+!!! warning ""
+    Note: This CLI is in pre-alpha release and currently does not have official support! 
+    
+    TFM is currently being tested internally and is not for external customer use cases yet. 
+    
+    Please reach out to one of our listed [contact methods](#contacts).
+
+
+   
+
 _tfm_ is a standalone CLI for Terraform Cloud and Terraform Enterprise migrations.
 
 HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
 
 This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows us the ability to offer a standardized offering to our customers.
+
+
 
 ## Installation
 
@@ -157,6 +169,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 "workspace-map" = [
    "tf-demo-workflow=dst-demo-workflow",
    "api-test=dst-api-test"
+   ]
 ```
 
 ## Assign SSH
@@ -176,9 +189,9 @@ ssh-map=[
 <iframe src="https://drive.google.com/file/d/1IG8B3yqPFoX642vYnE13lFLPAoUd7Wz6/preview" width="640" height="480" allow="autoplay"></iframe>
 
 
-## Project layout
+## Contacts
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+- Initial Slack Channel for developement: [#ps-offering-tfe-migration](https://hashicorp.slack.com/archives/C046STDBXNC)
+- Google Group TFM Dev Team: [svc-github-team-tfm@hashicorp.com](svc-github-team-tfm@hashicorp.com
+)
+

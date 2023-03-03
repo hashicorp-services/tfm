@@ -1,10 +1,41 @@
 site_name: TFM 
+site_url: https://go.hashi.co/tfm
 site_author: HashiCorp Implementation Services
 site_description: "A standalone CLI for Terraform Cloud and Terraform Enterprise migrations."
+repo_url: "https://github.com/hashicorp-services/tfm"
+edit_uri: edit/main/site/docs
 copyright: "TFM is licensed under the <a href='https://github.com/hashicorp-services/tfm/blob/main/LICENSE'>Mozilla Public License 2.0</a>"
 
 theme: 
   name: material
+  favicon: img/favicon.ico
+  icon:
+    logo: material/console
+  # custom_dir: 'cinder'
+  # colorscheme: github
+  # highlightjs: true
+  # hljs_languages:
+  font:
+    text: Roboto
+  #   - hcl
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      # primary: blue grey
+      scheme: default 
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to system preference
+
+markdown_extensions:
+  - admonition
 
 nav:
   - Home: index.md
@@ -18,8 +49,10 @@ nav:
       - General: commands/copy.md
       - Workspaces:
         - General: commands/copy_workspaces.md
-        - Teams: commands/copy_teams.md
-        - Var Sets: commands/copy_var_sets.md
+        - Team Access: commands/copy_workspace_teamaccess.md
+        - Var Sets: commands/copy_workspace_varsets.md
+      - Teams: commands/copy_teams.md
+      - Variable Sets: commands/copy_varsets.md
     - List: 
       - General: commands/list.md
       - Organization: commands/list_organization.md
@@ -28,9 +61,10 @@ nav:
       - VCS: commands/list_vcs.md
       - workspace-filter: commands/list_workspace-filter.md
   - Development:
-    - Project Layout: code/repo-layout.md
+    - MVP Details: code/mvp.md
+    - Project Details: code/project-details.md
     - Architectual Decision Records: code/adr.md
-    - Future Work: code/future.md
+    - Future Work / Roadmap: code/future.md
   - About:
     - Why TFM?: about/purpose.md
     - Release Notes: about/release_notes.md

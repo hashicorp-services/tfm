@@ -1,7 +1,7 @@
 # HashiCorp Implementation Services
 Migrating from Terraform Enterprise to Terraform Cloud.
 
-Updated copy of questionaire found at [Google Drive](https://docs.google.com/document/d/15bHmC4keGjrb_Y0TJv5ZsrQP3_Ib4Wv7FYupewBqVDs/edit?usp=sharing).
+Updated copy of questionaire found at [Google Drive](https://docs.google.com/spreadsheets/d/1yi2TRF0G3AN7XTJQxdMneJHX2vTV6-BO4YNQs0F65Bc/edit?usp=sharing).
 
 ## Pre-Sales Questionnaire
 
