@@ -36,6 +36,13 @@ theme:
 
 markdown_extensions:
   - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 
 nav:
   - Home: index.md
@@ -49,8 +56,11 @@ nav:
       - General: commands/copy.md
       - Workspaces:
         - General: commands/copy_workspaces.md
+        - States: commands/copy_workspace_state.md
         - Team Access: commands/copy_workspace_teamaccess.md
-        - Var Sets: commands/copy_workspace_varsets.md
+        - Variables: commands/copy_workspace_variables.md
+        - Agents: commands/copy_workspace_agents.md
+        - VCS: commands/copy_workspace_vcs.md
       - Teams: commands/copy_teams.md
       - Variable Sets: commands/copy_varsets.md
     - List: 
@@ -65,6 +75,7 @@ nav:
     - Project Details: code/project-details.md
     - Architectual Decision Records: code/adr.md
     - Future Work / Roadmap: code/future.md
+  - FAQs: faqs.md
   - About:
     - Why TFM?: about/purpose.md
     - Release Notes: about/release_notes.md

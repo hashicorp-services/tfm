@@ -31,5 +31,5 @@ Our MVP allows a customer to:
     Please reach out to one of our listed [contact methods](#contacts) to get involved.
 
 
-The following is how we want to continue to evolve `tfm` if it were to be used in an official tool during a professional service offering to migrate customer's TFE to TFC.
+Depending on time and pipeline, we do hope we can continue to progress this project to provide value to our customers. 
 
