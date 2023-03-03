@@ -5,6 +5,31 @@ copyright: "TFM is licensed under the <a href='https://github.com/hashicorp-serv
 
 theme: 
   name: material
+  favicon: img/favicon.ico
+  icon:
+    logo: material/console
+  # custom_dir: 'cinder'
+  # colorscheme: github
+  # highlightjs: true
+  # hljs_languages:
+  font:
+    text: Roboto
+  #   - hcl
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      # primary: blue grey
+      scheme: default 
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to system preference
 
 nav:
   - Home: index.md
