@@ -5,7 +5,7 @@ on:
     inputs:
       RunNuke:
         description: 'Run Clean up script after migrations are completed'
-        requiredd: false
+        required: false
         default: true
 
 jobs:
