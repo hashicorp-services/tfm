@@ -30,6 +30,11 @@ jobs:
         with:
           source: "CHANGELOG.md"
           target: "site/docs/about/release_notes.md"
+      - name: Copy Architectual Decision Records for docs site
+        uses: canastro/copy-action@master
+        with:
+          source: "ADR/adr.md"
+          target: "site/docs/about/adr.md"
       # - name: test copy
       #   run: ls -l site/docs/about 
       - name: Deploy MkDocs

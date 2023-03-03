@@ -76,3 +76,25 @@ Information on how this repository is structured.
     - `release.yaml` binary release build
     - `unit-test.yml` automated features testing pipeline
     - `docs-deploy.yml` deployment of TFM Docs to GitHub pages
+
+
+## Technologies
+
+### Language: 
+ - `Go` , chosen to have the ability to cross compile for multiple operating systems. 
+
+### Go Libraries
+ - [`cobra`](https://github.com/spf13/cobra), chosen to provide a modern CLI interface experience.
+ - [`viper`](https://github.com/spf13/viper), chosen to handle configuration files
+ - [`go-tfe`](https://github.com/hashicorp/go-tfe), Go API client for TFE/TFC
+
+
+## Architectural Decisions
+
+ See [Architectural Decisions Records](./adr.md) to understand how and why `tfm` has been built.
+
+
+
+## History and Future of TFM
+
+See [Future Work / Roadmap](./future.md)

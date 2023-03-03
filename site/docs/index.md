@@ -3,7 +3,14 @@
 ![TFM](../../images/TFM-black.png)
 
 !!! warning ""
-    Note: This CLI is still under active development and subject to change!
+    Note: This CLI is in Beta and currently does NOT have official support! 
+    
+    TFM is currently being tested internally and is NOT fit yet for external customer use cases. 
+    
+    Please reach out to one of our listed [contact methods](#contacts).
+
+
+   
 
 _tfm_ is a standalone CLI for Terraform Cloud and Terraform Enterprise migrations.
 

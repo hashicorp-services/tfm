@@ -42,8 +42,10 @@ In preparation of TFC, the following are completed to prepare for migration:
 - [Agent Pools](https://developer.hashicorp.com/terraform/cloud-docs/agents) created and connected to TFC
     - Certain workspaces require the use of Cloud Agents
 - [Variable Sets](https://developer.hashicorp.com/terraform/tutorials/cloud/cloud-multiple-variable-sets) created in TFC to mimic what was configured in TFE.
+    - *Optional*: use `tfm copy varsets`
     - New secrets have been regenerated for certain Variable Sets.
 - [Azure AD SSO](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/single-sign-on/azure-ad) integration setup
+    - *Optional*: use `tfm copy teams` if TFC teams will be the same teams from TFE.
 
 
 ### Setting up the customer's TFM config file
