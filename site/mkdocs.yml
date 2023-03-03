@@ -1,6 +1,9 @@
 site_name: TFM 
+site_url: https://go.hashi.co/tfm
 site_author: HashiCorp Implementation Services
 site_description: "A standalone CLI for Terraform Cloud and Terraform Enterprise migrations."
+repo_url: "https://github.com/hashicorp-services/tfm"
+edit_uri: edit/main/site/docs
 copyright: "TFM is licensed under the <a href='https://github.com/hashicorp-services/tfm/blob/main/LICENSE'>Mozilla Public License 2.0</a>"
 
 theme: 
