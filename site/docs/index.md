@@ -5,7 +5,7 @@
 !!! warning ""
     Note: This CLI is in pre-alpha release and currently does not have official support! 
     
-    TFM is currently being tested internally and is not for external customer use cases yet. 
+    TFM is currently being developed and tested internally and is not for external customer use cases yet. 
     
     Please reach out to one of our listed [contact methods](#contacts).
 
