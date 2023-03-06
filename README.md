@@ -2,7 +2,12 @@
 
 ![TFM](images/TFM-black.png)
 
-HashiCorp IS has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
+HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
+
+> **Warning**
+> This CLI is in pre-alpha release and currently does not have official support! 
+> TFM is currently being developed and tested internally and is not for external customer use cases yet. 
+    
 
 ## Overview
 
