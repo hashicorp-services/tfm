@@ -1,6 +1,6 @@
 # Welcome to TFM Docs
 
-![TFM](../../images/TFM-black.png)
+![TFM](./images/TFM-black.png)
 
 !!! warning ""
     Note: This CLI is in pre-alpha release and currently does not have official support! 
@@ -30,6 +30,9 @@ version="x.x.x"
 curl -L -o tfm "https://github.com/hashicorp-services/tfm/download/${version}/tfm_darwin_amd64"
 chmod +x tfm
 ```
+
+!!! note ""
+    Note: `tfm` CLI is currently not developer-signed or notorised and you will run into an initial issue where `tfm` is not allowed to run. Please follow "[safely open apps on your mac](https://support.apple.com/en-au/HT202491#:~:text=View%20the%20app%20security%20settings%20on%20your%20Mac&text=In%20System%20Preferences%2C%20click%20Security,%E2%80%9CAllow%20apps%20downloaded%20from.%E2%80%9D)" to allow `tfm` to run
 
 **Linux Installation**
 ```sh
@@ -194,4 +197,5 @@ ssh-map=[
 - Initial Slack Channel for developement: [#ps-offering-tfe-migration](https://hashicorp.slack.com/archives/C046STDBXNC)
 - Google Group TFM Dev Team: [svc-github-team-tfm@hashicorp.com](svc-github-team-tfm@hashicorp.com
 )
+- Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 
 

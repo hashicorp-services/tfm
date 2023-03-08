@@ -63,16 +63,14 @@ nav:
         - Agents: commands/copy_workspace_agents.md
         - VCS: commands/copy_workspace_vcs.md
         - Team Access: commands/copy_workspace_teamaccess.md
-        - Var Sets: commands/copy_workspace_varsets.md
       - Teams: commands/copy_teams.md
       - Variable Sets: commands/copy_varsets.md
     - List: 
       - General: commands/list.md
-      - Organization: commands/list_organization.md
+      - Organization: commands/list_orgs.md
       - SSH: commands/list_ssh.md
       - Teams: commands/list_teams.md
       - VCS: commands/list_vcs.md
-      - workspace-filter: commands/list_workspace-filter.md
   - Development:
     - MVP Details: code/mvp.md
     - Project Details: code/project-details.md

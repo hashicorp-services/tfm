@@ -31,3 +31,12 @@ Use "tfm copy [command] --help" for more information about a command.
 - [`tfm copy teams`](copy_teams.md)
 - [`tfm copy varsets`](copy_varsets.md)
 - [`tfm copy workspaces`](copy_workspaces.md)
+
+
+## Possible Future copy commands enhancements
+
+- `tfm copy modules`
+- `tfm copy policy-sets`
+- `tfm copy workspace --all`
+
+Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 

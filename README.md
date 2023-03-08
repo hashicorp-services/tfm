@@ -1,6 +1,6 @@
 # tfm
 
-![TFM](images/TFM-black.png)
+![TFM](site/docs/images/TFM-black.png)
 
 HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
 

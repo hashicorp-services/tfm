@@ -8,9 +8,19 @@ Engineers/Operators that manage/admin Terraform Enterprise/Cloud organizations t
 
 `tfm` will assist with migration of TFE/TFC workspaces from one TFE/TFC instance/organization to another TFE/TFC instance/organization. 
 
-From a customer journey perspective, it will be used initially to prep any workspaces that need to be migrated (`tfm copy workspaces`). Migrations are usually a planned projects that will occur over time. Often there will need to be a final cutover where `tfm` can be used to update any changes from the source OR not all workspaces can be migrated initially that are to happen in a later phase.
 
-Check out [customer journey example](./migration/journey.md) using `tfm` and what a Professions Services engagement looks like. 
+### Migrations of workspaces
+From a customer journey perspective, it will be used initially to copy any workspaces that need to be migrated (`tfm copy workspaces`). Each aspect of a workspace can be copied/migrated to the destination by specifying flags. This allows flexibility and control. Check out the [pre-requisites](./migration/pre-requisites.md) when migrating a workspace. 
+
+### Idempotent Migrations
+We have designed `tfm` to be run more than once on an existing source workspace. This will allow users to not only update any changes from the source workspace, keep tabs. 
+
+### Future Migrations
+Migrations are usually a planned projects that will occur over time. Often there will need to be a final cutover where `tfm` can be used to update any changes from the source OR not all workspaces can be easily migrated initially that require more technical preparations before migration.
+
+### Customer Journey
+
+Check out [customer journey example](./migration/journey.md) using `tfm` and what a Professional Services engagement looks like. 
 
 
 
@@ -40,7 +50,7 @@ The following are environment/configuration constraints where a migration of wor
 
 ## Will this work on a very old version of Terraform Enterprise?
 
-In all honesty, we have not tested in anger what versions of `go-tfe` will not work with `tfm`.  Internal HashiCorp engineers do have the ability to spin up an older version of TFE. Let us know if you need help, we have a test-pipeline our github actions/test directory that can help populate TFE. 
+In all honesty, we have not tested in anger what versions of `go-tfe` will not work with `tfm`.  Internal HashiCorp engineers do have the ability to spin up an older version of TFE test. Let us know if you need help, we have a test-pipeline in the project's github actions/test directory that can help populate TFE. 
 
 
 ## Is `tfm` supported by our HashiCorp Global Support Team?
@@ -48,4 +58,6 @@ In all honesty, we have not tested in anger what versions of `go-tfe` will not w
 Currently there is no official support whatsoever for `tfm`. This project was developed purposely built intially to assist Implementation Engineers if a migration project was to occur as we knew a few key customers had been asking for it. 
 
 
+## I have a feature request
 
+Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 
