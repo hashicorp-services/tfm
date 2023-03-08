@@ -4,3 +4,6 @@
 
 !!! warning ""
     *NOTE: Teams must exist in the destination. *
+
+
+![copy_ws_teamaccess](../images/copy_ws_teamaccess.png)

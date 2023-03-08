@@ -91,6 +91,7 @@ vcs-map=[
 ```
 tfm copy teams
 ```
+![copy_teams](../images/copy_teams.png)
 
 ### Migrate Variable Sets
 

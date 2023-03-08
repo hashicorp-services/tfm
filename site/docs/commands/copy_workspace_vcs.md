@@ -16,3 +16,6 @@ vcs-map=[
   "ot-gkj2An452kn2flfw=ot-8ALKBaqnvj232GB4",
 ]
 ```
+
+
+![copy_ws_vcs](../images/copy_ws_vcs.png)

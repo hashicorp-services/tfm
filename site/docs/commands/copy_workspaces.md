@@ -63,10 +63,21 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 
 ```terraform
 # A list of source=destination workspace names. TFM will look at each source workspace and recreate the workspace with the specified destination name.
-"workspace-map" = [
-   "tf-demo-workflow=dst-demo-workflow",
-   "api-test=dst-api-test"
-   ]
+"workspace-map"=[
+  "tfc-mig-vcs-0=tfc-mig-vcs-0",
+  "tfc-mig-vcs-1=tfc-mig-vcs-1",
+  "tfc-mig-vcs-2=tfc-mig-vcs-2",
+  "tfc-mig-vcs-3=tfc-mig-vcs-30",
+  "tfc-mig-vcs-4=tfc-mig-vcs-40",
+]s
 ```
 
+![copy_ws](../images/copy_ws.png)
 
+
+
+## Existing Workspaces in Destination
+
+Any existing workspaces in the destination will be skipped.
+
+![copy_ws_exist](../images/copy_ws_exists.png)
