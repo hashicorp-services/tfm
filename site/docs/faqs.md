@@ -2,7 +2,16 @@
 
 ## Who is `tfm` developed for?
 
-Engineers/Operators that manage Terraform Enterprise/Cloud organizations that need to perform a migration of workspaces. 
+Engineers/Operators that manage/admin Terraform Enterprise/Cloud organizations that need to perform a migration of workspaces. 
+
+## What is `tfm` intended to do?
+
+`tfm` will assist with migration of TFE/TFC workspaces from one TFE/TFC instance/organization to another TFE/TFC instance/organization. 
+
+From a customer journey perspective, it will be used initially to prep any workspaces that need to be migrated (`tfm copy workspaces`). Migrations are usually a planned projects that will occur over time. Often there will need to be a final cutover where `tfm` can be used to update any changes from the source OR not all workspaces can be migrated initially that are to happen in a later phase.
+
+Check out [customer journey example](./migration/journey.md) using `tfm` and what a Professions Services engagement looks like. 
+
 
 
 ## Can `tfm` perform a TFE to TFE migration?
@@ -13,6 +22,7 @@ Yes, we developed `tfm` to utilise the `go-tfe` library which is used for both T
 - TFE to TFE
 - TFC to TFC
 - TFC to TFE
+- TFC ORG 1 to TFC ORG 2
 
 
 ## What constraints are there with migration?
