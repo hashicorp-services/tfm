@@ -98,6 +98,8 @@ tfm copy teams
 ```
 tfm copy varsets
 ```
+![copy_varsets](../images/copy_varsets.png)
+
 
 ### Migrate workspaces
 
@@ -105,18 +107,25 @@ tfm copy varsets
 tfm copy workspaces
 ```
 
+![copy_ws](../images/copy_ws.png)
+
+
 ### Migrate Workspace state
 
 ```
 tfm copy workspaces --state
 ```
 
+![copy_ws_state](../images/copy_ws_state.png)
+
+
 ### Migrate Workspace Team Access
 
 ```
 tfm copy workspaces --teamaccess
 ```
-
+![copy_ws_teamaccess](../images/copy_ws_teamaccess.png)
+ 
 
 ### Migrate Workspace Variables
 
@@ -124,10 +133,16 @@ tfm copy workspaces --teamaccess
 tfm copy workspaces --vars
 ```
 
+![copy_ws_vars](../images/copy_ws_vars.png)
+
+
 ### Migrate Workspace VCS settings
 
 ```
 tfm copy workspaces --vcs
 ```
+
+![copy_ws_vcs](../images/copy_ws_vcs.png)
+
 
 

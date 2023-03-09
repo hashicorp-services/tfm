@@ -13,14 +13,14 @@ Engineers/Operators that manage/admin Terraform Enterprise/Cloud organizations t
 From a customer journey perspective, it will be used initially to copy any workspaces that need to be migrated (`tfm copy workspaces`). Each aspect of a workspace can be copied/migrated to the destination by specifying flags. This allows flexibility and control. Check out the [pre-requisites](./migration/pre-requisites.md) when migrating a workspace. 
 
 ### Idempotent Migrations
-We have designed `tfm` to be run more than once on an existing source workspace. This will allow users to not only update any changes from the source workspace, keep tabs. 
+We have designed `tfm` to be run more than once on an existing source workspace/s. This will allow users to not only update any changes from the source workspace, but keep tabs. We envision some customers to use the CLI tool in a pipeline and add workspaces for migration by using the `workspace-map` or `workspace-list` options in the config file. 
 
 ### Future Migrations
-Migrations are usually a planned projects that will occur over time. Often there will need to be a final cutover where `tfm` can be used to update any changes from the source OR not all workspaces can be easily migrated initially that require more technical preparations before migration.
+Migrations are usually a planned projects that will occur over time. Often there will be need to be a final cutover where `tfm` can be used to update any changes from the source OR not all workspaces can be easily migrated initially that require more technical preparations before migration.
 
 ### Customer Journey
 
-Check out [customer journey example](./migration/journey.md) using `tfm` and what a Professional Services engagement looks like. 
+Check out [customer journey example](./migration/journey.md) using `tfm` and what a Professional Services engagement would look like. 
 
 
 
@@ -55,7 +55,7 @@ In all honesty, we have not tested in anger what versions of `go-tfe` will not w
 
 ## Is `tfm` supported by our HashiCorp Global Support Team?
 
-Currently there is no official support whatsoever for `tfm`. This project was developed purposely built intially to assist Implementation Engineers if a migration project was to occur as we knew a few key customers had been asking for it. 
+Currently there is *no official support* whatsoever for `tfm`. This project was developed intially to assist Implementation Engineers if a migration project was to occur as we knew a few key customers are anticipating a move from TFE to TFC. 
 
 
 ## I have a feature request
