@@ -19,7 +19,7 @@ Technical Planning Sprint (TPS) is a series of workshops to discuss and work thr
 This phase introduces the `tfm` tool and demonstrates it capabilities. We plan to migrate the workspaces that were identified in technical planning. The following are the outcomes of this phase.
 
 - Confirm Migration pre-requisites
-    - VCS, Teams, Variable Sets, Agent Pools
+    - VCS, Teams, Agent Pools, Workspace readiness
 - Copy of Workspaces
     - States
     - Variables
