@@ -81,6 +81,7 @@ nav:
     - Why TFM?: about/purpose.md
     - Release Notes: about/release_notes.md
     - Contributing: about/contributing.md
+  - Feedback: feedback.md
 
 
 extra:
