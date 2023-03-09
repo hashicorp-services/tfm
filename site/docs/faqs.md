@@ -60,4 +60,6 @@ Currently there is *no official support* whatsoever for `tfm`. This project was 
 
 ## I have a feature request
 
+Check out [Future Work/Roadmap](./code/future.md) or our [Github Projects page](https://github.com/orgs/hashicorp-services/projects/6).
+
 Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 

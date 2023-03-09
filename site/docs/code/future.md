@@ -33,4 +33,8 @@ Our MVP allows a customer to:
 
 Depending on time and pipeline, we do hope we can continue to progress this project to provide value to our customers. 
 
+Check out our [Github Projects page](https://github.com/orgs/hashicorp-services/projects/6).
+
+Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 
+
 
