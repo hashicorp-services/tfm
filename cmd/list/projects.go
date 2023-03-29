@@ -52,7 +52,7 @@ func listProjects(c tfclient.ClientContexts) error {
 
 			srcProjects = append(srcProjects, items.Items...)
 
-			o.AddFormattedMessageCalculated("Found %d Teams", len(srcProjects))
+			o.AddFormattedMessageCalculated("Found %d Projects", len(srcProjects))
 
 			if items.CurrentPage >= items.TotalPages {
 				break
@@ -78,7 +78,7 @@ func listProjects(c tfclient.ClientContexts) error {
 
 			srcProjects = append(srcProjects, items.Items...)
 
-			o.AddFormattedMessageCalculated("Found %d Teams", len(srcProjects))
+			o.AddFormattedMessageCalculated("Found %d Projects", len(srcProjects))
 
 			if items.CurrentPage >= items.TotalPages {
 				break
