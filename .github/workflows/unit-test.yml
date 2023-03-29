@@ -77,6 +77,9 @@ jobs:
       - name: List vcs destination
         run: ./tfm list vcs --side destination
 
+      - name: List projects destination
+        run: ./tfm list projects --side destination
+
       - name: Migrate teams
         run: ./tfm copy teams --config test/configs/.unit-test-tfm.hcl
 
