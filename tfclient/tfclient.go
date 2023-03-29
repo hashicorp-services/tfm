@@ -1,6 +1,5 @@
 package tfclient
 
-
 import (
 	"context"
 	"log"
@@ -8,7 +7,6 @@ import (
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/spf13/viper"
 )
-
 
 type ClientContexts struct {
 	SourceClient                *tfe.Client
@@ -25,11 +23,9 @@ type ClientContexts struct {
 
 func GetClientContexts() ClientContexts {
 
-	
-
 	sourceConfig := &tfe.Config{
-		Address: "https://" + viper.GetString("sourceHostname"),
-		Token:   viper.GetString("sourceToken"),
+		Address: "https://" + viper.GetString("src_tfe_hostname"),
+		Token:   viper.GetString("src_tfe_token"),
 	}
 
 	sourceClient, err := tfe.NewClient(sourceConfig)
@@ -38,8 +34,8 @@ func GetClientContexts() ClientContexts {
 	}
 
 	destinationConfig := &tfe.Config{
-		Address: "https://" + viper.GetString("destinationHostname"),
-		Token:   viper.GetString("destinationToken"),
+		Address: "https://" + viper.GetString("dst_tfc_hostname"),
+		Token:   viper.GetString("dst_tfc_token"),
 	}
 
 	destinationClient, err := tfe.NewClient(destinationConfig)
@@ -54,16 +50,15 @@ func GetClientContexts() ClientContexts {
 	return ClientContexts{
 		sourceClient,
 		sourceCtx,
-		viper.GetString("sourceHostname"),
-		viper.GetString("sourceOrganization"),
-		viper.GetString("sourceToken"),
+		viper.GetString("src_tfe_hostname"),
+		viper.GetString("src_tfe_org"),
+		viper.GetString("src_tfe_token"),
 		destinationClient,
 		destinationCtx,
-		viper.GetString("destinationHostname"),
-		viper.GetString("destinationOrganization"),
-		viper.GetString("destinationToken")}
+		viper.GetString("dst_tfc_hostname"),
+		viper.GetString("dst_tfc_org"),
+		viper.GetString("dst_tfc_token")}
 }
-
 
 func Foo() string {
 	return "Called Foo(), Return with Bar"

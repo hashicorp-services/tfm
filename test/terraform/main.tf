@@ -178,8 +178,3 @@ resource "tfe_oauth_client" "destination" {
   oauth_token      = var.gh_token
   service_provider = "github"
 }
-
-
-carl.javier@hashicorp.com
-joshua.tracy@hashicorp.com
-abasista@hashicorp.com
