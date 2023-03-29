@@ -34,6 +34,7 @@ sourceToken="<user token from source TFE/TFC with owner permissions>"
 destinationHostname="app.terraform.io"
 destinationOrganization="companyxyz"
 destinationToken="<user token from destination TFE/TFC with owner permissions>"
+destinationProjectId="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ## Workspace List
@@ -132,6 +133,7 @@ export SOURCETOKEN="<user token from source TFE/TFC with owner permissions>"
 export DESTINATIONHOSTNAME="app.terraform.io"
 export DESTINATIONORGANIZATION="companyxyz"
 export DESTINATIONTOKEN="<user token from source TFE/TFC with owner permissions>"
+export DESTINATIONPROJECTID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ## Docs
