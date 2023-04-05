@@ -19,7 +19,7 @@ jobs:
       DESTINATIONORGANIZATION: ${{vars.DESTINATIONORGANIZATION}}
       DESTINATIONTOKEN: ${{secrets.DESTINATIONTOKEN}}
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
-      PROJECTID: "migrated"
+      PROJECTID: ${{ vars.DST_PROJECT_ID}}
 
     steps:
       - name: Checkout code
