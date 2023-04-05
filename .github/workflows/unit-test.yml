@@ -19,6 +19,7 @@ jobs:
       DESTINATIONORGANIZATION: ${{vars.DESTINATIONORGANIZATION}}
       DESTINATIONTOKEN: ${{secrets.DESTINATIONTOKEN}}
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      PROJECTID: "migrated"
 
     steps:
       - name: Checkout code
@@ -106,6 +107,9 @@ jobs:
 
       - name: Migrate Workspaces vcs
         run: ./tfm copy workspaces --vcs --config test/configs/.unit-test-tfm.hcl
+
+      - name: List projects destination
+        run: ./tfm list projects --side destination
 
       - name: Run TF Nuke
         run: ./test/cleanup/nuke.sh
