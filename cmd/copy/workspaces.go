@@ -367,7 +367,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 	var project tfe.Project
 
 	// Check if Project ID is set
-	if viper.GetString("projectID") != "" {
+	if viper.GetString("dst_tfc_project_id") != "" {
 		project.ID = viper.GetString("dst_tfc_project_id")
 		fmt.Println("Project ID Set")
 		fmt.Printf(" Project ID, %s, Project Name, %s", project.ID, project.Name)
