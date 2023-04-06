@@ -102,6 +102,7 @@ func init() {
 	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
 	RootCmd.AddCommand(list.ListCmd)
+	RootCmd.AddCommand(CompletionCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
