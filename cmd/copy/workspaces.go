@@ -197,10 +197,10 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	// Check Workspaces exist in source from config
 	for _, s := range srcWorkspacesCfg {
-		//fmt.Println("\nFound Workspace ", s, "in config, check if it exists in", viper.GetString("sourceHostname"))
+		//fmt.Println("\nFound Workspace ", s, "in config, check if it exists in", viper.GetString("src_tfe_hostname"))
 		exists := doesWorkspaceExist(s, srcWorkspaces)
 		if !exists {
-			fmt.Printf("Defined Workspace in config %s DOES NOT exist in %s. \n Please validate your configuration.", s, viper.GetString("sourceHostname"))
+			fmt.Printf("Defined Workspace in config %s DOES NOT exist in %s. \n Please validate your configuration.", s, viper.GetString("src_tfe_hostname"))
 			break
 		}
 	}
@@ -368,7 +368,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 
 	// Check if Project ID is set
 	if viper.GetString("projectID") != "" {
-		project.ID = viper.GetString("projectID")
+		project.ID = viper.GetString("dst_tfc_project_id")
 		fmt.Println("Project ID Set")
 		fmt.Printf(" Project ID, %s, Project Name, %s", project.ID, project.Name)
 		// os.Exit(0)

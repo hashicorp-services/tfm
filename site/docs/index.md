@@ -82,13 +82,13 @@ We recommend using environment variables for sensitive tokens from TFE/TFC inste
 The following environment variables can be set or used to override existing config file values.
 
 ```bash
-export SOURCEHOSTNAME="tf.local.com"
-export SOURCEORGANIZATION="companyxyz"
-export SOURCETOKEN="<user token from source TFE/TFC with owner permissions>"
-export DESTINATIONHOSTNAME="app.terraform.io"
-export DESTINATIONORGANIZATION="companyxyz"
-export DESTINATIONTOKEN="<user token from source TFE/TFC with owner permissions>"
-export DESTINATIONPROJECTID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
+export SRC_TFE_HOSTNAME="tf.local.com"
+export SRC_TFE_ORG="companyxyz"
+export SRC_TFE_TOKEN="<user token from source TFE/TFC with owner permissions>"
+export DST_TFC_HOSTNAME="app.terraform.io"
+export DST_TFC_ORG="companyxyz"
+export DST_TFC_TOKEN="<user token from source TFE/TFC with owner permissions>"
+export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ### Config File
@@ -96,13 +96,13 @@ export DESTINATIONPROJECTID="Destination Project ID for workspaces being migrate
 A HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`.
 
 ```terraform
-sourceHostname="tf.local.com"
-sourceOrganization="companyxyz"
-sourceToken="<user token from source TFE/TFC with owner permissions>"
-destinationHostname="app.terraform.io"
-destinationOrganization="companyxyz"
-destinationToken="<user token from destination TFE/TFC with owner permissions>"
-destinationProjectId="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
+src_tfe_hostname="tf.local.com"
+src_tfe_org="companyxyz"
+src_tfe_token="<user token from source TFE/TFC with owner permissions>"
+dst_tfc_hostname="app.terraform.io"
+dst_tfc_org="companyxyz"
+dst_tfc_token="<user token from destination TFE/TFC with owner permissions>"
+dst_tfc_project_id="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ## Workspace List

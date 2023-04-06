@@ -12,14 +12,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env: 
-      SOURCEHOSTNAME: ${{vars.SOURCEHOSTNAME}}
-      SOURCEORGANIZATION: ${{vars.SOURCEORGANIZATION}}
-      SOURCETOKEN: ${{secrets.SOURCETOKEN}}
-      DESTINATIONHOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
-      DESTINATIONORGANIZATION: ${{vars.DESTINATIONORGANIZATION}}
-      DESTINATIONTOKEN: ${{secrets.DESTINATIONTOKEN}}
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
-      PROJECTID: ${{ vars.DST_PROJECT_ID}}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
 
     steps:
       - name: Checkout code
