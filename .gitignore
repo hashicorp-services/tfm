@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/terraform,golang,git
-# Edit at https://www.toptal.com/developers/gitignore?templates=terraform,golang,git
+# Created by https://www.toptal.com/developers/gitignore/api/terraform,go,git
+# Edit at https://www.toptal.com/developers/gitignore?templates=terraform,go,git
 
 ### Git ###
 # Created by git for backups. To disable backups in Git:
@@ -16,7 +16,28 @@
 *_LOCAL_*.txt
 *_REMOTE_*.txt
 
-#!! ERROR: golang is undefined. Use list command to see defined gitignore types !!#
+### Go ###
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
 
 ### Terraform ###
 # Local .terraform directories
@@ -54,4 +75,4 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# End of https://www.toptal.com/developers/gitignore/api/terraform,golang,git
+# End of https://www.toptal.com/developers/gitignore/api/terraform,go,git
