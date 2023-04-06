@@ -364,6 +364,25 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		return errors.Wrap(err, "Failed to list workspaces from destination target")
 	}
 
+	var project tfe.Project
+
+	// Check if Project ID is set
+	if viper.GetString("dst_tfc_project_id") != "" {
+		project.ID = viper.GetString("dst_tfc_project_id")
+		fmt.Println("Project ID Set")
+		fmt.Printf(" Project ID, %s, Project Name, %s", project.ID, project.Name)
+		// os.Exit(0)
+	} else {
+
+		// get Default Project ID
+		project.ID, err = getDstDefaultProjectID(c)
+
+		if err != nil {
+			fmt.Println("Error Retrieving Destination Project ID. Destination TFE/TFC API may not be supported. Please check credentials")
+			os.Exit(0)
+		}
+	}
+
 	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
 	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
 	for _, srcworkspace := range srcWorkspaces {
@@ -411,6 +430,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 				//VCSRepo: &tfe.VCSRepoOptions{}, covered with `configureVCSsettings` function`
 				WorkingDirectory: &srcworkspace.WorkingDirectory,
 				Tags:             tag,
+				Project:          &project,
 			})
 			if err != nil {
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
@@ -420,4 +440,38 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		}
 	}
 	return nil
+}
+
+func getDstDefaultProjectID(c tfclient.ClientContexts) (string, error) {
+
+	dstProjects := []*tfe.Project{}
+
+	opts := tfe.ProjectListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+
+	for {
+		items, err := c.DestinationClient.Projects.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
+		if err != nil {
+			return "", err
+		}
+		dstProjects = append(dstProjects, items.Items...)
+
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+
+	}
+
+	for _, i := range dstProjects {
+
+		if i.Name == "Default Project" {
+			return i.ID, nil
+		}
+	}
+
+	return "", nil
 }

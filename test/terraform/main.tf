@@ -178,3 +178,9 @@ resource "tfe_oauth_client" "destination" {
   oauth_token      = var.gh_token
   service_provider = "github"
 }
+
+resource "tfe_project" "migrated" {
+  provider = tfe.destination
+  name = "migrated"
+  organization = var.destination_tfe_organization
+}

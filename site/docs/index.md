@@ -88,6 +88,7 @@ export SRC_TFE_TOKEN="<user token from source TFE/TFC with owner permissions>"
 export DST_TFC_HOSTNAME="app.terraform.io"
 export DST_TFC_ORG="companyxyz"
 export DST_TFC_TOKEN="<user token from source TFE/TFC with owner permissions>"
+export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ### Config File
@@ -101,6 +102,7 @@ src_tfe_token="<user token from source TFE/TFC with owner permissions>"
 dst_tfc_hostname="app.terraform.io"
 dst_tfc_org="companyxyz"
 dst_tfc_token="<user token from destination TFE/TFC with owner permissions>"
+dst_tfc_project_id="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ## Workspace List

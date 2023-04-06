@@ -19,6 +19,7 @@ jobs:
       DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
       DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
 
     steps:
       - name: Checkout code
@@ -77,6 +78,9 @@ jobs:
       - name: List vcs destination
         run: ./tfm list vcs --side destination
 
+      - name: List projects destination
+        run: ./tfm list projects --side destination
+
       - name: Migrate teams
         run: ./tfm copy teams --config test/configs/.unit-test-tfm.hcl
 
@@ -103,6 +107,9 @@ jobs:
 
       - name: Migrate Workspaces vcs
         run: ./tfm copy workspaces --vcs --config test/configs/.unit-test-tfm.hcl
+
+      - name: List projects destination
+        run: ./tfm list projects --side destination
 
       - name: Run TF Nuke
         run: ./test/cleanup/nuke.sh
