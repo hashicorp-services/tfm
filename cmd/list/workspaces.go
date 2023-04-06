@@ -8,7 +8,7 @@ import (
 
 var (
 
-	// `tfm list teams` command
+	// `tfm list workspace` command
 	workspacesListCmd = &cobra.Command{
 		Use:   "workspaces",
 		Short: "workspaces command",
@@ -78,7 +78,7 @@ func listworkspaces(c tfclient.ClientContexts) error {
 	}
 
 	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
-		o.AddMessageUserProvided("Getting list of teams from: ", c.DestinationHostname)
+		o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
 
 		for {
 			items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
