@@ -68,6 +68,9 @@ jobs:
 
       - name: List teams source
         run: ./tfm list teams
+      
+      - name: List workspaces source
+        run: ./tfm list workspaces
   
       - name: List teams destination
         run: ./tfm list teams --side destination
@@ -110,6 +113,9 @@ jobs:
 
       - name: List projects destination
         run: ./tfm list projects --side destination
+      
+      - name: List workspaces destination
+        run: ./tfm list workspaces --side destination
 
       - name: Run TF Nuke
         run: ./test/cleanup/nuke.sh
