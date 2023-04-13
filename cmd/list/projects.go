@@ -1,8 +1,10 @@
 package list
 
 import (
+	"context"
+
 	"github.com/hashicorp-services/tfm/tfclient"
-	"github.com/hashicorp/go-tfe"
+	tfe "github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
 )
 
@@ -94,4 +96,15 @@ func listProjects(c tfclient.ClientContexts) error {
 	}
 
 	return nil
+}
+
+func getProjectName(client *tfe.Client, ctx context.Context, projectId string) (string, error) {
+
+	prj, err := client.Projects.Read(ctx, projectId)
+
+	if err != nil {
+		return "error reading project", err
+	}
+
+	return prj.Name, nil
 }

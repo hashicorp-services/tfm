@@ -72,6 +72,7 @@ nav:
       - Teams: commands/list_teams.md
       - VCS: commands/list_vcs.md
       - Projects: commands/list_projects.md
+      - Workspaces: commands/list_workspaces.md
   - Development:
     - MVP Details: code/mvp.md
     - Project Details: code/project-details.md
