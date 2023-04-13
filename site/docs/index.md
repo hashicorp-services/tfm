@@ -16,7 +16,7 @@ _tfm_ is a standalone CLI for Terraform Cloud and Terraform Enterprise migration
 
 HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
 
-This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows us the ability to offer a standardized offering to our customers.
+This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows HashiCorp and the customer the ability to standardised the migration process.
 
 
 
@@ -195,6 +195,8 @@ ssh-map=[
 
 [Click here to watch the demo video](https://drive.google.com/file/d/1BpKSECOVJwWJ53oPmNTcAWqSWGvklVw4/view?usp=share_link). 
 
+!!! note ""
+    Video is currently accessible by HashiCorp Employees only
 
 ## Contacts
 
