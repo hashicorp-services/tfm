@@ -66,7 +66,7 @@ In all honesty, we have not tested in anger what versions of `go-tfe` will not w
 
 ## Is `tfm` supported by our HashiCorp Global Support Team?
 
-Currently there is *no official support* whatsoever for `tfm`. This project was developed intially to assist Implementation Engineers if a migration project was to occur as we knew a few key customers are anticipating a move from TFE to TFC. 
+Currently there is *no official support* whatsoever for `tfm`. This project was developed intially to assist TFE/TFC Administrators/Engineers if a migration project was to occur.
 
 
 ## I have a feature request

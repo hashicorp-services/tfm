@@ -191,12 +191,12 @@ ssh-map=[
 
 ## TFM Demo
 
-<iframe src="https://drive.google.com/file/d/1BpKSECOVJwWJ53oPmNTcAWqSWGvklVw4/preview" width="940" height="480" allow="autoplay"></iframe>
 
-[Click here to watch the demo video](https://drive.google.com/file/d/1BpKSECOVJwWJ53oPmNTcAWqSWGvklVw4/view?usp=share_link). 
+<iframe width="940" height="480" src="https://www.youtube.com/embed/kbFN_NGP2rs" title="Terraform Enterprise Migration CLI Tool (TFM) - pre-alpha" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-!!! note ""
-    Video is currently accessible by HashiCorp Employees only
+
+[Click here to watch the demo video](https://www.youtube.com/embed/kbFN_NGP2rs) (if the above embeded video is not loading). 
+
 
 ## Contacts
 

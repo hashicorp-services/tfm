@@ -4,7 +4,7 @@
 
 ## Happy Path Scenario
 
-Customer has been running Terraform Enterprise and has decided to move to Terraform Cloud. As part of choosing to buy than build their tools, they are embarking on using as many tools as a service. Terraform Cloud is one of them. 
+Customer has been running Terraform Enterprise and has decided to move to Terraform Cloud. As part of choosing to buy than build their suite of platform tools and services, they are embarking on using as many tools as a service. Terraform Cloud is one of them. 
 
 ### VCS
 They have already migrated or starting using a Version Control System (VCS) in the cloud (eg Github, Gitlab or Azure DevOps). 
@@ -46,24 +46,28 @@ In preparation of TFC, the following are completed to prepare for migration:
     - New secrets have been regenerated for certain Variable Sets.
 - [Azure AD SSO](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/single-sign-on/azure-ad) integration setup
     - *Optional*: use `tfm copy teams` if TFC teams will be the same teams from TFE.
+- [Projects](https://developer.hashicorp.com/terraform/tutorials/cloud/projects) created else `tfm` will utilise the "Default Project" if *DST_PROJECT_ID* is not set during a `tfm copy workspace`. 
+    - [`tfm list projects`](../commands/list_projects.md) can be used to determine the project ID.
 
 
 ### Discover current TFE details
 
 #### List Commands
 
-The following commands can assist with initial discovery. 
+The following commands can assist with initial discovery.
+
 - [`tfm list orgs`](../commands/list_workspaces.md)
 - [`tfm list teams`](../commands/list_teams.md)
 - [`tfm list vcs`](../commands/list_vcs.md)
 - [`tfm list workspaces`](../commands/list_workspaces.md)
 - [`tfm list projects`](../commands/list_projects.md) (If using TFE release greater than [v202302-1](https://developer.hashicorp.com/terraform/enterprise/releases/2023/v202302-1))
 
+![list_workspaces](../images/list_workspaces_src1.png)
 
 
 #### More Discovery Tools
 
-`tfm` primary focus was on the migration/copy side of things. If you would like further discovery tools , we recommend using [`tfx`](https://tfx.rocks/)
+`tfm` primary focus was on the migration/copy side of the process. If you would like further discovery tools , we recommend using [`tfx`](https://tfx.rocks/)
 
 
 ### Setting up the TFM config file
@@ -174,7 +178,10 @@ tfm copy workspaces --vcs
 After migration/copy of workspaces and states, it's recommended to verify all is there.
 
 Use the exsting `list` tools as mentioned in [Discovery Section](#discover-current-tfe-details). 
-Compared `tfm list workspaces` using `--side [source|destination]` flag will verify if all have been migrated across.
+Comparing `tfm list workspaces` using `--side [source|destination]` flag will verify if all have been migrated across.
+
+![list_workspaces](../images/list_workspaces_dst1.png)
+
 
 
 #### Code Changes
@@ -272,5 +279,8 @@ jobs:
 
       - name: List projects destination
         run: ./tfm list projects --side destination
+
+      - name: List workspaces destination
+        run: ./tfm list workspaces --side destination
 
 ```
