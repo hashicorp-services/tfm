@@ -163,7 +163,7 @@ func unlockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 }
 
 // Main function for `--state` flag
-func copyStates(c tfclient.ClientContexts) error {
+func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 
 	// Get the source target workspaces
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
@@ -217,7 +217,11 @@ func copyStates(c tfclient.ClientContexts) error {
 			// Loop each state for each source workspace with a matching workspace name in the destination,
 			// check for the existence of that states serial in destination, upload state if serial doesnt exist
 
-			for _, srcstate := range reverseSlice(srcStates) {
+			for i, srcstate := range reverseSlice(srcStates) {
+				println("number is", NumberOfStates)
+				if i >= NumberOfStates {
+					break
+				}
 
 				exists := doesStateExist(srcstate.Serial, destStates)
 				if exists {

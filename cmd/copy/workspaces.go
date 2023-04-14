@@ -19,6 +19,7 @@ var (
 	agents     bool
 	vcs        bool
 	ssh        bool
+	last       int
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -41,7 +42,7 @@ var (
 
 			switch {
 			case state:
-				return copyStates(tfclient.GetClientContexts())
+				return copyStates(tfclient.GetClientContexts(), last)
 			case vars:
 				return copyVariables(tfclient.GetClientContexts())
 			case teamaccess:
@@ -101,6 +102,17 @@ func init() {
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
+	workspacesCopyCmd.Flags().IntVarP(&last, "last", "l", last, "Copy the last X number of state files.")
+	// SetInterspersed prevents cobra from parsing arguments that appear after flags
+	workspacesCopyCmd.Flags().SetInterspersed(false)
+
+	// Prevents users from using the --last flag in an unwanted way
+	workspacesCopyCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if last > 0 && !state {
+			return errors.New("--last flag is only valid after the --state flag is set")
+		}
+		return nil
+	}
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "", false, "Copy workspace Team Access")
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Mapping of source vcs Oauth ID to destination vcs Oath in config file")
