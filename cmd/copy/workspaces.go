@@ -102,7 +102,7 @@ func init() {
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
-	workspacesCopyCmd.Flags().IntVarP(&last, "last", "l", last, "Copy the last X number of state files.")
+	workspacesCopyCmd.Flags().IntVarP(&last, "last", "l", last, "Copy the last X number of state files only.")
 	// SetInterspersed prevents cobra from parsing arguments that appear after flags
 	workspacesCopyCmd.Flags().SetInterspersed(false)
 

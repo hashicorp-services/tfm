@@ -39,12 +39,12 @@ func reverseSlice(input []*tfe.StateVersion) []*tfe.StateVersion {
 }
 
 // Get the source workspace state files from the provided workspace
-func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
+func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int) ([]*tfe.StateVersion, error) {
 	o.AddMessageUserProvided("Getting list of states from source workspace ", ws)
 	srcStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
-		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: NumberOfStates},
 		Organization: c.SourceOrganizationName,
 		Workspace:    ws,
 	}
@@ -57,6 +57,10 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersio
 		srcStates = append(srcStates, items.Items...)
 
 		o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
+
+		if len(srcStates) >= NumberOfStates {
+			break
+		}
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -203,7 +207,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing existing States...\n", srcworkspace.Name, destWorkSpaceName, destWorkspaceId)
 
 			// Get the source workspace states
-			srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name)
+			srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name, NumberOfStates)
 			if err != nil {
 				return errors.Wrap(err, "failed to list state files for workspace from source")
 			}
@@ -217,11 +221,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 			// Loop each state for each source workspace with a matching workspace name in the destination,
 			// check for the existence of that states serial in destination, upload state if serial doesnt exist
 
-			for i, srcstate := range reverseSlice(srcStates) {
-				println("number is", NumberOfStates)
-				if i >= NumberOfStates {
-					break
-				}
+			for _, srcstate := range reverseSlice(srcStates) {
 
 				exists := doesStateExist(srcstate.Serial, destStates)
 				if exists {
