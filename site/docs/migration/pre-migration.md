@@ -3,7 +3,7 @@ Migrating from Terraform Enterprise to Terraform Cloud.
 
 Updated copy of questionaire found at [Google Drive](https://docs.google.com/spreadsheets/d/1yi2TRF0G3AN7XTJQxdMneJHX2vTV6-BO4YNQs0F65Bc/edit?usp=sharing).
 
-## Pre-Sales Questionnaire
+## Pre-Migration Questionnaire
 
 ### Terraform Enterprise, TFE, Current Deployment (Source)
 - TFE Version?

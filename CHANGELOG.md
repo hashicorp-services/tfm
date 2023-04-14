@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.0.3-pre-alpha] (April 6, 2023)
+
+- Refactored Environment Variables/Config File
+- Ability to specify a destination project ID for workspaces to be created in per tfm copy
+- tfm list projects
+- Updates to docs
+
 ## [0.0.2-pre-alpha] (March 3, 2023)
 
 - Bug fix with state migration

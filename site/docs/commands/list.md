@@ -13,10 +13,12 @@ Usage:
 
 Available Commands:
   organization     List Organizations
+  projects         Projects command
   ssh              ssh-keys command
   teams            Teams command
   vcs              List VCS Providers
   workspace-filter Filter workspaces
+  workspaces       Workspaces command
 
 Flags:
   -h, --help          help for list
@@ -34,12 +36,15 @@ Use "tfm list [command] --help" for more information about a command.
 - [`tfm list ssh`](list_ssh.md)
 - [`tfm list teams`](list_teams.md)
 - [`tfm list vcs`](list_vcs.md)
+- [`tfm list projects`](list_projects.md)
+- [`tfm list workspaces`](list_workspaces.md)
+
+
 
 
 
 ## Possible Future list command enhancements
 
-- `tfm list workspaces`
 - `tfm list agents`
 
 Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 

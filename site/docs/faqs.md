@@ -13,17 +13,13 @@ Engineers/Operators that manage/admin Terraform Enterprise/Cloud organizations t
 From a customer journey perspective, it will be used initially to copy any workspaces that need to be migrated (`tfm copy workspaces`). Each aspect of a workspace can be copied/migrated to the destination by specifying flags. This allows flexibility and control. Check out the [pre-requisites](./migration/pre-requisites.md) when migrating a workspace. 
 
 ### Idempotent Migrations
-<<<<<<< HEAD
-We have designed `tfm` to be run more than once on an existing source workspace/s. This will allow users to not only update any changes from the source workspace, but keep tabs. We envision some customers to use the CLI tool in a pipeline and add workspaces for migration by using the `workspace-map` or `workspace-list` options in the config file. 
+We have designed `tfm` to be run more than once on an existing source workspace/s. This will allow users to not only update any changes from the source workspace, but keep tabs on workspaces that have yet to be migrated to the destination. 
 
-### Future Migrations
-Migrations are usually a planned projects that will occur over time. Often there will be need to be a final cutover where `tfm` can be used to update any changes from the source OR not all workspaces can be easily migrated initially that require more technical preparations before migration.
+### CLI Usage
+The main usage will be used by TFE admins carefully migrating select workspaces for migration to TFE/TFC as shown in our [example migration scenario](../docs/migration/example-scenarios.md).   
 
-### Customer Journey
+We also envision some users to use the CLI tool in a pipeline and add workspaces over time for migration by using the `workspace-map` or `workspace-list` options in the config file. Check out an [example github actions pipeline](../docs/migration/example-scenarios.md#example-github-actions-pipeline). This allows teams to plan gradually which workspaces are ready for migration. 
 
-Check out [customer journey example](./migration/journey.md) using `tfm` and what a Professional Services engagement would look like. 
-=======
-We have designed `tfm` to be run more than once on an existing source workspace. This will allow users to not only update any changes from the source workspace, keep tabs. 
 
 ### Future Migrations
 Migrations are usually a planned projects that will occur over time. Often there will need to be a final cutover where `tfm` can be used to update any changes from the source OR not all workspaces can be easily migrated initially that require more technical preparations before migration.
@@ -31,7 +27,6 @@ Migrations are usually a planned projects that will occur over time. Often there
 ### Customer Journey
 
 Check out [customer journey example](./migration/journey.md) using `tfm` and what a Professional Services engagement looks like. 
->>>>>>> main
 
 
 
@@ -59,6 +54,11 @@ The following are environment/configuration constraints where a migration of wor
 - Workspaces that utilise `local-exec` or `remote-exec` [provisioner](https://developer.hashicorp.com/terraform/enterprise/install/interactive/installer#custom-image). 
 
 
+## Does tfm store the state file to disk?
+
+No tfm streams the statefile from the source to memory and then sends it to the destination. No statefile or any kind of file is written to disk. The statefile is also encrypted when fetched from the TFE API. 
+
+
 ## Will this work on a very old version of Terraform Enterprise?
 
 In all honesty, we have not tested in anger what versions of `go-tfe` will not work with `tfm`.  Internal HashiCorp engineers do have the ability to spin up an older version of TFE test. Let us know if you need help, we have a test-pipeline in the project's github actions/test directory that can help populate TFE. 
@@ -66,7 +66,7 @@ In all honesty, we have not tested in anger what versions of `go-tfe` will not w
 
 ## Is `tfm` supported by our HashiCorp Global Support Team?
 
-Currently there is *no official support* whatsoever for `tfm`. This project was developed intially to assist Implementation Engineers if a migration project was to occur as we knew a few key customers are anticipating a move from TFE to TFC. 
+Currently there is *no official support* whatsoever for `tfm`. This project was developed intially to assist TFE/TFC Administrators/Engineers if a migration project was to occur.
 
 
 ## I have a feature request

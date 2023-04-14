@@ -2,7 +2,7 @@
 
 
 The above is an estimated customer experience when migrating TFE to TFC (or another TFE).
-Offered and ran as a Fast Track offering, we run customer through a proven delivery methodolgy Implementation SErvices have been using to adopt other HashiCorp products. 
+Offered and ran as a Fast Track offering, we run customer through a proven delivery methodolgy Implementation Services have been using to adopt other HashiCorp products. 
 
 --- 
 ## Technical Planning

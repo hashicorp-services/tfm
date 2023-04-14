@@ -51,7 +51,7 @@ nav:
     - Migration Journey: migration/journey.md
     - Pre-requisites: migration/pre-requisites.md
     - Example Scenario: migration/example-scenarios.md
-    - Pre-Sales Questionaire: migration/pre-sales.md
+    - Pre-Migration Questionaire: migration/pre-migration.md
   - Commands:
     - Copy: 
       - General: commands/copy.md

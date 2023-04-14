@@ -4,7 +4,7 @@
 
 ## Happy Path Scenario
 
-Customer has been running Terraform Enterprise and has decided to move to Terraform Cloud. As part of choosing to buy than build their tools, they are embarking on using as many tools as a service. Terraform Cloud is one of them. 
+Customer has been running Terraform Enterprise and has decided to move to Terraform Cloud. As part of choosing to buy than build their suite of platform tools and services, they are embarking on using as many tools as a service. Terraform Cloud is one of them. 
 
 ### VCS
 They have already migrated or starting using a Version Control System (VCS) in the cloud (eg Github, Gitlab or Azure DevOps). 
@@ -46,11 +46,36 @@ In preparation of TFC, the following are completed to prepare for migration:
     - New secrets have been regenerated for certain Variable Sets.
 - [Azure AD SSO](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/single-sign-on/azure-ad) integration setup
     - *Optional*: use `tfm copy teams` if TFC teams will be the same teams from TFE.
+- [Projects](https://developer.hashicorp.com/terraform/tutorials/cloud/projects) created else `tfm` will utilise the "Default Project" if *DST_PROJECT_ID* is not set during a `tfm copy workspace`. 
+    - [`tfm list projects`](../commands/list_projects.md) can be used to determine the project ID.
 
 
-### Setting up the customer's TFM config file
+### Discover current TFE details
+
+#### List Commands
+
+The following commands can assist with initial discovery.
+
+- [`tfm list orgs`](../commands/list_workspaces.md)
+- [`tfm list teams`](../commands/list_teams.md)
+- [`tfm list vcs`](../commands/list_vcs.md)
+- [`tfm list workspaces`](../commands/list_workspaces.md)
+- [`tfm list projects`](../commands/list_projects.md) (If using TFE release greater than [v202302-1](https://developer.hashicorp.com/terraform/enterprise/releases/2023/v202302-1))
+
+![list_workspaces](../images/list_workspaces_src1.png)
+
+
+#### More Discovery Tools
+
+`tfm` primary focus was on the migration/copy side of the process. If you would like further discovery tools , we recommend using [`tfx`](https://tfx.rocks/)
+
+
+### Setting up the TFM config file
 
 The following is what a `~/.tfm.hcl` file will look like for `tfm copy workspaces` to use.
+
+[`tfm list *`](../commands/list.md) commands could be of use to fill in parts of the tfm.hcl config file.
+
 ```hcl
 #List of Workspaces to create/check are migrated across to new TFC
 "workspaces" = [
@@ -84,6 +109,7 @@ vcs-map=[
 
 
 ```
+
 
 
 ### Migrate Teams
@@ -145,4 +171,116 @@ tfm copy workspaces --vcs
 ![copy_ws_vcs](../images/copy_ws_vcs.png)
 
 
+### Post `tfm` Migration Tasks
 
+
+#### Basic Verfications
+After migration/copy of workspaces and states, it's recommended to verify all is there.
+
+Use the exsting `list` tools as mentioned in [Discovery Section](#discover-current-tfe-details). 
+Comparing `tfm list workspaces` using `--side [source|destination]` flag will verify if all have been migrated across.
+
+![list_workspaces](../images/list_workspaces_dst1.png)
+
+
+
+#### Code Changes
+
+Workspaces that are migrated will require code changes if they utilise the source destination Private Module Registry. Migrating to another TFE/TFC requires the module sources of the original Private Module Registry source to be changed to the destination address.
+
+#### Lock Workspaces
+
+Destination Workspaces that have been migrated but have not fully cut over should be locked. 
+
+
+#### Verify Workspaces with clean plans
+
+Each workspace in the destination should be verified a clean plan can be executed. 
+
+
+### Example GitHub Actions Pipeline
+
+The following is an example GitHub Actions pipeline that uses the `tfm` binary. An assumption is made that some customers may want to pipeline the migration as `tfm` has been developed to be idempotent. 
+
+```yaml
+name: TFM migration pipeline
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    steps:
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: List organization source
+        run: ./tfm list organization
+  
+      - name: List organization destination
+        run: ./tfm list organization --side destination
+
+      - name: List ssh key id source
+        run: ./tfm list ssh
+  
+      - name: List ssh key id destination
+        run: ./tfm list ssh --side destination
+
+      - name: List teams source
+        run: ./tfm list teams
+  
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: List vcs source
+        run: ./tfm list vcs
+  
+      - name: List vcs destination
+        run: ./tfm list vcs --side destination
+
+      - name: List projects destination
+        run: ./tfm list projects --side destination
+
+      - name: Migrate teams
+        run: ./tfm copy teams --config test/configs/.unit-test-tfm.hcl
+
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: Migrate varsets
+        run: ./tfm copy varsets --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces
+        run: ./tfm copy workspaces --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces ssh
+        run: ./tfm copy workspaces --ssh --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces state
+        run: ./tfm copy workspaces --state --config test/configs/.unit-test-tfm.hcl
+      
+      - name: Migrate Workspaces teamaccess
+        run: ./tfm copy workspaces --teamaccess --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces vars
+        run: ./tfm copy workspaces --vars --config test/configs/.unit-test-tfm.hcl
+
+      - name: Migrate Workspaces vcs
+        run: ./tfm copy workspaces --vcs --config test/configs/.unit-test-tfm.hcl
+
+      - name: List projects destination
+        run: ./tfm list projects --side destination
+
+      - name: List workspaces destination
+        run: ./tfm list workspaces --side destination
+
+```
