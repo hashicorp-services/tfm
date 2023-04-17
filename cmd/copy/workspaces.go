@@ -370,7 +370,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 	if viper.GetString("dst_tfc_project_id") != "" {
 		project.ID = viper.GetString("dst_tfc_project_id")
 		fmt.Println("Project ID Set")
-		fmt.Printf(" Project ID, %s, Project Name, %s", project.ID, project.Name)
+		fmt.Printf(" Project ID: %s, Project Name, %s\n", project.ID, project.Name)
 		// os.Exit(0)
 	} else {
 

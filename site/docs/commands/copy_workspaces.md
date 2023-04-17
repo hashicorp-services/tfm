@@ -81,3 +81,28 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 Any existing workspaces in the destination will be skipped.
 
 ![copy_ws_exist](../images/copy_ws_exists.png)
+
+
+## Copy Workspaces into Projects
+
+By default, a workspace will be copied over to the Default Project in the destination (eg TFC).
+Users can specify the project ID for the desired project to place all workspaces in the `tfm copy workspace` run. 
+
+Utilise [`tfm list projects --side destination`](../commands/list_projects.md#side-flag) to determine the `project id`.
+
+Set either the environment variable: 
+
+```bast
+export DST_TFC_PROJECT_ID=prj-XXXX
+```
+
+or specify the following in your `~/.tfm.hcl` configuration file. 
+
+```terraform
+dst_tfc_project_id=prj-xxx 
+```
+
+
+
+
+

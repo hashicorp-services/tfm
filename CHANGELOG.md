@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.0.4-pre-alpha] (April 14, 2023)
+
+- Added tfm list workspaces
+- Updated GitHub Pages for public viewing
+
 ## [0.0.3-pre-alpha] (April 6, 2023)
 
 - Refactored Environment Variables/Config File
