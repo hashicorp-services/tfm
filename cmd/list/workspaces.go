@@ -55,7 +55,7 @@ func listworkspaces(c tfclient.ClientContexts) error {
 		o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
 
 		for {
-			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
+			items, err := c.SourceClient.Admin.Workspaces.List(c.SourceContext, c.SourceClient.Workspaces, &opts)
 			if err != nil {
 				return err
 			}
