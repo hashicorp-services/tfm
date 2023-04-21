@@ -125,8 +125,8 @@ module "workspacer_source" {
   ssh_key_id = tfe_ssh_key.source.id
 
   vcs_repo = {
-    identifier     = "hashicorp-services/tfm"
-    branch         = "migrate-x-states"
+    identifier     = "hashicorp-services/tfm2"
+    branch         = "main"
     oauth_token_id = tfe_oauth_client.source.oauth_token_id
     tags_regex     = null # conflicts with `trigger_prefixes` and `trigger_patterns`
   }
@@ -177,8 +177,8 @@ module "workspacer_state_test" {
   ssh_key_id = tfe_ssh_key.source.id
 
   vcs_repo = {
-    identifier     = "hashicorp-services/tfm2"
-    branch         = "main"
+    identifier     = "hashicorp-services/tfm"
+    branch         = "migrate-x-states"
     oauth_token_id = tfe_oauth_client.source.oauth_token_id
     tags_regex     = null # conflicts with `trigger_prefixes` and `trigger_patterns`
   }
