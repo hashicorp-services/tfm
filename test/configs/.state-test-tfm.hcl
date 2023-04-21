@@ -11,5 +11,5 @@ ssh-map=[
 ]
 
 workspace-map=[
-  "tfc-mig-state-test",
+  "tfc-mig-state-test=tfc-mig-state-test"
 ]
