@@ -16,16 +16,22 @@ var (
 		Short:   "List VCS Providers",
 		Long:    "List of VCS Providers. Will default to source if no side is specified",
 		Run: func(cmd *cobra.Command, args []string) {
-			vcsListAll(tfclient.GetClientContexts())
+			if all {
+				vcsListAll(tfclient.GetClientContexts())
+			} else {
+				vcsList(tfclient.GetClientContexts())
+			}
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			o.Close()
 		},
 	}
+	all bool
 )
 
 func init() {
 	ListCmd.AddCommand(vcsListCmd)
+	vcsListCmd.Flags().BoolVarP(&all, "all", "", false, "List VCS Providers in all orgs instead of configured org")
 }
 
 // helper functions
@@ -128,6 +134,33 @@ func vcsListAll(c tfclient.ClientContexts) error {
 
 	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
 	for _, i := range allVcsList {
+
+		vcsName := ""
+		if i.Name != nil {
+			vcsName = *i.Name
+		}
+
+		o.AddTableRows(i.Organization.Name, vcsName, i.OAuthTokens[0].ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
+	}
+
+	return nil
+}
+
+func vcsList(c tfclient.ClientContexts) error {
+	o.AddMessageUserProvided("List vcs for configured Organizations", "")
+
+	var orgVcsList []*tfe.OAuthClient
+
+	orgVcsList, err := vcsListAllForOrganization(c, c.SourceOrganizationName)
+
+	if err != nil {
+		helper.LogError(err, "failed to list vcs for organization")
+	}
+
+	o.AddFormattedMessageCalculated("Found %d vcs", len(orgVcsList))
+
+	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
+	for _, i := range orgVcsList {
 
 		vcsName := ""
 		if i.Name != nil {
