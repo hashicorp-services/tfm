@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp-services/tfm/cmd/copy"
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/cmd/list"
+	"github.com/hashicorp-services/tfm/cmd/nuke"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/version"
 	"github.com/logrusorgru/aurora"
@@ -102,6 +103,7 @@ func init() {
 	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
 	RootCmd.AddCommand(list.ListCmd)
+	RootCmd.AddCommand(nuke.NukeCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
