@@ -164,6 +164,26 @@ func (o Output) AddFormattedMessageCalculated3(description string, value interfa
 	fmt.Printf(description, aurora.Yellow(value), aurora.Yellow(value3))
 }
 
+// Add FORMATTED display information to show progress to terminal users
+// This will be printed immediately for DefaultOutput
+func (o Output) AddFormattedMessageCalculatedDanger(description string, value interface{}) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(aurora.Sprintf(aurora.Red(description), aurora.Yellow(value)))
+}
+
+func (o *Output) AddPassUserProvided(value string) {
+	// only output for default
+	if o.JsonOutput {
+		return
+	}
+
+	fmt.Println(aurora.Green(value))
+}
+
 // Adds a message that will not print until Close() is called, to print and align
 // Single primitive Value (string, int, bool)
 func (o *Output) AddDeferredMessageRead(description string, value interface{}) {
