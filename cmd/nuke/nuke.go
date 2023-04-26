@@ -9,6 +9,7 @@ var (
 		Use:   "nuke",
 		Short: "nuke command",
 		Long:  "nuke objects in an org. DANGER this will delete things!",
+		Hidden: true,
 	}
 )
 
