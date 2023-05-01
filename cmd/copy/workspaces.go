@@ -193,7 +193,7 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		fmt.Println("No workspaces or workspaces-map found in config file (~/.tfm.hcl).\n\nALL WORKSPACES WILL BE MIGRATED from ", viper.GetString("src_tfe_hostname"))
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
 		if !confirm() {
-			fmt.Println("\n\n**** Canceling tfm copy ws **** ")
+			fmt.Println("\n\n**** Canceling tfm run **** ")
 			os.Exit(1)
 		}
 
