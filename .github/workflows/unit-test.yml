@@ -85,31 +85,31 @@ jobs:
         run: ./tfm list projects --side destination
 
       - name: Migrate teams
-        run: ./tfm copy teams --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy teams --config test/configs/.unit-test-tfm.hcl
 
       - name: List teams destination
-        run: ./tfm list teams --side destination --autoapprove=true
+        run: ./tfm list teams --side destination
 
       - name: Migrate varsets
-        run: ./tfm copy varsets --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy varsets --config test/configs/.unit-test-tfm.hcl
 
       - name: Migrate Workspaces
-        run: ./tfm copy workspaces --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy workspaces --config test/configs/.unit-test-tfm.hcl
 
       - name: Migrate Workspaces ssh
-        run: ./tfm copy workspaces --ssh --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy workspaces --ssh --config test/configs/.unit-test-tfm.hcl
 
       - name: Migrate Workspaces state
-        run: ./tfm copy workspaces --state --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy workspaces --state --config test/configs/.unit-test-tfm.hcl
       
       - name: Migrate Workspaces teamaccess
-        run: ./tfm copy workspaces --teamaccess --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy workspaces --teamaccess --config test/configs/.unit-test-tfm.hcl
 
       - name: Migrate Workspaces vars
-        run: ./tfm copy workspaces --vars --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy workspaces --vars --config test/configs/.unit-test-tfm.hcl
 
       - name: Migrate Workspaces vcs
-        run: ./tfm copy workspaces --vcs --config test/configs/.unit-test-tfm.hcl --autoapprove=true
+        run: ./tfm copy workspaces --vcs --config test/configs/.unit-test-tfm.hcl
 
       - name: List projects destination
         run: ./tfm list projects --side destination
