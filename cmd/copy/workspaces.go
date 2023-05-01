@@ -190,10 +190,11 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	} else {
 		// Get ALL source workspaces
-		fmt.Println("No workspaces or workspaces-map found in config file (~/.tfm.hcl).\n\nALL WORKSPACES WILL BE MIGRATED from ", viper.GetString("src_tfe_hostname") )
+		fmt.Println("No workspaces or workspaces-map found in config file (~/.tfm.hcl).\n\nALL WORKSPACES WILL BE MIGRATED from ", viper.GetString("src_tfe_hostname"))
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
 		if !confirm() {
-			fmt.Println("\n\n****Canceling tfm copy ws *** \n\n")
+			fmt.Println("\n\n**** Canceling tfm copy ws **** ")
+			os.Exit(1)
 		}
 
 		if err != nil {
@@ -210,11 +211,6 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 			break
 		}
 	}
-
-
-	fmt.Println("Config FIle: ", *CopyCmd.Flags().Name)
-
-	os.Exit(0)
 
 	return srcWorkspaces, nil
 
@@ -487,17 +483,29 @@ func getDstDefaultProjectID(c tfclient.ClientContexts) (string, error) {
 	return "", nil
 }
 
-
-
 func confirm() bool {
 
 	var input string
 
 	fmt.Printf("Do you want to continue with this operation? [y|n]: ")
-	_, err := fmt.Scanln(&input)
+
+	auto, err := CopyCmd.Flags().GetBool("autoapprove")
+
 	if err != nil {
-		panic(err)
+		fmt.Println("Error Retrieving autoapprove flag value: ", err)
 	}
+
+	// Check if --autoapprove=false
+	if !auto {
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		input = "y"
+		fmt.Println("y(autoapprove=true)")
+	}
+
 	input = strings.ToLower(input)
 
 	if input == "y" || input == "yes" {
