@@ -172,9 +172,9 @@ func copyStates(c tfclient.ClientContexts) error {
 	}
 
 	// Get/Check if Workspace map exists
-	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 	if err != nil {
-		fmt.Println("invalid input for workspace-map")
+		fmt.Println("invalid input for workspaces-map")
 	}
 
 	// Get the destination target workspaces
@@ -248,7 +248,7 @@ func copyStates(c tfclient.ClientContexts) error {
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
-						Type:             "",
+						Type: "",
 						//Lineage:        Optional attribute, must be left empty or match source Lineage
 						MD5:              tfe.String(md5String),
 						Serial:           &newSerial,

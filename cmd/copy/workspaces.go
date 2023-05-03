@@ -30,13 +30,13 @@ var (
 		//Args:      cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			// Validate `workspace-map` if it exists before any other functions can run.
-			valid, wsMapCfg, err := validateMap(tfclient.GetClientContexts(), "workspace-map")
+			// Validate `workspaces-map` if it exists before any other functions can run.
+			valid, wsMapCfg, err := validateMap(tfclient.GetClientContexts(), "workspaces-map")
 			if err != nil {
 				return err
 			}
 
-			// Continue the application if `workspace-map` is not provided. The valid and map output arent needed.
+			// Continue the application if `workspaces-map` is not provided. The valid and map output arent needed.
 			_ = valid
 
 			switch {
@@ -149,9 +149,9 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	// Get source Workspace list from config list `workspaces` if it exists
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
 
-	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 	if err != nil {
-		return srcWorkspaces, errors.New("Invalid input for workspace-map")
+		return srcWorkspaces, errors.New("Invalid input for workspaces-map")
 	}
 
 	if len(srcWorkspacesCfg) > 0 {
@@ -168,7 +168,7 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 			wsList = append(wsList, key)
 		}
 
-		o.AddMessageUserProvided("Source Workspaces found in `workspace-map`:", wsList)
+		o.AddMessageUserProvided("Source Workspaces found in `workspaces-map`:", wsList)
 
 		// Set source workspaces
 		srcWorkspaces, err = getSrcWorkspacesFilter(tfclient.GetClientContexts(), wsList)

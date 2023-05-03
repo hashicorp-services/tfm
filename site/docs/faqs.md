@@ -18,7 +18,7 @@ We have designed `tfm` to be run more than once on an existing source workspace/
 ### CLI Usage
 The main usage will be used by TFE admins carefully migrating select workspaces for migration to TFE/TFC as shown in our [example migration scenario](../docs/migration/example-scenarios.md).   
 
-We also envision some users to use the CLI tool in a pipeline and add workspaces over time for migration by using the `workspace-map` or `workspace-list` options in the config file. Check out an [example github actions pipeline](../docs/migration/example-scenarios.md#example-github-actions-pipeline). This allows teams to plan gradually which workspaces are ready for migration. 
+We also envision some users to use the CLI tool in a pipeline and add workspaces over time for migration by using the `workspaces-map` or `workspace-list` options in the config file. Check out an [example github actions pipeline](../docs/migration/example-scenarios.md#example-github-actions-pipeline). This allows teams to plan gradually which workspaces are ready for migration. 
 
 
 ### Future Migrations
