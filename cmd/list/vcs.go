@@ -45,11 +45,11 @@ func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tf
 		var err error
 
 		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
-			items, err = c.SourceClient.OAuthClients.List(c.SourceContext, orgName, &opts)
+			items, err = c.SourceClient.OAuthClients.List(c.SourceContext, c.SourceOrganizationName, &opts)
 		}
 
 		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
-			items, err = c.DestinationClient.OAuthClients.List(c.DestinationContext, orgName, &opts)
+			items, err = c.DestinationClient.OAuthClients.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
 		}
 		if err != nil {
 			return nil, err
