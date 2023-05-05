@@ -150,8 +150,15 @@ func vcsList(c tfclient.ClientContexts) error {
 	o.AddMessageUserProvided("List vcs for configured Organizations", "")
 
 	var orgVcsList []*tfe.OAuthClient
+	var err error
 
-	orgVcsList, err := vcsListAllForOrganization(c, c.SourceOrganizationName)
+	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
+		orgVcsList, err = vcsListAllForOrganization(c, c.SourceOrganizationName)
+	}
+
+	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+		orgVcsList, err = vcsListAllForOrganization(c, c.DestinationOrganizationName)
+	}
 
 	if err != nil {
 		helper.LogError(err, "failed to list vcs for organization")
