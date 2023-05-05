@@ -36,6 +36,16 @@ Global Flags:
 
 Without providing any flags, `tfm copy workspaces` will copy all source workspaces and create them in the destination organization.
 
+Users will be required to confirm all workspaces is the desired operation if no `workspaces` or `workspaces-map` is not found in tfm config file (eg `~/.tfm.hcl`).
+
+![tfm_cp_ws_confirm](../images/tfm_copy_ws_confirm.png)
+
+To automate the confirmation, the flag `--autoapprove=true` can be provided during a `tfm` run. 
+
+![tfm_cp_ws_confirm_autoapprove](../images/tfm_copy_ws_confirm_autoapprove.png)
+
+
+
 
 
 ## Copy a list of workspaces
