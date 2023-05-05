@@ -86,8 +86,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfm.hcl).")
-	RootCmd.PersistentFlags().BoolP("autoapprove","",false, "Auto Approve the tfm run")
-
+	RootCmd.PersistentFlags().BoolP("autoapprove", "", false, "Auto approve the tfm run. --autoapprove=true . false by default")
 
 	// RootCmd.PersistentFlags().StringVar(&side, "side", "", "Specify source or destination side to process")
 	// rootCmd.PersistentFlags().String("source-hostname", "", "The source hostname. Can also be set with the environment variable SOURCE_HOSTNAME.")
