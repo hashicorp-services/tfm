@@ -65,6 +65,7 @@ Available Commands:
   list        List command
 
 Flags:
+      --autoapprove     Auto Approve the tfm run. --autoapprove=true . false by default
       --config string   Config file, can be used to store common flags, (default is ./.tfm.hcl).
   -h, --help            help for tfm
   -v, --version         version for tfm
