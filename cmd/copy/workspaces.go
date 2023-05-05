@@ -3,6 +3,7 @@ package copy
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -189,7 +190,13 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	} else {
 		// Get ALL source workspaces
+		fmt.Println("No workspaces or workspaces-map found in config file (~/.tfm.hcl).\n\nALL WORKSPACES WILL BE MIGRATED from ", viper.GetString("src_tfe_hostname"))
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
+		if !confirm() {
+			fmt.Println("\n\n**** Canceling tfm run **** ")
+			os.Exit(1)
+		}
+
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
 		}
@@ -474,4 +481,35 @@ func getDstDefaultProjectID(c tfclient.ClientContexts) (string, error) {
 	}
 
 	return "", nil
+}
+
+func confirm() bool {
+
+	var input string
+
+	fmt.Printf("Do you want to continue with this operation? [y|n]: ")
+
+	auto, err := CopyCmd.Flags().GetBool("autoapprove")
+
+	if err != nil {
+		fmt.Println("Error Retrieving autoapprove flag value: ", err)
+	}
+
+	// Check if --autoapprove=false
+	if !auto {
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		input = "y"
+		fmt.Println("y(autoapprove=true)")
+	}
+
+	input = strings.ToLower(input)
+
+	if input == "y" || input == "yes" {
+		return true
+	}
+	return false
 }

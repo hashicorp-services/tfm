@@ -65,6 +65,7 @@ Available Commands:
   list        List command
 
 Flags:
+      --autoapprove     Auto Approve the tfm run. --autoapprove=true . false by default
       --config string   Config file, can be used to store common flags, (default is ./.tfm.hcl).
   -h, --help            help for tfm
   -v, --version         version for tfm
@@ -103,6 +104,25 @@ dst_tfc_hostname="app.terraform.io"
 dst_tfc_org="companyxyz"
 dst_tfc_token="<user token from destination TFE/TFC with owner permissions>"
 dst_tfc_project_id="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
+```
+
+### Copy Workspaces into Projects
+
+By default, a workspace will be copied over to the Default Project in the destination (eg TFC).
+Users can specify the project ID for the desired project to place all workspaces in the `tfm copy workspace` run.
+
+Utilise `tfm list projects --side destination` to determine the `project id`.
+
+Set either the environment variable:
+
+```bast
+export DST_TFC_PROJECT_ID=prj-XXXX
+```
+
+or specify the following in your `~/.tfm.hcl` configuration file.
+
+```terraform
+dst_tfc_project_id=prj-xxx 
 ```
 
 ## Workspace List
@@ -200,7 +220,7 @@ ssh-map=[
 
 ## Contacts
 
-- Initial Slack Channel for developement: [#ps-offering-tfe-migration](https://hashicorp.slack.com/archives/C046STDBXNC)
+- Initial Slack Channel for developement: [#ps-offering-tfm](https://hashicorp.slack.com/archives/C046STDBXNC)
 - Google Group TFM Dev Team: [svc-github-team-tfm@hashicorp.com](svc-github-team-tfm@hashicorp.com
 )
 - Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=) or provide us some [feedback](./feedback.md).
