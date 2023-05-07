@@ -10,7 +10,7 @@ ssh-map=[
   "sshkey-gKJBRGBd8DvcGspu=sshkey-MFyZn4EzcqPmdnrY",
 ]
 
-workspace-map=[
+workspaces-map=[
   "tfc-mig-vcs-0=tfc-mig-vcs-0",
   "tfc-mig-vcs-1=tfc-mig-vcs-1",
   "tfc-mig-vcs-2=tfc-mig-vcs-2",

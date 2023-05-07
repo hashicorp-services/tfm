@@ -90,9 +90,9 @@ func copyVariables(c tfclient.ClientContexts) error {
 	}
 
 	// Get/Check if Workspace map exists
-	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 	if err != nil {
-		fmt.Println("Invalid input for workspace-map")
+		fmt.Println("Invalid input for workspaces-map")
 	}
 
 	// Get the destination workspaces

@@ -69,11 +69,11 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 
 
 !!! note ""
-    *NOTE: Using the 'workspace-map' configuration in your HCL config file will take precedence over the other 'workspaces' list feature which only lists source workspace names.*
+    *NOTE: Using the 'workspaces-map' configuration in your HCL config file will take precedence over the other 'workspaces' list feature which only lists source workspace names.*
 
 ```terraform
 # A list of source=destination workspace names. TFM will look at each source workspace and recreate the workspace with the specified destination name.
-"workspace-map"=[
+"workspaces-map"=[
   "tfc-mig-vcs-0=tfc-mig-vcs-0",
   "tfc-mig-vcs-1=tfc-mig-vcs-1",
   "tfc-mig-vcs-2=tfc-mig-vcs-2",

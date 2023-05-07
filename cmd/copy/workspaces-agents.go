@@ -53,9 +53,9 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]
 		}
 
 		// Get/Check if Workspace map exists
-		wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+		wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 		if err != nil {
-			fmt.Println("invalid input for workspace-map")
+			fmt.Println("invalid input for workspaces-map")
 		}
 
 		// For each source workspace with an execution mode of "agent", compare the source agent pool ID to the
