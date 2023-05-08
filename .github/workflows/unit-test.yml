@@ -76,9 +76,15 @@ jobs:
         run: ./tfm list teams --side destination
 
       - name: List vcs source
+        run: ./tfm list vcs --side source
+
+      - name: List vcs source all
         run: ./tfm list vcs --side source --all
   
       - name: List vcs destination
+        run: ./tfm list vcs --side destination
+
+      - name: List vcs destination all
         run: ./tfm list vcs --side destination --all
 
       - name: List projects destination
