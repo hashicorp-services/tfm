@@ -153,6 +153,11 @@ export DST_TFC_TOKEN="<user token from source TFE/TFC with owner permissions>"
 export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
+### Delete
+
+This command can be used to delete a resource in either the source or destination side. Today it supports deleting a workspace by the ID or name. This does not look for the hidden tfm source on workspaces that have been created by tfm, so this will let you delete any workspace.
+Note: This command will ask for confirmation, however this is a destructive operation and the workspace can not be recovered.
+
 ### Nuke
 
 If workspaces that have been created in the destination organization need to be destroyed, `tfm nuke workspace` can be used to remove all workspaces that tfm created. This is done by listing all workspaces in the destination organization and checking if the `SourceName` is set to `tfm`. This command will prompt for confirmation. If Confirmed tfm will delete the workspaces. This is a destructive operation and the workspaces can not be recovered.
