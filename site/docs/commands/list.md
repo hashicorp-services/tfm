@@ -1,7 +1,7 @@
 # List
 
 
-list or Migrate, this sub commands takes X from source organization and copies (or migrates) it to the destination organization. 
+list sub commands will list out certain resources from the source organization or destination organization. 
 
 ```
 # tfm list -h
