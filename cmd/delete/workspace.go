@@ -130,10 +130,24 @@ func confirm() bool {
 	var input string
 
 	fmt.Printf("Do you want to continue with this operation? [y|n]: ")
-	_, err := fmt.Scanln(&input)
+
+	auto, err := DeleteCmd.Flags().GetBool("autoapprove")
+
 	if err != nil {
-		panic(err)
+		fmt.Println("Error Retrieving autoapprove flag value: ", err)
 	}
+
+	// Check if --autoapprove=false
+	if !auto {
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		input = "y"
+		fmt.Println("y(autoapprove=true)")
+	}
+
 	input = strings.ToLower(input)
 
 	if input == "y" || input == "yes" {
