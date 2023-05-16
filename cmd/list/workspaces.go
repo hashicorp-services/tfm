@@ -39,6 +39,8 @@ func init() {
 func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 	srcWorkspaces := []*tfe.Workspace{}
+	workspaceJSON := make(map[string]interface{}) // Parent JSON object "workspace-names"
+	workspaceNames := []string{}                  // workspace names slice to go inside parent object
 
 	opts := tfe.WorkspaceListOptions{
 		ListOptions: tfe.ListOptions{
@@ -75,6 +77,9 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 			ws_repo := ""
 			projectID := ""
 			projectName := ""
+			if jsonOut {
+				workspaceNames = append(workspaceNames, i.Name) // Store workspace name in the slice
+			}
 
 			if i.VCSRepo != nil {
 				ws_repo = i.VCSRepo.DisplayIdentifier
@@ -91,17 +96,21 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				projectName = prjN
 			}
 
-			if jsonOut {
-				jsonData, err := json.Marshal(i.Name)
-				if err != nil {
-					fmt.Println("Error marshaling workspaces to JSON:", err)
-					return err
-				}
-
-				fmt.Println(string(jsonData))
-			} else {
+			if jsonOut == false {
 				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
 			}
+
+		}
+		if jsonOut {
+			workspaceJSON["workspace-names"] = workspaceNames // Assign workspace names to the "workspace-names" key
+
+			jsonData, err := json.Marshal(workspaceJSON)
+			if err != nil {
+				fmt.Println("Error marshaling workspaces to JSON:", err)
+				return err
+			}
+
+			fmt.Println(string(jsonData))
 		}
 	}
 
@@ -135,6 +144,10 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 			projectID := ""
 			projectName := ""
 
+			if jsonOut {
+				workspaceNames = append(workspaceNames, i.Name) // Store workspace name in the slice
+			}
+
 			if i.VCSRepo != nil {
 				ws_repo = i.VCSRepo.DisplayIdentifier
 			}
@@ -150,17 +163,21 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				projectName = prjN
 			}
 
-			if jsonOut {
-				jsonData, err := json.Marshal(i.Name)
-				if err != nil {
-					fmt.Println("Error marshaling workspaces to JSON:", err)
-					return err
-				}
-
-				fmt.Println(string(jsonData))
-			} else {
+			if jsonOut == false {
 				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
 			}
+		}
+		if jsonOut {
+
+			workspaceJSON["workspace-names"] = workspaceNames // Assign workspace names to the "workspace-names" key
+
+			jsonData, err := json.Marshal(workspaceJSON)
+			if err != nil {
+				fmt.Println("Error marshaling workspaces to JSON:", err)
+				return err
+			}
+
+			fmt.Println(string(jsonData))
 		}
 	}
 
