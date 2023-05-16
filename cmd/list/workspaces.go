@@ -6,6 +6,7 @@ package list
 import (
 	"fmt"
 
+	"encoding/json"
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
@@ -20,7 +21,7 @@ var (
 		Short:   "Workspaces command",
 		Long:    "List Workspaces in an org",
 		Run: func(cmd *cobra.Command, args []string) {
-			listWorkspaces(tfclient.GetClientContexts())
+			listWorkspaces(tfclient.GetClientContexts(), jsonOut)
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			o.Close()
@@ -35,7 +36,7 @@ func init() {
 
 }
 
-func listWorkspaces(c tfclient.ClientContexts) error {
+func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 	srcWorkspaces := []*tfe.Workspace{}
 
@@ -66,7 +67,10 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 			opts.PageNumber = items.NextPage
 
 		}
-		o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+
+		if jsonOut == false {
+			o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+		}
 		for _, i := range srcWorkspaces {
 			ws_repo := ""
 			projectID := ""
@@ -87,7 +91,17 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 				projectName = prjN
 			}
 
-			o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			if jsonOut {
+				jsonData, err := json.Marshal(i.Name)
+				if err != nil {
+					fmt.Println("Error marshaling workspaces to JSON:", err)
+					return err
+				}
+
+				fmt.Println(string(jsonData))
+			} else {
+				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			}
 		}
 	}
 
@@ -111,7 +125,11 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 			opts.PageNumber = items.NextPage
 
 		}
-		o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+
+		if jsonOut == false {
+			o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+		}
+
 		for _, i := range srcWorkspaces {
 			ws_repo := ""
 			projectID := ""
@@ -132,7 +150,17 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 				projectName = prjN
 			}
 
-			o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			if jsonOut {
+				jsonData, err := json.Marshal(i.Name)
+				if err != nil {
+					fmt.Println("Error marshaling workspaces to JSON:", err)
+					return err
+				}
+
+				fmt.Println(string(jsonData))
+			} else {
+				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			}
 		}
 	}
 
