@@ -40,7 +40,7 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 	srcWorkspaces := []*tfe.Workspace{}
 	workspaceJSON := make(map[string]interface{}) // Parent JSON object "workspace-names"
-	workspaceNames := []string{}                  // workspace names slice to go inside parent object
+	workspaceNames := []string{}                  // workspace names slice to go inside parent object "workspace-names"
 
 	opts := tfe.WorkspaceListOptions{
 		ListOptions: tfe.ListOptions{
@@ -50,7 +50,9 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
-		o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+		if jsonOut == false {
+			o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+		}
 
 		for {
 			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
@@ -61,7 +63,9 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 			srcWorkspaces = append(srcWorkspaces, items.Items...)
 
-			o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			if jsonOut == false {
+				o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			}
 
 			if items.CurrentPage >= items.TotalPages {
 				break
@@ -112,10 +116,13 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 			fmt.Println(string(jsonData))
 		}
+
 	}
 
 	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
-		o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+		if jsonOut == false {
+			o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+		}
 
 		for {
 			items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
@@ -126,7 +133,9 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 			srcWorkspaces = append(srcWorkspaces, items.Items...)
 
-			o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			if jsonOut == false {
+				o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			}
 
 			if items.CurrentPage >= items.TotalPages {
 				break
