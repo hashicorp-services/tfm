@@ -155,8 +155,17 @@ export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated 
 
 ### Delete
 
-This command can be used to delete a resource in either the source or destination side. Today it supports deleting a workspace by the ID or name. This does not look for the hidden tfm source on workspaces that have been created by tfm, so this will let you delete any workspace.
+This command can be used to delete a resource in either the source or destination side. Today there are two resources that can be deleted
+
+#### workspace
+
+A  workspace can be deleted by the ID or name. This does not look for the hidden tfm source on workspaces that have been created by tfm, so this will let you delete any workspace.
 Note: This command will ask for confirmation, however this is a destructive operation and the workspace can not be recovered.
+
+#### Workspaces VCS Connection
+
+This command will look at the `.tfm` configuration for the workspaces on the source that should have their VCS connection removed. This would be utilized after a migration can been completed, and the existing VCS connections on the source should be removed from the workspaces, so runs are no longer triggered by VCS
+Note: This command will ask for confirmation. The source workspaces will not be deleted, only their VCS connection, which can be added back manually if needed.
 
 ### Nuke
 
