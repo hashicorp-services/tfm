@@ -1,8 +1,12 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package list
 
 import (
 	"fmt"
 
+	"encoding/json"
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
@@ -17,7 +21,7 @@ var (
 		Short:   "Workspaces command",
 		Long:    "List Workspaces in an org",
 		Run: func(cmd *cobra.Command, args []string) {
-			listWorkspaces(tfclient.GetClientContexts())
+			listWorkspaces(tfclient.GetClientContexts(), jsonOut)
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			o.Close()
@@ -32,9 +36,11 @@ func init() {
 
 }
 
-func listWorkspaces(c tfclient.ClientContexts) error {
+func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 	srcWorkspaces := []*tfe.Workspace{}
+	workspaceJSON := make(map[string]interface{}) // Parent JSON object "workspace-names"
+	workspaceNames := []string{}                  // workspace names slice to go inside parent object "workspace-names"
 
 	opts := tfe.WorkspaceListOptions{
 		ListOptions: tfe.ListOptions{
@@ -44,7 +50,9 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 
 	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
-		o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+		if jsonOut == false {
+			o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
+		}
 
 		for {
 			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
@@ -55,7 +63,9 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 
 			srcWorkspaces = append(srcWorkspaces, items.Items...)
 
-			o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			if jsonOut == false {
+				o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			}
 
 			if items.CurrentPage >= items.TotalPages {
 				break
@@ -63,11 +73,17 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 			opts.PageNumber = items.NextPage
 
 		}
-		o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+
+		if jsonOut == false {
+			o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+		}
 		for _, i := range srcWorkspaces {
 			ws_repo := ""
 			projectID := ""
 			projectName := ""
+			if jsonOut {
+				workspaceNames = append(workspaceNames, i.Name) // Store workspace name in the slice
+			}
 
 			if i.VCSRepo != nil {
 				ws_repo = i.VCSRepo.DisplayIdentifier
@@ -84,12 +100,29 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 				projectName = prjN
 			}
 
-			o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			if jsonOut == false {
+				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			}
+
 		}
+		if jsonOut {
+			workspaceJSON["workspace-names"] = workspaceNames // Assign workspace names to the "workspace-names" key
+
+			jsonData, err := json.Marshal(workspaceJSON)
+			if err != nil {
+				fmt.Println("Error marshaling workspaces to JSON:", err)
+				return err
+			}
+
+			fmt.Println(string(jsonData))
+		}
+
 	}
 
 	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
-		o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+		if jsonOut == false {
+			o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+		}
 
 		for {
 			items, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
@@ -100,7 +133,9 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 
 			srcWorkspaces = append(srcWorkspaces, items.Items...)
 
-			o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			if jsonOut == false {
+				o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+			}
 
 			if items.CurrentPage >= items.TotalPages {
 				break
@@ -108,11 +143,19 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 			opts.PageNumber = items.NextPage
 
 		}
-		o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+
+		if jsonOut == false {
+			o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Project ID", "Project Name", "Locked", "TF Version")
+		}
+
 		for _, i := range srcWorkspaces {
 			ws_repo := ""
 			projectID := ""
 			projectName := ""
+
+			if jsonOut {
+				workspaceNames = append(workspaceNames, i.Name) // Store workspace name in the slice
+			}
 
 			if i.VCSRepo != nil {
 				ws_repo = i.VCSRepo.DisplayIdentifier
@@ -129,7 +172,21 @@ func listWorkspaces(c tfclient.ClientContexts) error {
 				projectName = prjN
 			}
 
-			o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			if jsonOut == false {
+				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+			}
+		}
+		if jsonOut {
+
+			workspaceJSON["workspace-names"] = workspaceNames // Assign workspace names to the "workspace-names" key
+
+			jsonData, err := json.Marshal(workspaceJSON)
+			if err != nil {
+				fmt.Println("Error marshaling workspaces to JSON:", err)
+				return err
+			}
+
+			fmt.Println(string(jsonData))
 		}
 	}
 

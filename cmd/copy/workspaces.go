@@ -1,8 +1,12 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package copy
 
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -31,13 +35,13 @@ var (
 		//Args:      cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			// Validate `workspace-map` if it exists before any other functions can run.
-			valid, wsMapCfg, err := validateMap(tfclient.GetClientContexts(), "workspace-map")
+			// Validate `workspaces-map` if it exists before any other functions can run.
+			valid, wsMapCfg, err := validateMap(tfclient.GetClientContexts(), "workspaces-map")
 			if err != nil {
 				return err
 			}
 
-			// Continue the application if `workspace-map` is not provided. The valid and map output arent needed.
+			// Continue the application if `workspaces-map` is not provided. The valid and map output arent needed.
 			_ = valid
 
 			switch {
@@ -161,9 +165,9 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	// Get source Workspace list from config list `workspaces` if it exists
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
 
-	wsMapCfg, err := helper.ViperStringSliceMap("workspace-map")
+	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 	if err != nil {
-		return srcWorkspaces, errors.New("Invalid input for workspace-map")
+		return srcWorkspaces, errors.New("Invalid input for workspaces-map")
 	}
 
 	if len(srcWorkspacesCfg) > 0 {
@@ -180,7 +184,7 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 			wsList = append(wsList, key)
 		}
 
-		o.AddMessageUserProvided("Source Workspaces found in `workspace-map`:", wsList)
+		o.AddMessageUserProvided("Source Workspaces found in `workspaces-map`:", wsList)
 
 		// Set source workspaces
 		srcWorkspaces, err = getSrcWorkspacesFilter(tfclient.GetClientContexts(), wsList)
@@ -201,7 +205,13 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	} else {
 		// Get ALL source workspaces
+		fmt.Println("No workspaces or workspaces-map found in config file (~/.tfm.hcl).\n\nALL WORKSPACES WILL BE MIGRATED from ", viper.GetString("src_tfe_hostname"))
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
+		if !confirm() {
+			fmt.Println("\n\n**** Canceling tfm run **** ")
+			os.Exit(1)
+		}
+
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
 		}
@@ -382,7 +392,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 	if viper.GetString("dst_tfc_project_id") != "" {
 		project.ID = viper.GetString("dst_tfc_project_id")
 		fmt.Println("Project ID Set")
-		fmt.Printf(" Project ID, %s, Project Name, %s", project.ID, project.Name)
+		fmt.Printf(" Project ID: %s, Project Name, %s\n", project.ID, project.Name)
 		// os.Exit(0)
 	} else {
 
@@ -486,4 +496,35 @@ func getDstDefaultProjectID(c tfclient.ClientContexts) (string, error) {
 	}
 
 	return "", nil
+}
+
+func confirm() bool {
+
+	var input string
+
+	fmt.Printf("Do you want to continue with this operation? [y|n]: ")
+
+	auto, err := CopyCmd.Flags().GetBool("autoapprove")
+
+	if err != nil {
+		fmt.Println("Error Retrieving autoapprove flag value: ", err)
+	}
+
+	// Check if --autoapprove=false
+	if !auto {
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		input = "y"
+		fmt.Println("y(autoapprove=true)")
+	}
+
+	input = strings.ToLower(input)
+
+	if input == "y" || input == "yes" {
+		return true
+	}
+	return false
 }

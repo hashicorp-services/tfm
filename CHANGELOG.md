@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.0.5-pre-alpha] (April 27, 2023)
+
+- Fixed migrated State lineage optional attribute
+- Added tfm nuke workspaces (hidden command)
+- Add tfm vcs list for configured org
+
+
+## [0.0.4-pre-alpha] (April 14, 2023)
+
+- Added tfm list workspaces
+- Updated GitHub Pages for public viewing
+
 ## [0.0.3-pre-alpha] (April 6, 2023)
 
 - Refactored Environment Variables/Config File
@@ -22,19 +34,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ready for Testing
 - tfm copy workspaces
 - tfm list
-- Migration workflow 
+- Migration workflow
 
 ## [Unreleased] (November 24, 2022)
 
 **Added**
+
 - initial repository layout/boiler plate created
 - copy teams subcommand
 - list orgs subcommand
 - list teams subcommand
 
-
 **Changed**
-- structure of `cmd` and its subcommands. Each sub command is now its in own directory and considered a package the `cmd` package imports in. 
-- `tfclient` pkg created at top level, not related to `cmd` package 
+
+- structure of `cmd` and its subcommands. Each sub command is now its in own directory and considered a package the `cmd` package imports in.
+- `tfclient` pkg created at top level, not related to `cmd` package
 
 **Removed**

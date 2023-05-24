@@ -25,8 +25,10 @@ import (
 	"log"
 
 	"github.com/hashicorp-services/tfm/cmd/copy"
+	"github.com/hashicorp-services/tfm/cmd/delete"
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/cmd/list"
+	"github.com/hashicorp-services/tfm/cmd/nuke"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/version"
 	"github.com/logrusorgru/aurora"
@@ -40,6 +42,8 @@ import (
 var (
 	cfgFile string
 	o       *output.Output
+	jsonOut bool
+	// autoapprove bool
 	//side    string
 
 	// Required to leverage viper defaults for optional Flags
@@ -84,6 +88,9 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfm.hcl).")
+	RootCmd.PersistentFlags().BoolP("autoapprove", "", false, "Auto approve the tfm run. --autoapprove=true . false by default")
+	RootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "Print the output in JSON format")
+
 	// RootCmd.PersistentFlags().StringVar(&side, "side", "", "Specify source or destination side to process")
 	// rootCmd.PersistentFlags().String("source-hostname", "", "The source hostname. Can also be set with the environment variable SOURCE_HOSTNAME.")
 	// rootCmd.PersistentFlags().String("source-organization", "", "The source Organization. Can also be set with the environment variable SOURCE_ORGANIZATION.")
@@ -102,6 +109,8 @@ func init() {
 	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
 	RootCmd.AddCommand(list.ListCmd)
+	RootCmd.AddCommand(nuke.NukeCmd)
+	RootCmd.AddCommand(delete.DeleteCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
@@ -122,6 +131,7 @@ func initConfig() {
 		viper.SetConfigType("hcl")
 		viper.AddConfigPath(".")
 		viper.SetConfigName(".tfm.hcl")
+
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -140,8 +150,11 @@ func initConfig() {
 	// // Initialize output
 	o = output.New(*helper.ViperBool("json"))
 
-	// Print if config file was found
-	if isConfigFile {
+	// check to see if the --json flag was provided and return bool value assigned to "json"
+	json := viper.IsSet("json")
+
+	// Print if config file was found and json output is desired
+	if isConfigFile && !json {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }

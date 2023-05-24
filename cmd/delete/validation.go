@@ -1,14 +1,15 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package copy
+package delete
 
 import (
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 )
 
-// Validation function that validates a map is configured correctely in the tfm.hcl file.
+
+// Validation function that validates a map is configured correctly in the tfm.hcl file.
 // Takes a map's name from the configuration file as a string
 func validateMap(c tfclient.ClientContexts, cfgMap string) (bool, map[string]string, error) {
 	m, err := helper.ViperStringSliceMap(cfgMap)

@@ -5,9 +5,8 @@
 HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
 
 > **Warning**
-> This CLI is in pre-alpha release and currently does not have official support! 
-> TFM is currently being developed and tested internally and is not for external customer use cases yet. 
-    
+> This CLI is in pre-alpha release and currently does not have official support!
+> TFM is currently being developed and tested internally and is not for external customer use cases yet.
 
 ## Overview
 
@@ -98,14 +97,33 @@ vcs-map=[
 
 ## Rename Workspaces in destination during a copy
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name. 
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name.
 *NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names.*
 
 ```hcl
 # A list of source=destination workspace names. TFM will look at each source workspace and recreate the workspace with the specified destination name.
-"workspace-map" = [
+"workspaces-map" = [
    "tf-demo-workflow=dst-demo-workflow",
    "api-test=dst-api-test"
+```
+
+## Copy Workspaces into Projects
+
+By default, a workspace will be copied over to the Default Project in the destination (eg TFC).
+Users can specify the project ID for the desired project to place all workspaces in the `tfm copy workspace` run.
+
+Utilise `tfm list projects --side destination` to determine the `project id`.
+
+Set either the environment variable:
+
+```bast
+export DST_TFC_PROJECT_ID=prj-XXXX
+```
+
+or specify the following in your `~/.tfm.hcl` configuration file.
+
+```terraform
+dst_tfc_project_id=prj-xxx 
 ```
 
 ## Assign SSH
@@ -121,7 +139,6 @@ ssh-map=[
 ]
 ```
 
-
 ### Environment Variables
 
 If no config file is found, the following environment variables can be set or used to override existing config file values.
@@ -136,9 +153,23 @@ export DST_TFC_TOKEN="<user token from source TFE/TFC with owner permissions>"
 export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
-## Docs
+### Delete
 
-Check out our documentation page (coming soon)
+This command can be used to delete a resource in either the source or destination side. Today there are two resources that can be deleted
+
+#### workspace
+
+A  workspace can be deleted by the ID or name. This does not look for the hidden tfm source on workspaces that have been created by tfm, so this will let you delete any workspace.
+Note: This command will ask for confirmation, however this is a destructive operation and the workspace can not be recovered.
+
+#### Workspaces VCS Connection
+
+This command will look at the `.tfm` configuration for the workspaces on the source that should have their VCS connection removed. This would be utilized after a migration can been completed, and the existing VCS connections on the source should be removed from the workspaces, so runs are no longer triggered by VCS
+Note: This command will ask for confirmation. The source workspaces will not be deleted, only their VCS connection, which can be added back manually if needed.
+
+### Nuke
+
+If workspaces that have been created in the destination organization need to be destroyed, `tfm nuke workspace` can be used to remove all workspaces that tfm created. This is done by listing all workspaces in the destination organization and checking if the `SourceName` is set to `tfm`. This command will prompt for confirmation. If Confirmed tfm will delete the workspaces. This is a destructive operation and the workspaces can not be recovered.
 
 ## Architectural Decisions Record (ADR)
 
