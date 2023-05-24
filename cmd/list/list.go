@@ -9,7 +9,8 @@ import (
 
 var (
 	side    string
-	
+	jsonOut bool
+
 	ListCmd = &cobra.Command{
 		Use:   "list",
 		Short: "List command",
@@ -20,4 +21,5 @@ var (
 func init() {
 
 	ListCmd.PersistentFlags().StringVar(&side, "side", "", "Specify source or destination side to process")
+	ListCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "Print the output in JSON format")
 }
