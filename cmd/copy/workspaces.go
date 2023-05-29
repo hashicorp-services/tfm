@@ -129,7 +129,7 @@ func init() {
 
 // Gets all workspaces from the source target
 func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of Workspaces from: ", c.SourceHostname)
+	o.AddMessageUserProvided("\nGetting list of Workspaces from: ", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -145,7 +145,7 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 
 		srcWorkspaces = append(srcWorkspaces, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+		o.AddFormattedMessageCalculated("\nFound %d Workspaces", len(srcWorkspaces))
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -205,7 +205,8 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	} else {
 		// Get ALL source workspaces
-		fmt.Println("No workspaces or workspaces-map found in config file (~/.tfm.hcl).\n\nALL WORKSPACES WILL BE MIGRATED from ", viper.GetString("src_tfe_hostname"))
+		o.AddMessageUserProvided2("\nWarning:\n\n", "ALL WORKSPACES WILL BE MIGRATED from", viper.GetString("src_tfe_hostname"))
+
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
 		if !confirm() {
 			fmt.Println("\n\n**** Canceling tfm run **** ")

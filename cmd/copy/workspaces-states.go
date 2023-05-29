@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	b64 "encoding/base64"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -176,6 +177,16 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
 		return errors.Wrap(err, "failed to list Workspaces from source")
+	}
+
+	if NumberOfStates > 1 {
+		// fmt.Printf("\n\n**** Operation will migrate last %v states per workspace **** \n\n", NumberOfStates)
+		o.AddMessageUserProvided2("\n\n", fmt.Sprint(NumberOfStates), "states per workspace will be copied over.\n\nWarning:\n\n**** THIS OPERATION SHOULD NOT BE RAN TWICE ***")
+
+		if !confirm() {
+			fmt.Println("\n\n**** Canceling tfm run **** ")
+			os.Exit(1)
+		}
 	}
 
 	// Get/Check if Workspace map exists
