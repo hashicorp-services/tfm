@@ -15,4 +15,8 @@ resource "random_pet" "main" {
 
   length    = var.length
   separator = "-"
+
+  keepers = {
+    always = timestamp()
+  }
 }

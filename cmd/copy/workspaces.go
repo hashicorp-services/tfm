@@ -23,6 +23,7 @@ var (
 	agents     bool
 	vcs        bool
 	ssh        bool
+	last       int
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -45,7 +46,7 @@ var (
 
 			switch {
 			case state:
-				return copyStates(tfclient.GetClientContexts())
+				return copyStates(tfclient.GetClientContexts(), last)
 			case vars:
 				return copyVariables(tfclient.GetClientContexts())
 			case teamaccess:
@@ -105,6 +106,17 @@ func init() {
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
+	workspacesCopyCmd.Flags().IntVarP(&last, "last", "l", last, "Copy the last X number of state files only.")
+	// SetInterspersed prevents cobra from parsing arguments that appear after flags
+	workspacesCopyCmd.Flags().SetInterspersed(false)
+
+	// Prevents users from using the --last flag in an unwanted way
+	workspacesCopyCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if last > 0 && !state {
+			return errors.New("--last flag is only valid after the --state flag is set")
+		}
+		return nil
+	}
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "", false, "Copy workspace Team Access")
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Mapping of source vcs Oauth ID to destination vcs Oath in config file")
@@ -117,7 +129,7 @@ func init() {
 
 // Gets all workspaces from the source target
 func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of Workspaces from: ", c.SourceHostname)
+	o.AddMessageUserProvided("\nGetting list of Workspaces from: ", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -133,7 +145,7 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 
 		srcWorkspaces = append(srcWorkspaces, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))
+		o.AddFormattedMessageCalculated("\nFound %d Workspaces", len(srcWorkspaces))
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -193,7 +205,8 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	} else {
 		// Get ALL source workspaces
-		fmt.Println("No workspaces or workspaces-map found in config file (~/.tfm.hcl).\n\nALL WORKSPACES WILL BE MIGRATED from ", viper.GetString("src_tfe_hostname"))
+		o.AddMessageUserProvided2("\nWarning:\n\n", "ALL WORKSPACES WILL BE MIGRATED from", viper.GetString("src_tfe_hostname"))
+
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts())
 		if !confirm() {
 			fmt.Println("\n\n**** Canceling tfm run **** ")

@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	b64 "encoding/base64"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -42,12 +43,12 @@ func reverseSlice(input []*tfe.StateVersion) []*tfe.StateVersion {
 }
 
 // Get the source workspace state files from the provided workspace
-func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
+func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int) ([]*tfe.StateVersion, error) {
 	o.AddMessageUserProvided("Getting list of states from source workspace ", ws)
 	srcStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
-		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: NumberOfStates},
 		Organization: c.SourceOrganizationName,
 		Workspace:    ws,
 	}
@@ -60,6 +61,10 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersio
 		srcStates = append(srcStates, items.Items...)
 
 		o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
+
+		if len(srcStates) >= NumberOfStates {
+			break
+		}
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -166,12 +171,22 @@ func unlockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 }
 
 // Main function for `--state` flag
-func copyStates(c tfclient.ClientContexts) error {
+func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 
 	// Get the source target workspaces
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
 	if err != nil {
 		return errors.Wrap(err, "failed to list Workspaces from source")
+	}
+
+	if NumberOfStates > 1 {
+		// fmt.Printf("\n\n**** Operation will migrate last %v states per workspace **** \n\n", NumberOfStates)
+		o.AddMessageUserProvided2("\n\n", fmt.Sprint(NumberOfStates), "states per workspace will be copied over.\n\nWarning:\n\n**** THIS OPERATION SHOULD NOT BE RAN MORE THAN ONCE ***")
+
+		if !confirm() {
+			fmt.Println("\n\n**** Canceling tfm run **** ")
+			os.Exit(1)
+		}
 	}
 
 	// Get/Check if Workspace map exists
@@ -206,7 +221,7 @@ func copyStates(c tfclient.ClientContexts) error {
 			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing existing States...\n", srcworkspace.Name, destWorkSpaceName, destWorkspaceId)
 
 			// Get the source workspace states
-			srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name)
+			srcStates, err := discoverSrcStates(tfclient.GetClientContexts(), srcworkspace.Name, NumberOfStates)
 			if err != nil {
 				return errors.Wrap(err, "failed to list state files for workspace from source")
 			}

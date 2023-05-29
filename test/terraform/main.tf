@@ -146,6 +146,58 @@ module "workspacer_source" {
   ]
 }
 
+module "workspacer_state_test" {
+
+  source  = "app.terraform.io/hc-implementation-services/workspacer-tfm/tfe"
+  version = "0.8.1"
+
+  providers = {
+    tfe = tfe.source
+  }
+
+  organization   = var.source_tfe_organization
+  workspace_name = "tfc-mig-state-test"
+  workspace_desc = "X number of State test. Created by Terraform Workspacer module."
+  workspace_tags = ["agent", "ssh", "vcs-driven"]
+  force_delete   = true
+
+  working_directory     = "/test/terraform/sample-resources/"
+  auto_apply            = true
+  file_triggers_enabled = true
+  trigger_prefixes      = null 
+
+  queue_all_runs = true
+  #assessments_enabled   = true
+  allow_destroy_plan = true
+  #global_remote_state   = true
+
+  #agent_pool_id  = tfe_agent_pool.source.id
+  #execution_mode = "agent"
+
+  ssh_key_id = tfe_ssh_key.source.id
+
+  vcs_repo = {
+    identifier     = "hashicorp-services/tfm"
+    branch         = "migrate-x-states"
+    oauth_token_id = tfe_oauth_client.source.oauth_token_id
+    tags_regex     = null # conflicts with `trigger_prefixes` and `trigger_patterns`
+  }
+
+  tfvars = {
+    teststring = "string"
+    testlist   = ["1", "2", "3"]
+    testmap    = { "a" = "1", "b" = "2", "c" = "3" }
+  }
+
+  team_access = {
+    "${tfe_team.source.name}" = "admin"
+  }
+
+  depends_on = [
+    tfe_team.source,
+  ]
+}
+
 # Destination Resources
 resource "tfe_agent_pool" "destination" {
   provider = tfe.destination
