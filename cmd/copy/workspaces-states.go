@@ -181,7 +181,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 
 	if NumberOfStates > 1 {
 		// fmt.Printf("\n\n**** Operation will migrate last %v states per workspace **** \n\n", NumberOfStates)
-		o.AddMessageUserProvided2("\n\n", fmt.Sprint(NumberOfStates), "states per workspace will be copied over.\n\nWarning:\n\n**** THIS OPERATION SHOULD NOT BE RAN TWICE ***")
+		o.AddMessageUserProvided2("\n\n", fmt.Sprint(NumberOfStates), "states per workspace will be copied over.\n\nWarning:\n\n**** THIS OPERATION SHOULD NOT BE RAN MORE THAN ONCE ***")
 
 		if !confirm() {
 			fmt.Println("\n\n**** Canceling tfm run **** ")
