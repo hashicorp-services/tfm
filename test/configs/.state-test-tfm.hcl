@@ -10,6 +10,6 @@ ssh-map=[
   "sshkey-gKJBRGBd8DvcGspu=sshkey-MFyZn4EzcqPmdnrY",
 ]
 
-workspace-map=[
+workspaces-map=[
   "tfc-mig-state-test=tfc-mig-state-test"
 ]
