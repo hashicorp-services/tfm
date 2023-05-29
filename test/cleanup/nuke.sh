@@ -14,7 +14,6 @@ then
     curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/workspaces/tfc-mig-vcs-2"
     curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/workspaces/tfc-mig-vcs-30"
     curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/workspaces/tfc-mig-vcs-40"
-    curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/workspaces/tfc-mig-state-test"
 
     echo "Removing Team"
 

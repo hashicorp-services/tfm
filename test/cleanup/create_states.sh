@@ -5,7 +5,7 @@ set -euo pipefail
 # An assumption is the workspace you are calling has auto-apply set and regardless will create apply for every run.
 #
 #  Usage: ./create_states.sh <Workspace name> <number of states to create>
-#  example:  ./create_states.sh tfc-mig-state-test 50
+#  example:  ./create_states.sh tfc-mig-state-test 10
 #
 # Currently the wait time between calling an API run is 8 seconds which is hard coded.
 #

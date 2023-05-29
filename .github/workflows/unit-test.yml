@@ -120,8 +120,8 @@ jobs:
       - name: Migrate Workspace Last X State Test
         run: ./tfm copy workspaces --config test/configs/.state-test-tfm.hcl
       
-      - name: Migrate Workspace Last X State Test --states
-        run: ./tfm copy workspaces --state --last 9 --config test/configs/.state-test-tfm.hcl
+      - name: Migrate Workspace Last X State Test --states --last 2
+        run: ./tfm copy workspaces --state --last 2 --config test/configs/.state-test-tfm.hcl
 
       - name: List projects destination
         run: ./tfm list projects --side destination
