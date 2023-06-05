@@ -3,9 +3,11 @@
 ![TFM](./images/TFM-black.png)
 
 !!! warning ""
-    Note: This CLI is in pre-alpha release and currently does not have official support! 
+    Note: This CLI is in beta release and currently does not have official support! 
+
+    TFM is currently being developed and tested by interested parties.
     
-    TFM is currently being developed and tested internally and is not for external customer use cases yet. 
+    The following is a [summary of a real example use case from a real TFE customer](https://docs.google.com/presentation/d/e/2PACX-1vSFN9osZARMitvG8HcbnR37nSbVXnK2GMlMvXOz7GsNceFDYp4-98Ko4xZ89-Rtvkf1_YqBmx338er3/pub?start=true&loop=true&delayms=3000). 
     
     Please reach out to one of our listed [contact methods](#contacts).
 

@@ -5,14 +5,16 @@
 HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
 
 > **Warning**
-> This CLI is in pre-alpha release and currently does not have official support!
-> TFM is currently being developed and tested internally and is not for external customer use cases yet.
+> This CLI is in beta release and currently does not have official support!
+> TFM is currently being developed and tested by interested parties.
+> Check out our [case studies](https://hashicorp-services.github.io/tfm/migration/case-studies/). 
+
 
 ## Overview
 
 This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows us the ability to offer a standardized offering to our customers.
 
-Check out the full documentation at [https://go.hashi.co/tfm](https://go.hashi.co/tfm)
+Check out the full documentation at [https://hashicorp-services.github.io/tfm/](https://hashicorp-services.github.io/tfm/)
 
 ## Installation
 
