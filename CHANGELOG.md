@@ -5,13 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] (June 8, 2023)
+
+- TFM is now in beta and Open Source! :fireworks:
+- Added warning when no workspaces are configured
+- Rename workspace-map to workspaces-map
+- Fix VCS list function to use destination side when specified
+- Added Delete cmd to delete a single workspace by it's name or unique ID
+- Updated Repo per legal and compliance standards
+- Added `CODEOWNERS`
+- Added delete vcs connection to remove a VCS connection from a workspace
+- Added json output to selected commands
+- Updated GO versions and SDKs
+- Updated docs for beta release
 
 ## [0.0.5-pre-alpha] (April 27, 2023)
 
 - Fixed migrated State lineage optional attribute
 - Added tfm nuke workspaces (hidden command)
 - Add tfm vcs list for configured org
-
 
 ## [0.0.4-pre-alpha] (April 14, 2023)
 
