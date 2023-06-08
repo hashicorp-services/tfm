@@ -10,3 +10,8 @@ tfm
 
 # API Payload
 **/test/cleanup/create_state_payload.json
+
+
+
+# Vscode
+.vscode

@@ -52,6 +52,7 @@ nav:
     - Pre-requisites: migration/pre-requisites.md
     - Example Scenario: migration/example-scenarios.md
     - Pre-Migration Questionaire: migration/pre-migration.md
+    - Case Studies: migration/case-studies.md
   - Commands:
     - Copy: 
       - General: commands/copy.md
