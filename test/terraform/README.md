@@ -29,4 +29,4 @@ The `tfm-testing-source` and `tfm-testing-destination` organizations are upgrade
 >Note: Org tokens cannot be used to create SSH keys.
 
 ### Generating State Files
-After resources are created run `/tests/cleanup/create_state.sh` to generate state files within the workspaces.
+After resources are created run `/tests/state/create_state.sh` to generate state files within the workspaces.
