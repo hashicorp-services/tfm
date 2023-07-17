@@ -147,11 +147,18 @@ func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 		return err
 	}
 
-	if wsProperties.Locked == false {
-		c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
+	if !wsProperties.Locked {
+
+		fmt.Println("Locking Workspace: ", destWorkspaceId)
+		lockStats, lockErr := c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
 			Reason: &message,
 		})
-		fmt.Println("Locking Workspace: ", destWorkspaceId)
+		if lockErr != nil {
+			return lockErr
+		}
+
+		_ = lockStats
+
 	}
 	return nil
 }
