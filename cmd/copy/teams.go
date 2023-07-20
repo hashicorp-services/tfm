@@ -133,6 +133,7 @@ func copyTeams(c tfclient.ClientContexts) error {
 		if exists {
 			fmt.Println("Exists in destination will not migrate", srcteam.Name)
 		} else {
+			fmt.Println("Migrating", srcteam.Name)
 			srcteam, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
 				Type:      "",
 				Name:      &srcteam.Name,
@@ -145,6 +146,10 @@ func copyTeams(c tfclient.ClientContexts) error {
 					ManageProviders:       &srcteam.OrganizationAccess.ManageProviders,
 					ManageModules:         &srcteam.OrganizationAccess.ManageModules,
 					ManageRunTasks:        &srcteam.OrganizationAccess.ManageRunTasks,
+					ManageProjects:        &srcteam.OrganizationAccess.ManageProjects,
+					ReadWorkspaces:        &srcteam.OrganizationAccess.ReadWorkspaces,
+					ReadProjects:          &srcteam.OrganizationAccess.ReadProjects,
+					ManageMembership:      &srcteam.OrganizationAccess.ManageMembership,
 				},
 				Visibility: &srcteam.Visibility,
 			})
