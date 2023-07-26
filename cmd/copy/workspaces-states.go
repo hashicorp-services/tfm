@@ -259,7 +259,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
 
 					// Create an empty int
-					newSerial := int64(0)
+					newSerial := int64(1)
 
 					// Get properties of the state
 					currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)
