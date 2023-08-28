@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     tfe = {
-      version = "~> 0.42.0"
+      version = "~> 0.46.0"
     }
   }
 }
@@ -41,6 +41,8 @@ resource "tfe_agent_pool" "source" {
 
   name = "tfc-source"
 }
+
+
 
 resource "tfe_ssh_key" "source" {
   provider = tfe.source
@@ -178,7 +180,7 @@ module "workspacer_state_test" {
 
   vcs_repo = {
     identifier     = "hashicorp-services/tfm"
-    branch         = "migrate-x-states"
+    branch         = "main"
     oauth_token_id = tfe_oauth_client.source.oauth_token_id
     tags_regex     = null # conflicts with `trigger_prefixes` and `trigger_patterns`
   }

@@ -11,6 +11,7 @@ import (
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 var (
@@ -103,8 +104,12 @@ func discoverDestTeams(c tfclient.ClientContexts) ([]*tfe.Team, error) {
 // returns true if the team name exists within the provided slice of teams.
 // Used to compare source team names to the existing destination team names.
 func doesTeamExist(teamName string, teams []*tfe.Team) bool {
+	// Convert the teamName to lowercase (or uppercase if you prefer) for case-insensitive comparison
+	teamName = strings.ToLower(teamName)
+
 	for _, t := range teams {
-		if teamName == t.Name {
+		// Convert the team name in the teams slice to lowercase (or uppercase) for comparison
+		if teamName == strings.ToLower(t.Name) {
 			return true
 		}
 	}
@@ -133,6 +138,7 @@ func copyTeams(c tfclient.ClientContexts) error {
 		if exists {
 			fmt.Println("Exists in destination will not migrate", srcteam.Name)
 		} else {
+			fmt.Println("Migrating", srcteam.Name)
 			srcteam, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
 				Type:      "",
 				Name:      &srcteam.Name,
@@ -145,6 +151,12 @@ func copyTeams(c tfclient.ClientContexts) error {
 					ManageProviders:       &srcteam.OrganizationAccess.ManageProviders,
 					ManageModules:         &srcteam.OrganizationAccess.ManageModules,
 					ManageRunTasks:        &srcteam.OrganizationAccess.ManageRunTasks,
+					// release v202302-1
+					ManageProjects: &srcteam.OrganizationAccess.ManageProjects,
+					ReadWorkspaces: &srcteam.OrganizationAccess.ReadWorkspaces,
+					ReadProjects:   &srcteam.OrganizationAccess.ReadProjects,
+					// release 202303-1
+					ManageMembership: &srcteam.OrganizationAccess.ManageMembership,
 				},
 				Visibility: &srcteam.Visibility,
 			})

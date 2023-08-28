@@ -147,11 +147,18 @@ func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 		return err
 	}
 
-	if wsProperties.Locked == false {
-		c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
+	if !wsProperties.Locked {
+
+		fmt.Println("Locking Workspace: ", destWorkspaceId)
+		lockStats, lockErr := c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
 			Reason: &message,
 		})
-		fmt.Println("Locking Workspace: ", destWorkspaceId)
+		if lockErr != nil {
+			return lockErr
+		}
+
+		_ = lockStats
+
 	}
 	return nil
 }
@@ -252,7 +259,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
 
 					// Create an empty int
-					newSerial := int64(0)
+					newSerial := int64(1)
 
 					// Get properties of the state
 					currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)

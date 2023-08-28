@@ -26,10 +26,17 @@ This tool has been developed to assist HashiCorp Implementation Services and cus
 
 Binaries are created as part of a release, check out the [Release Page](https://github.com/hashicorp-services/tfm/releases) for the latest version.
 
-**MacOs Installation**
+**MacOs Installation amd64**
 ```sh
 version="x.x.x"
-curl -L -o tfm "https://github.com/hashicorp-services/tfm/download/${version}/tfm_darwin_amd64"
+curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-darwin-amd64"
+chmod +x tfm
+```
+
+**MacOs Installation arm64**
+```sh
+version="x.x.x"
+curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-darwin-arm64"
 chmod +x tfm
 ```
 
@@ -39,14 +46,14 @@ chmod +x tfm
 **Linux Installation**
 ```sh
 version="x.x.x"
-curl -L -o tfm "https://github.com/hashicorp-services/tfm/download/${version}/tfm_linux_amd64"
+curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-linux-amd64"
 chmod +x tfm
 ```
 
 **Windows Installation**
 ```sh
 version="x.x.x"
-curl -L -o tfm.exe "https://github.com/hashicorp-services/tfm/download/${version}/tfm_windows_amd64"
+curl -L -o tfm.exe "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-windows-amd64"
 ```
 
 ## Usage

@@ -1,13 +1,13 @@
 agents-map=[
-  "apool-E4e9fijGCqnMixgw=apool-ionpTPFGPTjytp58",
+  "apool-7mev8r4Dck7D1iba=apool-Uv3enMDH6eCtNCsc",
 ]
 
 vcs-map=[
-  "ot-UKM5cGmCkcsptXfq=ot-kU1vb9khCZrk1HZY",
+  "ot-ctRWZMffM36canL2=ot-ctRWZMffM36canL2",
 ]
 
 ssh-map=[
-  "sshkey-gKJBRGBd8DvcGspu=sshkey-MFyZn4EzcqPmdnrY",
+  "ssshkey-rnFYuMfwFvbjzxrB=sshkey-28pxkndxTwVVi9n6",
 ]
 
 workspaces-map=[
