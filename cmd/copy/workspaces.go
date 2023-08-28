@@ -175,7 +175,11 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	}
 
 	// If no workspaces found in config (list or map), default to just assume all workspaces from source will be chosen
-	if len(wsMapCfg) > 0 {
+	if len(srcWorkspacesCfg) > 0 && len(wsMapCfg) > 0 {
+		o.AddErrorUserProvided("'workspaces' list and 'workpaces-map' cannot be defined at the same time.")
+		os.Exit(0)
+
+	} else if len(wsMapCfg) > 0 {
 
 		// use config workspaces from map
 		var wsList []string
