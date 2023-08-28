@@ -175,7 +175,11 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	}
 
 	// If no workspaces found in config (list or map), default to just assume all workspaces from source will be chosen
-	if len(wsMapCfg) > 0 {
+	if len(srcWorkspacesCfg) > 0 && len(wsMapCfg) > 0 {
+		o.AddErrorUserProvided("'workspaces' list and 'workpaces-map' cannot be defined at the same time.")
+		os.Exit(0)
+
+	} else if len(wsMapCfg) > 0 {
 
 		// use config workspaces from map
 		var wsList []string
@@ -391,10 +395,10 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 
 	// Check if Project ID is set
 	if viper.GetString("dst_tfc_project_id") != "" {
+
 		project.ID = viper.GetString("dst_tfc_project_id")
-		fmt.Println("Project ID Set")
-		fmt.Printf(" Project ID: %s, Project Name, %s\n", project.ID, project.Name)
-		// os.Exit(0)
+		o.AddMessageUserProvided("Destination Project ID is Set: ", project.ID)
+
 	} else {
 
 		// get Default Project ID
