@@ -42,7 +42,7 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 
 	srcProjects := []*tfe.Project{}
 	projectJSON := make(map[string]interface{}) // Parent JSON object "project-names"
-	projectNames := []string{}                  // project names slice to go inside parent object "project-names"
+	projectNamesAndIDs := []map[string]string{} // project names slice to go inside parent object "project-names"
 
 	opts := tfe.ProjectListOptions{
 		ListOptions: tfe.ListOptions{
@@ -78,16 +78,20 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 			o.AddTableHeaders("Name", "ID")
 		}
 		for _, i := range srcProjects {
+			projectInfo := map[string]string{
+				"name": i.Name,
+				"id":   i.ID,
+			}
 
 			if jsonOut {
-				projectNames = append(projectNames, i.Name) // Store project name in slice
+				projectNamesAndIDs = append(projectNamesAndIDs, projectInfo) // Store project name in slice
 			}
 			if jsonOut == false {
 				o.AddTableRows(i.Name, i.ID)
 			}
 		}
 		if jsonOut {
-			projectJSON["project-names"] = projectNames // Assign project names to the "project-names" key
+			projectJSON["projects"] = projectNamesAndIDs // Assign project names to the "project-names" key
 
 			jsonData, err := json.Marshal(projectJSON)
 			if err != nil {
@@ -127,16 +131,21 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 		}
 
 		for _, i := range srcProjects {
+			projectInfo := map[string]string{
+				"name": i.Name,
+				"id":   i.ID,
+			}
 
 			if jsonOut {
-				projectNames = append(projectNames, i.Name) // Store project name in the slice
+				projectNamesAndIDs = append(projectNamesAndIDs, projectInfo) // Store project name in slice
 			}
+
 			if jsonOut == false {
 				o.AddTableRows(i.Name, i.ID)
 			}
 		}
 		if jsonOut {
-			projectJSON["project-names"] = projectNames // Assign project names to the "project-names" key
+			projectJSON["project-names"] = projectNamesAndIDs // Assign project names to the "project-names" key
 
 			jsonData, err := json.Marshal(projectJSON)
 			if err != nil {
