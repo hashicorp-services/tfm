@@ -21,5 +21,5 @@ var (
 func init() {
 
 	ListCmd.PersistentFlags().StringVar(&side, "side", "", "Specify source or destination side to process")
-	ListCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "Print the output in JSON format")
+	ListCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "Print the output in JSON format. Only supported with [workspaces, projects]")
 }
