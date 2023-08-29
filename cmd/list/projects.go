@@ -91,7 +91,7 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 			}
 		}
 		if jsonOut {
-			projectJSON["projects"] = projectNamesAndIDs // Assign project names to the "project-names" key
+			projectJSON["projects"] = projectNamesAndIDs // Assign projects to the "projects" key
 
 			jsonData, err := json.Marshal(projectJSON)
 			if err != nil {
@@ -145,7 +145,7 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 			}
 		}
 		if jsonOut {
-			projectJSON["project-names"] = projectNamesAndIDs // Assign project names to the "project-names" key
+			projectJSON["projects"] = projectNamesAndIDs // Assign projects to the "project" key
 
 			jsonData, err := json.Marshal(projectJSON)
 			if err != nil {
