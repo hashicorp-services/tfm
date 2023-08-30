@@ -109,4 +109,6 @@ func generateConfigTemplate() {
 	if err != nil {
 		panic(err)
 	}
+
+	o.AddMessageUserProvided(".tfm.hcl template generated in current directroy ", "")
 }
