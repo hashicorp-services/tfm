@@ -6,6 +6,7 @@ package copy
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
@@ -164,6 +165,7 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	// Get source Workspace list from config list `workspaces` if it exists
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
+	customFilters := viper.GetStringSlice("custom_filters")
 
 	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 	if err != nil {
@@ -205,6 +207,53 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		srcWorkspaces, err = getSrcWorkspacesFilter(tfclient.GetClientContexts(), srcWorkspacesCfg)
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
+		}
+
+		// Define a map to store custom filter functions
+		customFilterFuncs := make(map[string]func(string) bool)
+
+		// Parse and compile custom filter functions
+		for _, filter := range customFilters {
+			parts := strings.SplitN(filter, "=", 2)
+			if len(parts) != 2 {
+				return nil, fmt.Errorf("Invalid custom filter: %s", filter)
+			}
+			filterName := strings.TrimSpace(parts[0])
+			filterPattern := strings.TrimSpace(parts[1])
+
+			// Compile the regex pattern
+			regex, err := regexp.Compile(filterPattern)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Failed to compile custom filter regex for %s", filterName)
+			}
+
+			// Define the custom filter function
+			customFilterFuncs[filterName] = func(workspaceName string) bool {
+				return regex.MatchString(workspaceName)
+			}
+		}
+
+		// Filter workspaces based on names and custom filters
+		for _, srcWorkspace := range srcWorkspaces {
+			// Check if the workspace name matches any of the provided names
+			for _, name := range srcWorkspacesCfg {
+				if srcWorkspace.Name == name {
+					srcWorkspaces = append(srcWorkspaces, srcWorkspace)
+					break
+				}
+			}
+
+			// Check if the workspace matches any of the custom filters
+			for filterName, filterFunc := range customFilterFuncs {
+				if filterFunc(srcWorkspace.Name) {
+					o.AddFormattedMessageCalculated("Workspace matches custom filter: %s", filterName)
+
+					// } else {
+					// 	os.Exit(0)
+					srcWorkspaces = append(srcWorkspaces, srcWorkspace)
+					break
+				}
+			}
 		}
 
 	} else {
@@ -412,7 +461,9 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 
 	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
 	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
+
 	for _, srcworkspace := range srcWorkspaces {
+
 		destWorkSpaceName := srcworkspace.Name
 
 		// Copy tags over
