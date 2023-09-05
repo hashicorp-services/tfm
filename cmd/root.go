@@ -26,6 +26,7 @@ import (
 
 	"github.com/hashicorp-services/tfm/cmd/copy"
 	"github.com/hashicorp-services/tfm/cmd/delete"
+	"github.com/hashicorp-services/tfm/cmd/generate"
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/cmd/list"
 	"github.com/hashicorp-services/tfm/cmd/nuke"
@@ -111,6 +112,7 @@ func init() {
 	RootCmd.AddCommand(list.ListCmd)
 	RootCmd.AddCommand(nuke.NukeCmd)
 	RootCmd.AddCommand(delete.DeleteCmd)
+	RootCmd.AddCommand(generate.GenerateCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
