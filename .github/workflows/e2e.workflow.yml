@@ -4,6 +4,7 @@ name: end-to-end
 on:
   schedule:
     - cron: 25 6 * * *
+  workflow_dispatch:
 
 jobs:
   initialize-source-tfc-resources:
