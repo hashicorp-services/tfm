@@ -185,7 +185,6 @@ module "workspacer_cli_driven" {
 #######################
 ### Test Scenario 4 ###
 #######################
-
 # Designed for testing the following:
 # Copy of agent pool mapping
 module "workspacer_agent_execution" {
