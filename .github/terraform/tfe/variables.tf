@@ -11,6 +11,16 @@ variable "tfe_hostname" {
   default     = "app.terraform.io"
 }
 
+variable "source_tfe_token" {
+  description = "The TFE token used for the source"
+  type        = string
+}
+
+variable "destination_tfe_token" {
+  description = "The TFE token used for the destination"
+  type        = string
+}
+
 variable "gh_token" {
   description = "The Oauth Token for GitHub"
   type        = string
