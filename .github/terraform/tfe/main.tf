@@ -44,7 +44,7 @@ provider "tfe" {
 # copy of variables
 module "workspacer_vcs_driven" {
 
-  source  = "app.terraform.io/hc-implementation-services/workspacer-tfm/tfe"
+  source  = "app.terraform.io/tfm-testing-source/workspacer-tfm/tfe"
   version = "0.8.1"
 
   providers = {
@@ -112,7 +112,7 @@ module "workspacer_vcs_driven" {
 # No copy of variables
 # No copy of agent pools mapping
 module "workspacer_barebones" {
-  source  = "app.terraform.io/hc-implementation-services/workspacer-tfm/tfe"
+  source  = "app.terraform.io/tfm-testing-source/workspacer-tfm/tfe"
   version = "0.8.1"
 
   providers = {
@@ -148,7 +148,7 @@ module "workspacer_barebones" {
 # CLI-Driven workspace
 # No state files present
 module "workspacer_cli_driven" {
-  source  = "app.terraform.io/hc-implementation-services/workspacer-tfm/tfe"
+  source  = "app.terraform.io/tfm-testing-source/workspacer-tfm/tfe"
   version = "0.8.1"
 
   providers = {
@@ -189,7 +189,7 @@ module "workspacer_cli_driven" {
 # Copy of agent pool mapping
 module "workspacer_agent_execution" {
 
-  source  = "app.terraform.io/hc-implementation-services/workspacer-tfm/tfe"
+  source  = "app.terraform.io/tfm-testing-source/workspacer-tfm/tfe"
   version = "0.8.1"
 
   providers = {
