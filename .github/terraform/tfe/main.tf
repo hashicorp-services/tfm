@@ -242,6 +242,6 @@ module "workspacer_agent_execution" {
 # Destination Resources
 resource "tfe_project" "migrated" {
   provider = tfe.destination
-  name = "migrated"
+  name = "ci-test-migrated"
   organization = var.destination_tfe_organization
 }
