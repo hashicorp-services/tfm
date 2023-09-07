@@ -196,8 +196,6 @@ module "workspacer_agent_execution" {
     tfe = tfe.source
   }
 
-  count = var.workspace_count
-
   organization   = var.source_tfe_organization
   workspace_name = "tfm-ci-test-vcs-agent"
   workspace_desc = "Created by GitHub Actions CI e2e.workflow.yml. Created by Terraform Workspacer module."
