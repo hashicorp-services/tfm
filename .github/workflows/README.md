@@ -3,9 +3,7 @@
 ## Directory Structure
 
 - actions contains different tests to be run using the tfm tool. Each test should have its own directory with the naming convention `test-<thing to test>`. Within that directoy an `action.yml` should exist containing the test actions. These are referenced by the `e2e.workflow.yml` workflow.
-
 - terraform contains different terraform configurations for creating workspaces, teams, variables, etc within the `tfm-testing-source` workspace.
-
 - workflows contains the different workflows related to TFM.
 
 ## End to End Testing ( e2e.workflow.yml )
@@ -15,8 +13,9 @@
 Information about the e2e workflow in the event the maintainer needs to issue new API tokens or troubleshoot.
 
 - A long lived workspace named `gh-actions-ci-master-workspace` exists within the TFC organization `tfm-testing-source`. This workspace is a CLI driven workspace that executes terraform apply during the workflow to create all other resources within the org using the TFE provider, and later a terraform destroy to remove them.
-
 - A team exists within the TFC organization `tfm-testing-source` named `github-actions-tfm`. Generate an API Token for this team.
+- A team exists within the TFC organization `tfm-testing-destination` named `github-actions-tfm`. Generate an API Token for this team.
+- A module is being sourced from `app.terraform.io/tfm-testing-source/workspacer-tfm/tfe`
 
 ### API Tokens
 - Update the `gh-actions-ci-master-workspace` workspace variable `TFE_TOKEN` with the SOURCE org `github-actions-tfm` team API token each time you issue a new one.
