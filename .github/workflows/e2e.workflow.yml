@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  initialize-source-tfc-resources:
+  initialize-tfc-resources:
     runs-on: "ubuntu-latest"
     env:
       TF_CLOUD_ORGANIZATION: ${{ vars.SOURCEORGANIZATION }}
@@ -34,42 +34,358 @@ jobs:
           -var "organization=$TF_CLOUD_ORGANIZATION" \
           --auto-approve -input=false
 
-  # speculative-run:
-  #   runs-on: "ubuntu-latest"
-  #   needs: initialize-source-tfc-resources
-  #   env:
-  #     TF_CLOUD_ORGANIZATION: ${{ vars.SOURCEORGANIZATION }}
-  #     TF_API_TOKEN: ${{ secrets.SOURCETOKEN}}
-  #     TF_LOG: DEBUG
-  #   steps:
-  #     - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+  tfm-list-test:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
 
-  #     - uses: ./.github/actions/test-upload-configuration
-  #       id: upload
-  #       with:
-  #         workspace: ci-workspace-test
-  #         directory: .github/terraform/workspace
-  #         speculative: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-  #     - uses: ./.github/actions/test-create-run
-  #       id: create-run
-  #       with:
-  #         configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
-  #         workspace: ci-workspace-test
-  #         plan_only: true
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
 
-  #     - uses: ./.github/actions/test-plan-output
-  #       id: plan
-  #       with:
-  #         plan: ${{ steps.create-run.outputs.plan_id }}
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
 
-  #     - name: Echo Plan Output
-  #       run: |
-  #         echo "Add: ${{ steps.plan.outputs.add}}"
-  #         echo "Change: ${{ steps.plan.outputs.change}}"
-  #         echo "Destroy: ${{ steps.plan.outputs.destroy}}"
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
 
-  destroy-source-tfc-resources:
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: List organization source
+        run: ./tfm list organization
+  
+      - name: List organization destination
+        run: ./tfm list organization --side destination
+
+      - name: List ssh key id source
+        run: ./tfm list ssh
+  
+      - name: List ssh key id destination
+        run: ./tfm list ssh --side destination
+
+      - name: List teams source
+        run: ./tfm list teams
+      
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: List workspaces source
+        run: ./tfm list workspaces
+
+      - name: List workspaces source in JSON format
+        run: ./tfm list workspaces --json
+
+      - name: List workspaces destination
+        run: ./tfm list workspaces --side destination
+
+      - name: List workspaces destination in JSON format
+        run: ./tfm list workspaces --side destination --json
+  
+      - name: List vcs source
+        run: ./tfm list vcs --side source
+
+      - name: List vcs source all
+        run: ./tfm list vcs --side source --all
+  
+      - name: List vcs destination
+        run: ./tfm list vcs --side destination
+
+      - name: List vcs destination all
+        run: ./tfm list vcs --side destination --all
+
+      - name: List projects source
+        run: ./tfm list projects
+
+      - name: List projects source in JSON format
+        run: ./tfm list projects --json
+
+      - name: List projects destination
+        run: ./tfm list projects --side destination
+
+      - name: List projects destination --json
+        run: ./tfm list projects --side destination --json
+
+  tfm-copy-all-workspaces:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: Migrate teams
+        run: ./tfm copy teams --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: Migrate varsets
+        run: ./tfm copy varsets --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces
+        run: ./tfm copy workspaces --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces ssh
+        run: ./tfm copy workspaces --ssh --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces state
+        run: ./tfm copy workspaces --state --config test/configs/.e2e-all-workspaces-test.hcl
+      
+      - name: Migrate Workspaces teamaccess
+        run: ./tfm copy workspaces --teamaccess --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces vars
+        run: ./tfm copy workspaces --vars --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces vcs
+        run: ./tfm copy workspaces --vcs --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspace Last X State Test
+        run: ./tfm copy workspaces --config test/configs/.e2e-all-workspaces-test.hcl
+      
+      - name: Migrate Workspace Last X State Test --states --last 2 --autoapprove=true
+        run: ./tfm copy workspaces --state --last 2 --config test/configs/.e2e-all-workspaces-test.hcl --autoapprove=true
+
+      - name: List workspaces in destination
+        run: ./tfm list workspaces --side destination
+
+      - name: Destroy resources that were copied to the destination org
+        run: ./test/cleanup/e2e-nuke.sh
+
+  tfm-copy-workspaces-list:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: Migrate teams
+        run: ./tfm copy teams --config test/configs/.e2e-workspaces-list-test.hcl
+
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: Migrate varsets
+        run: ./tfm copy varsets --config test/configs/.e2e-workspaces-list-test.hcl
+
+      - name: Migrate Workspaces
+        run: ./tfm copy workspaces --config test/configs/.e2e-workspaces-list-test.hcl
+
+      - name: Migrate Workspaces ssh
+        run: ./tfm copy workspaces --ssh --config test/configs/.e2e-workspaces-list-test.hcl
+
+      - name: Migrate Workspaces state
+        run: ./tfm copy workspaces --state --config test/configs/.e2e-workspaces-list-test.hcl
+      
+      - name: Migrate Workspaces teamaccess
+        run: ./tfm copy workspaces --teamaccess --config test/configs/.e2e-workspaces-list-test.hcl
+
+      - name: Migrate Workspaces vars
+        run: ./tfm copy workspaces --vars --config test/configs/.e2e-workspaces-list-test.hcl
+
+      - name: Migrate Workspaces vcs
+        run: ./tfm copy workspaces --vcs --config test/configs/.e2e-workspaces-list-test.hcl
+
+      - name: Migrate Workspace Last X State Test
+        run: ./tfm copy workspaces --config test/configs/.e2e-workspaces-list-test.hcl
+      
+      - name: Migrate Workspace Last X State Test --states --last 2 --autoapprove=true
+        run: ./tfm copy workspaces --state --last 2 --config test/configs/.e2e-workspaces-list-test.hcl --autoapprove=true
+
+      - name: List workspaces destination
+        run: ./tfm list workspaces --side destination
+
+      - name: Destroy resources that were copied to the destination org
+        run: ./test/cleanup/e2e-nuke.sh
+
+  tfm-tests-workspace-map:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: Migrate teams
+        run: ./tfm copy teams --config test/configs/.e2e-workspace-map-test.hcl
+
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: Migrate varsets
+        run: ./tfm copy varsets --config test/configs/.e2e-workspace-map-test.hcl
+
+      - name: Migrate Workspaces
+        run: ./tfm copy workspaces --config test/configs/.e2e-workspace-map-test.hcl
+
+      - name: Migrate Workspaces ssh
+        run: ./tfm copy workspaces --ssh --config test/configs/.e2e-workspace-map-test.hcl
+
+      - name: Migrate Workspaces state
+        run: ./tfm copy workspaces --state --config test/configs/.e2e-workspace-map-test.hcl
+      
+      - name: Migrate Workspaces teamaccess
+        run: ./tfm copy workspaces --teamaccess --config test/configs/.e2e-workspace-map-test.hcl
+
+      - name: Migrate Workspaces vars
+        run: ./tfm copy workspaces --vars --config test/configs/.e2e-workspace-map-test.hcl
+
+      - name: Migrate Workspaces vcs
+        run: ./tfm copy workspaces --vcs --config test/configs/.e2e-workspace-map-test.hcl
+
+      - name: Migrate Workspace Last X State Test
+        run: ./tfm copy workspaces --config test/configs/.e2e-workspace-map-test.hcl
+      
+      - name: Migrate Workspace Last X State Test --states --last 2 --autoapprove=true
+        run: ./tfm copy workspaces --state --last 2 --config test/configs/.e2e-workspace-map-test.hcl --autoapprove=true
+
+      - name: List workspaces destination
+        run: ./tfm list workspaces --side destination
+
+      - name: Destroy resources that were copied to the destination org
+        run: ./test/cleanup/e2e-nuke.sh
+
+  destroy-tfc-resources:
     runs-on: "ubuntu-latest"
     defaults:
       run:
