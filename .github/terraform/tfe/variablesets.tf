@@ -32,7 +32,7 @@ resource "tfe_variable" "variable2" {
 
   key             = "env_var"
   value           = "test"
-  category        = "environment"
+  category        = "env"
   description     = "variable description"
   variable_set_id = tfe_variable_set.aws.id
 }
@@ -54,7 +54,7 @@ resource "tfe_variable" "variable4" {
 
   key             = "env_var"
   value           = "test"
-  category        = "environment"
+  category        = "env"
   description     = "variable description"
   variable_set_id = tfe_variable_set.azure.id
 }
