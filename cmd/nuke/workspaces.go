@@ -47,7 +47,7 @@ func nukeWorkspaces(c tfclient.ClientContexts) error {
 		}
 	}
 
-	if len(workspacesToNuke) > 1 {
+	if len(workspacesToNuke) > 0 {
 		o.AddFormattedMessageCalculated("Found %d Workspaces created by tfm to remove", len(workspacesToNuke))
 		o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Locked", "TF Version", "Workspace Source")
 
