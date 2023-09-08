@@ -51,7 +51,7 @@ The high level Migration path has 6 key components:
     - Determine if any utilities are needed within the agent (Local-Exec, Custom Providers, etc...)
 - Discuss new user onboarding in Terraform Cloud (Slight differences from Terraform Enterprise)
 - Discuss State Migration on Workspaces (Latest State only)
-- Evaluate current use of Workspace Variables marked as "sensitive" (these values are read-only from the API)
+- Evaluate current use of Workspace Variables marked as "sensitive" (these values are write-only from the API)
 #### Planning
 - Identify Admins of VCS and IdP that will be needed to configure both in Terraform Cloud
 - Determine order in which to migrate Modules, Policies, and most importantly Workspaces
