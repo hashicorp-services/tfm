@@ -216,7 +216,7 @@ jobs:
         run: ./tfm copy workspaces --vcs --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate workspaces agent pool
-        run: ./tfm copt workspaces --agents --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --agents --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspace Last X State Test
         run: ./tfm copy workspaces --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
@@ -311,7 +311,7 @@ jobs:
         run: ./tfm copy workspaces --vcs --config test/configs/.e2e-workspaces-list-test.hcl
 
       - name: Migrate workspaces agent pool
-        run: ./tfm copt workspaces --agents --config test/configs/.e2e-workspaces-list-test.hcl
+        run: ./tfm copy workspaces --agents --config test/configs/.e2e-workspaces-list-test.hcl
 
       - name: Migrate Workspace Last X State Test
         run: ./tfm copy workspaces --config test/configs/.e2e-workspaces-list-test.hcl
@@ -403,7 +403,7 @@ jobs:
         run: ./tfm copy workspaces --vcs --config test/configs/.e2e-workspace-map-test.hcl
 
       - name: Migrate workspaces agent pool
-        run: ./tfm copt workspaces --agents --config test/configs/.e2e-workspace-map-test.hcl
+        run: ./tfm copy workspaces --agents --config test/configs/.e2e-workspace-map-test.hcl
 
       - name: Migrate Workspace Last X State Test
         run: ./tfm copy workspaces --config test/configs/.e2e-workspace-map-test.hcl
