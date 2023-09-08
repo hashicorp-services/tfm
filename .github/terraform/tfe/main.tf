@@ -75,7 +75,7 @@ module "workspacer_vcs_driven" {
   ssh_key_id = tfe_ssh_key.source.id
 
   vcs_repo = {
-    identifier     = "hashicorp-services/tfm"
+    identifier     = "hashicorp-services-ci/tfm"
     branch         = "main"
     oauth_token_id = tfe_oauth_client.source.oauth_token_id
     tags_regex     = null # conflicts with `trigger_prefixes` and `trigger_patterns`
@@ -134,7 +134,7 @@ module "workspacer_barebones" {
   allow_destroy_plan = true
 
   vcs_repo = {
-    identifier     = "hashicorp-services/tfm"
+    identifier     = "hashicorp-services-ci/tfm"
     branch         = "main"
     oauth_token_id = tfe_oauth_client.source.oauth_token_id
     tags_regex     = null # conflicts with `trigger_prefixes` and `trigger_patterns`
@@ -216,7 +216,7 @@ module "workspacer_agent_execution" {
   execution_mode = "agent"
 
   vcs_repo = {
-    identifier     = "hashicorp-services/tfm"
+    identifier     = "hashicorp-services-ci/tfm"
     branch         = "main"
     oauth_token_id = tfe_oauth_client.source.oauth_token_id
     tags_regex     = null # conflicts with `trigger_prefixes` and `trigger_patterns`
