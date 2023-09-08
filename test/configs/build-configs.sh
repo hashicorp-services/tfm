@@ -3,13 +3,13 @@ set -euo pipefail
 
 # This script is used to build the ssh-map, vcs-map, and agents-map within the config files.
 # Because these are created with new IDs each time e2e testing is run, we need a way to create these each time the test is run.
-SOURCE_SSH_KEY_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFC_ORG/ssh-keys" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-src") | .id' | tr -d '"')
+SOURCE_SSH_KEY_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFE_ORG/ssh-keys" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-src") | .id' | tr -d '"')
 DESTINATION_SSH_KEY_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/ssh-keys" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-dest") | .id' | tr -d '"')
 
-SOURCE_AGENTPOOL_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFC_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-src") | .id' | tr -d '"')
+SOURCE_AGENTPOOL_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFE_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-src") | .id' | tr -d '"')
 DESTINATION_AGEENTPOOL_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-dest") | .id' | tr -d '"')
 
-SOURCE_VCS_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFC_ORG/oauth-clients" | jq '.data[] | select(.attributes.name == "github-hashicorp-services") | .id' | tr -d '"')
+SOURCE_VCS_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFE_ORG/oauth-clients" | jq '.data[] | select(.attributes.name == "github-hashicorp-services") | .id' | tr -d '"')
 DESTINATION_VCS_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/oauth-clients" | jq '.data[] | select(.attributes.name == "github-hashicorp-services") | .id' | tr -d '"')
 
 cat > ./test/configs/.e2e-all-workspaces-test.hcl <<EOF
