@@ -78,6 +78,9 @@ jobs:
             -output "./tfm" \
             .
 
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+        
       - name: Print version
         run: ./tfm --version
 
@@ -404,7 +407,7 @@ jobs:
       TF_WORKSPACE: ${{ vars.TF_SRC_WORKSPACE }}
 
     needs: tfm-tests-workspace-map
-    
+
     steps:
       - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
