@@ -198,31 +198,34 @@ jobs:
         run: ./tfm copy workspaces --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspaces ssh
-        run: ./tfm copy workspaces --ssh --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --ssh --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspaces state
-        run: ./tfm copy workspaces --state --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --state --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
       
       - name: Migrate Workspaces teamaccess
-        run: ./tfm copy workspaces --teamaccess --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --teamaccess --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspaces vars
-        run: ./tfm copy workspaces --vars --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --vars --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspaces vcs
-        run: ./tfm copy workspaces --vcs --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --vcs --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspace Last X State Test
-        run: ./tfm copy workspaces --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
       
       - name: Migrate Workspace Last X State Test --states --last 2 --autoapprove=true
-        run: ./tfm copy workspaces --state --last 2 --config test/configs/.e2e-all-workspaces-test.hcl --autoapprove=true
+        run: ./tfm copy workspaces --autoapprove=true --state --last 2 --config test/configs/.e2e-all-workspaces-test.hcl --autoapprove=true
 
       - name: List workspaces in destination
         run: ./tfm list workspaces --side destination
 
       - name: Destroy resources that were copied to the destination org
         run: ./test/cleanup/e2e-nuke.sh
+
+      #- name: Destroy extra workspaces in the destination not part of the ci test
+      #  run: ./tfm nuke workspaces --autoapprove=true
 
   tfm-copy-workspaces-list:
     runs-on: ubuntu-latest
