@@ -185,6 +185,9 @@ jobs:
       - name: Print version
         run: ./tfm --version
 
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+
       - name: Migrate teams
         run: ./tfm copy teams --config test/configs/.e2e-all-workspaces-test.hcl
 
@@ -274,6 +277,9 @@ jobs:
       - name: Print version
         run: ./tfm --version
 
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+        
       - name: Migrate teams
         run: ./tfm copy teams --config test/configs/.e2e-workspaces-list-test.hcl
 
@@ -360,6 +366,9 @@ jobs:
       - name: Print version
         run: ./tfm --version
 
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+        
       - name: Migrate teams
         run: ./tfm copy teams --config test/configs/.e2e-workspace-map-test.hcl
 

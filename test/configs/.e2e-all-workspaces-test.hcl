@@ -7,5 +7,5 @@ vcs-map=[
 ]
 
 ssh-map=[
-  "ssshkey-rnFYuMfwFvbjzxrB=sshkey-28pxkndxTwVVi9n6",
+  "sshkey-rnFYuMfwFvbjzxrB=sshkey-28pxkndxTwVVi9n6",
 ]
