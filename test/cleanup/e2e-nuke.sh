@@ -4,8 +4,6 @@ set -euo pipefail
 # This script is used to wipe out changes that tfm unit testing will do
 # Eventually this will be variablized and smarter but for now it is using hardcoded names and values
 
-if $RUNNUKE = "true"
-then
 
     echo "Removing workspaces"
 
@@ -38,8 +36,5 @@ then
     curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/varsets/$AZUREVARSETID"
 
     echo "Target Nuked!"
-else
-    echo "Not running Nuke"
-fi
 
 
