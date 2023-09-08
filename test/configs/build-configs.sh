@@ -69,6 +69,11 @@ ssh-map=[
 ]
 EOF
 
+echo "[INFO] .e2e-all-workspaces-test.hcl"
 cat ./test/configs/.e2e-all-workspaces-test.hcl
+
+echo "[INFO] .e2e-workspace-map-test.hcl"
 cat ./test/configs/.e2e-workspace-map-test.hcl
+
+echo "[INFO] .e2e-workspaces-list-test.hcl"
 cat ./test/configs/.e2e-workspaces-list-test.hcl

@@ -195,7 +195,7 @@ jobs:
         run: ./tfm copy varsets --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspaces
-        run: ./tfm copy workspaces --config test/configs/.e2e-all-workspaces-test.hcl
+        run: ./tfm copy workspaces --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
 
       - name: Migrate Workspaces ssh
         run: ./tfm copy workspaces --ssh --config test/configs/.e2e-all-workspaces-test.hcl
