@@ -429,7 +429,7 @@ jobs:
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
       DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
 
-    needs: tfm-list-test
+    needs: tfm-tests-workspace-map
 
     steps:
       - name: Checkout code

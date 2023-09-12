@@ -9,8 +9,6 @@ DESTINATION_SSH_KEY_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --
 SOURCE_AGENTPOOL_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFE_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-src") | .id' | tr -d '"')
 DESTINATION_AGENTPOOL_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-dest") | .id' | tr -d '"')
 
-
-
 SOURCE_OAUTH_CLIENT_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFE_ORG/oauth-clients" | jq '.data[] | select(.attributes.name == "github-hashicorp-services-ci") | .id' | tr -d '"')
 DESTINATION_OAUTH_CLIENT_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/oauth-clients" | jq '.data[] | select(.attributes.name == "github-hashicorp-services-ci") | .id' | tr -d '"')
 
@@ -96,4 +94,4 @@ echo "[INFO] .e2e-workspaces-list-test.hcl"
 cat ./test/configs/.e2e-workspaces-list-test.hcl
 
 echo "[INFO] ..e2e-all-workspaces-destination-agent-test.hcl"
-cat ./test/configs/..e2e-all-workspaces-destination-agent-test.hcl
+cat ./test/configs/.e2e-all-workspaces-destination-agent-test.hcl
