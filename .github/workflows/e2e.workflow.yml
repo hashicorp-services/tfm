@@ -523,7 +523,7 @@ jobs:
       TF_API_TOKEN: ${{ secrets.SOURCETOKEN}}
       TF_WORKSPACE: ${{ vars.TF_SRC_WORKSPACE }}
 
-    needs: tfm-tests-workspace-map
+    needs: tfm-copy-all-workspaces-destination-agent
 
     steps:
       - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
