@@ -7,7 +7,7 @@ SOURCE_SSH_KEY_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --reque
 DESTINATION_SSH_KEY_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/ssh-keys" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-dest") | .id' | tr -d '"')
 
 SOURCE_AGENTPOOL_ID=$(curl --header "Authorization: Bearer $SRC_TFE_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$SRC_TFE_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-src") | .id' | tr -d '"')
-DESTINATION_AGEENTPOOL_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-dest") | .id' | tr -d '"')
+DESTINATION_AGENTPOOL_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request GET "https://app.terraform.io/api/v2/organizations/$DST_TFC_ORG/agent-pools" | jq '.data[] | select(.attributes.name == "tfm-ci-testing-dest") | .id' | tr -d '"')
 
 
 
@@ -19,7 +19,7 @@ DESTINATION_VCS_ID=$(curl --header "Authorization: Bearer $DST_TFC_TOKEN" --requ
 
 cat > ./test/configs/.e2e-all-workspaces-test.hcl <<EOF
 agents-map=[
-  "$SOURCE_AGENTPOOL_ID=$DESTINATION_AGEENTPOOL_ID",
+  "$SOURCE_AGENTPOOL_ID=$DESTINATION_AGENTPOOL_ID",
 ]
 
 vcs-map=[
@@ -33,7 +33,7 @@ EOF
 
 cat > ./test/configs/.e2e-workspace-map-test.hcl <<EOF
 agents-map=[
-  "$SOURCE_AGENTPOOL_ID=$DESTINATION_AGEENTPOOL_ID",
+  "$SOURCE_AGENTPOOL_ID=$DESTINATION_AGENTPOOL_ID",
 ]
 
 vcs-map=[
@@ -55,7 +55,7 @@ EOF
 
 cat > ./test/configs/.e2e-workspaces-list-test.hcl <<EOF
 agents-map=[
-  "$SOURCE_AGENTPOOL_ID=$DESTINATION_AGEENTPOOL_ID",
+  "$SOURCE_AGENTPOOL_ID=$DESTINATION_AGENTPOOL_ID",
 ]
 
 vcs-map=[
@@ -74,6 +74,18 @@ ssh-map=[
 ]
 EOF
 
+cat > ./test/configs/.e2e-all-workspaces-destination-agent-test.hcl <<EOF
+agent-assignment=$DESTINATION_AGENTPOOL_ID"
+
+vcs-map=[
+  "$SOURCE_VCS_ID=$DESTINATION_VCS_ID",
+]
+
+ssh-map=[
+  "$SOURCE_SSH_KEY_ID=$DESTINATION_SSH_KEY_ID",
+]
+EOF
+
 echo "[INFO] .e2e-all-workspaces-test.hcl"
 cat ./test/configs/.e2e-all-workspaces-test.hcl
 
@@ -82,3 +94,6 @@ cat ./test/configs/.e2e-workspace-map-test.hcl
 
 echo "[INFO] .e2e-workspaces-list-test.hcl"
 cat ./test/configs/.e2e-workspaces-list-test.hcl
+
+echo "[INFO] ..e2e-all-workspaces-destination-agent-test.hcl"
+cat ./test/configs/..e2e-all-workspaces-destination-agent-test.hcl

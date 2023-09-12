@@ -417,6 +417,102 @@ jobs:
       - name: Destroy resources that were copied to the destination org
         run: ./test/cleanup/e2e-nuke.sh
 
+  tfm-copy-all-workspaces-destination-agent:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    needs: tfm-list-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+
+      - name: Migrate teams
+        run: ./tfm copy teams --config test/configs/.e2e-all-workspaces-destination-agent-test.hcl
+
+      - name: List teams destination
+        run: ./tfm list teams --side destination
+
+      - name: Migrate varsets
+        run: ./tfm copy varsets --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces
+        run: ./tfm copy workspaces --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces ssh
+        run: ./tfm copy workspaces --ssh --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces state
+        run: ./tfm copy workspaces --state --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+      
+      - name: Migrate Workspaces teamaccess
+        run: ./tfm copy workspaces --teamaccess --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces vars
+        run: ./tfm copy workspaces --vars --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspaces vcs
+        run: ./tfm copy workspaces --vcs --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate workspaces agent pool
+        run: ./tfm copy workspaces --agents --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+
+      - name: Migrate Workspace Last X State Test
+        run: ./tfm copy workspaces --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+      
+      - name: Migrate Workspace Last X State Test --states --last 2 --autoapprove=true
+        run: ./tfm copy workspaces --autoapprove=true --state --last 2 --config test/configs/.e2e-all-workspaces-test.hcl --autoapprove=true
+
+      - name: List workspaces in destination
+        run: ./tfm list workspaces --side destination
+
+      - name: Destroy resources that were copied to the destination org
+        run: ./test/cleanup/e2e-nuke.sh
+
+      #- name: Destroy extra workspaces in the destination not part of the ci test
+      #  run: ./tfm nuke workspaces --autoapprove=true
+
+
   destroy-tfc-resources:
     runs-on: "ubuntu-latest"
     defaults:
