@@ -72,7 +72,7 @@ ssh-map=[
 ]
 EOF
 
-cat > ./test/configs/.e2e-all-workspaces-destination-agent-test.hcl <<EOF
+cat > ./test/configs/.e2e-workspaces-list-destination-agent-test.hcl <<EOF
 agent-assignment="$DESTINATION_AGENTPOOL_ID"
 
 vcs-map=[
@@ -81,6 +81,13 @@ vcs-map=[
 
 ssh-map=[
   "$SOURCE_SSH_KEY_ID=$DESTINATION_SSH_KEY_ID",
+]
+
+"workspaces" = [
+  "tfm-ci-test-vcs-0",
+  "tfm-ci-test-vcs-1",
+  "tfm-ci-test-cli-nostate",
+  "tfm-ci-test-vcs-agent"
 ]
 EOF
 
@@ -93,5 +100,5 @@ cat ./test/configs/.e2e-workspace-map-test.hcl
 echo "[INFO] .e2e-workspaces-list-test.hcl"
 cat ./test/configs/.e2e-workspaces-list-test.hcl
 
-echo "[INFO] ..e2e-all-workspaces-destination-agent-test.hcl"
-cat ./test/configs/.e2e-all-workspaces-destination-agent-test.hcl
+echo "[INFO] .e2e-workspaces-list-destination-agent-test.hcl"
+cat ./test/configs/.e2e-workspaces-list-destination-agent-test.hcl
