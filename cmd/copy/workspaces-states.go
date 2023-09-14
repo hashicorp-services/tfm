@@ -8,6 +8,7 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -269,12 +270,33 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 						newSerial = currentState.Serial + 1
 					}
 
+
+					// Get Lineage from state file
+					plainTextState := string(state)
+
+					// Define a regular expression pattern to match the "lineage" value
+					pattern := `"lineage":\s*"([^"]+)"`
+
+					// Compile the regular expression
+					re := regexp.MustCompile(pattern)
+
+					// Find the match
+					match := re.FindStringSubmatch(plainTextState)
+
+					if len(match) != 2 {
+						fmt.Println("Lineage not found in JSON")
+						return err
+					}
+
+					lineage := match[1]
+					fmt.Println("Lineage:", lineage)
+
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 						Type: "",
-						//Lineage:        Optional attribute, must be left empty or match source Lineage
+						Lineage:          &lineage,
 						MD5:              tfe.String(md5String),
 						Serial:           &newSerial,
 						State:            tfe.String(stringState),
