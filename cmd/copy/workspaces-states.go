@@ -49,7 +49,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 	srcStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
-		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: NumberOfStates},
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
 		Organization: c.SourceOrganizationName,
 		Workspace:    ws,
 	}
@@ -61,11 +61,8 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 
 		srcStates = append(srcStates, items.Items...)
 
+		// I think this should go after the next section
 		o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
-
-		if len(srcStates) >= NumberOfStates {
-			break
-		}
 
 		if items.CurrentPage >= items.TotalPages {
 			break
@@ -217,7 +214,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
-		// Check for the exsitence of the destination workspace in the destination target
+		// Check for the existence of the destination workspace in the destination target
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		if exists {
@@ -233,6 +230,8 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 			if err != nil {
 				return errors.Wrap(err, "failed to list state files for workspace from source")
 			}
+
+			//os.Exit(0)
 
 			// Get the destination workspace states
 			destStates, err := discoverDestStates(tfclient.GetClientContexts(), destWorkSpaceName)
