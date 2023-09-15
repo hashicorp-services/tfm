@@ -61,15 +61,20 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 
 		srcStates = append(srcStates, items.Items...)
 
-		// I think this should go after the next section
-		o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
-
 		if items.CurrentPage >= items.TotalPages {
 			break
 		}
 		opts.PageNumber = items.NextPage
 
 	}
+	o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
+
+	if NumberOfStates != 0 {
+		o.AddFormattedMessageCalculated("Only the %d newest workspace states will be migrated", NumberOfStates)
+	}
+
+	// If a last X amount of states is given, remove all previous states except for the last X amount
+	srcStates = srcStates[:len(srcStates) - (len(srcStates) - NumberOfStates)]
 
 	return srcStates, nil
 }
@@ -231,8 +236,6 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 				return errors.Wrap(err, "failed to list state files for workspace from source")
 			}
 
-			//os.Exit(0)
-
 			// Get the destination workspace states
 			destStates, err := discoverDestStates(tfclient.GetClientContexts(), destWorkSpaceName)
 			if err != nil {
@@ -268,7 +271,6 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					if currentState != nil {
 						newSerial = currentState.Serial + 1
 					}
-
 
 					// Get Lineage from state file
 					plainTextState := string(state)
