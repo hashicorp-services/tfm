@@ -33,6 +33,42 @@ import (
 // Iterate backwards through the srcstate slice and append each element to a new slice
 // to create a reverse ordered slice of srcStates
 
+func rateLimitTest() {
+	// Configure the rate limit to exceed 30 requests per second, set it to a higher value.
+	requestsPerSecond := 1000
+	requestInterval := time.Second / time.Duration(requestsPerSecond)
+
+	// Create a wait group to wait for all goroutines to finish.
+	var wg sync.WaitGroup
+
+	// Launch multiple goroutines to make API requests.
+	for i := 0; i < 100; i++ { // Launch 100 goroutines
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			// Simulate making an API request.
+			discoverDestTeams(tfclient.GetClientContexts())
+
+			// Sleep for the specified interval before making the next request.
+			time.Sleep(requestInterval)
+		}()
+	}
+
+	// Wait for all goroutines to finish.
+	wg.Wait()
+
+	fmt.Println("All API requests completed.")
+}
+
+func makeAPIRequest() {
+	// Simulate making an API request here.
+	// You can implement logic to trigger timeouts or simulate API errors.
+	// For example, you can use a timer to simulate a timeout:
+	time.Sleep(2 * time.Second)
+	fmt.Println("API request made.")
+}
+
 func reverseSlice(input []*tfe.StateVersion) []*tfe.StateVersion {
 	inputLen := len(input)
 	output := make([]*tfe.StateVersion, inputLen)
@@ -387,6 +423,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// // ---------------------------------------
 					// // --- end rate limiting testing code ---
 					// // ---------------------------------------
+					rateLimitTest()
 					for retry := 0; retry <= 2; retry++ {
 						srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 							Type:             "",
