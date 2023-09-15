@@ -42,7 +42,7 @@ func rateLimitTest() {
 	var wg sync.WaitGroup
 
 	// Launch multiple goroutines to make API requests.
-	for i := 0; i < 100; i++ { // Launch 100 goroutines
+	for i := 0; i < 1000; i++ { // Launch 100 goroutines
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
