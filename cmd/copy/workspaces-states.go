@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sync"
+	"time"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -30,6 +32,7 @@ import (
 
 // Iterate backwards through the srcstate slice and append each element to a new slice
 // to create a reverse ordered slice of srcStates
+
 func reverseSlice(input []*tfe.StateVersion) []*tfe.StateVersion {
 	inputLen := len(input)
 	output := make([]*tfe.StateVersion, inputLen)
@@ -80,6 +83,41 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 // Get the destination workspace state files from the provided workspace
 func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersion, error) {
 	o.AddMessageUserProvided("Getting list of States from destination Workspace ", ws)
+	destStates := []*tfe.StateVersion{}
+
+	opts := tfe.StateVersionListOptions{
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
+		Organization: c.DestinationOrganizationName,
+		Workspace:    ws,
+	}
+	for {
+		items, err := c.DestinationClient.StateVersions.List(c.DestinationContext, &opts)
+		if err != nil {
+			return nil, err
+		}
+
+		destStates = append(destStates, items.Items...)
+
+		o.AddFormattedMessageCalculated("Found %d Workspace states", len(destStates))
+
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+
+	}
+
+	return destStates, nil
+}
+
+// API rate limit testing
+func discoverDestStatesTEST(c tfclient.ClientContexts, ws string, startChan <-chan struct{}, id int, wg *sync.WaitGroup) ([]*tfe.StateVersion, error) {
+	o.AddMessageUserProvided("Getting list of States from destination Workspace ", ws)
+	defer wg.Done()
+
+	// Wait for a signal from the main goroutine to start
+	<-startChan
+
 	destStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
@@ -161,6 +199,35 @@ func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 		_ = lockStats
 
 	}
+	return nil
+}
+
+// (ONLY USED FOR RATE LIMIT TESTING) Locks the workspace provided
+func lockWorkspaceTEST(c tfclient.ClientContexts, destWorkspaceId string, id int, wg *sync.WaitGroup) error {
+	defer wg.Done()
+
+	message := "Uploading State"
+
+	wsProperties, err := c.DestinationClient.Workspaces.ReadByID(c.DestinationContext, destWorkspaceId)
+	if err != nil {
+		return err
+	}
+
+	if !wsProperties.Locked {
+
+		fmt.Println("Locking Workspace: ", destWorkspaceId)
+		lockStats, lockErr := c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
+			Reason: &message,
+		})
+		if lockErr != nil {
+			return lockErr
+		}
+
+		_ = lockStats
+
+	}
+	fmt.Printf("Function %d executed\n", id)
+
 	return nil
 }
 
@@ -270,7 +337,6 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 						newSerial = currentState.Serial + 1
 					}
 
-
 					// Get Lineage from state file
 					plainTextState := string(state)
 
@@ -294,23 +360,62 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
-					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
-						Type: "",
-						Lineage:          &lineage,
-						MD5:              tfe.String(md5String),
-						Serial:           &newSerial,
-						State:            tfe.String(stringState),
-						Force:            new(bool),
-						Run:              &tfe.Run{},
-						JSONState:        new(string),
-						JSONStateOutputs: new(string),
-					})
+					// // ---------------------------------------
+					// // --- START rate limiting testing code ---
+					// // ---------------------------------------
+					// for API rate limiting testing only
+					// Define the number of times you want to run the function
+					// numberOfTimes := 40
 
-					if err != nil {
-						return err
+					// startChan := make(chan struct{})
+					// var wg sync.WaitGroup
+
+					// // Use a for loop to run a function X number of times. I'm just trying to lock the workspace X times.
+					// for i := 0; i < numberOfTimes; i++ {
+					// 	wg.Add(1)
+					// 	println("rate limit testing")
+					// 	go discoverDestStatesTEST(tfclient.GetClientContexts(), destWorkSpaceName, startChan, i, &wg)
+					// }
+
+					// // Signal all goroutines to start simultaneously
+					// close(startChan)
+
+					// // Wait for all goroutines to finish
+					// fmt.Println("Waiting for goroutines to finish...")
+					// wg.Wait()
+
+					// // ---------------------------------------
+					// // --- end rate limiting testing code ---
+					// // ---------------------------------------
+					for retry := 0; retry <= 2; retry++ {
+						srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
+							Type:             "",
+							Lineage:          &lineage,
+							MD5:              tfe.String(md5String),
+							Serial:           &newSerial,
+							State:            tfe.String(stringState),
+							Force:            new(bool),
+							Run:              &tfe.Run{},
+							JSONState:        new(string),
+							JSONStateOutputs: new(string),
+						})
+
+						if err == nil {
+							// The operation was successful, so we can break out of the retry loop.
+							break
+						}
+
+						if err != nil {
+
+							// Sleep for a moment before the next retry.
+							fmt.Println("There was an issue migrating state. Sleeping and retrying.")
+							time.Sleep(2 * time.Second) // Adjust the duration as needed.
+
+							return err
+						}
+
+						_ = srcstate
 					}
-
-					_ = srcstate
 				}
 			}
 			unlockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
