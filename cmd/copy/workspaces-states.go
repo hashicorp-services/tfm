@@ -71,10 +71,10 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 
 	if NumberOfStates != 0 {
 		o.AddFormattedMessageCalculated("Only the %d newest workspace states will be migrated", NumberOfStates)
-	}
 
-	// If a last X amount of states is given, remove all previous states except for the last X amount
-	srcStates = srcStates[:len(srcStates) - (len(srcStates) - NumberOfStates)]
+		// If a last X amount of states is given, remove all previous states except for the last X amount
+		srcStates = srcStates[:len(srcStates)-(len(srcStates)-NumberOfStates)]
+	}
 
 	return srcStates, nil
 }
@@ -296,7 +296,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
-						Type: "",
+						Type:             "",
 						Lineage:          &lineage,
 						MD5:              tfe.String(md5String),
 						Serial:           &newSerial,
