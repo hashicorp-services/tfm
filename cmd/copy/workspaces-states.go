@@ -146,41 +146,6 @@ func discoverDestStates(c tfclient.ClientContexts, ws string) ([]*tfe.StateVersi
 	return destStates, nil
 }
 
-// API rate limit testing
-func discoverDestStatesTEST(c tfclient.ClientContexts, ws string, startChan <-chan struct{}, id int, wg *sync.WaitGroup) ([]*tfe.StateVersion, error) {
-	o.AddMessageUserProvided("Getting list of States from destination Workspace ", ws)
-	defer wg.Done()
-
-	// Wait for a signal from the main goroutine to start
-	<-startChan
-
-	destStates := []*tfe.StateVersion{}
-
-	opts := tfe.StateVersionListOptions{
-		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
-		Organization: c.DestinationOrganizationName,
-		Workspace:    ws,
-	}
-	for {
-		items, err := c.DestinationClient.StateVersions.List(c.DestinationContext, &opts)
-		if err != nil {
-			return nil, err
-		}
-
-		destStates = append(destStates, items.Items...)
-
-		o.AddFormattedMessageCalculated("Found %d Workspace states", len(destStates))
-
-		if items.CurrentPage >= items.TotalPages {
-			break
-		}
-		opts.PageNumber = items.NextPage
-
-	}
-
-	return destStates, nil
-}
-
 // Check the existence of the state in the destination using the unique serial number
 func doesStateExist(stateSerial int64, s []*tfe.StateVersion) bool {
 	for _, state := range s {
@@ -235,35 +200,6 @@ func lockWorkspace(c tfclient.ClientContexts, destWorkspaceId string) error {
 		_ = lockStats
 
 	}
-	return nil
-}
-
-// (ONLY USED FOR RATE LIMIT TESTING) Locks the workspace provided
-func lockWorkspaceTEST(c tfclient.ClientContexts, destWorkspaceId string, id int, wg *sync.WaitGroup) error {
-	defer wg.Done()
-
-	message := "Uploading State"
-
-	wsProperties, err := c.DestinationClient.Workspaces.ReadByID(c.DestinationContext, destWorkspaceId)
-	if err != nil {
-		return err
-	}
-
-	if !wsProperties.Locked {
-
-		fmt.Println("Locking Workspace: ", destWorkspaceId)
-		lockStats, lockErr := c.DestinationClient.Workspaces.Lock(c.DestinationContext, destWorkspaceId, tfe.WorkspaceLockOptions{
-			Reason: &message,
-		})
-		if lockErr != nil {
-			return lockErr
-		}
-
-		_ = lockStats
-
-	}
-	fmt.Printf("Function %d executed\n", id)
-
 	return nil
 }
 
@@ -396,35 +332,56 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
+
 					// // ---------------------------------------
 					// // --- START rate limiting testing code ---
 					// // ---------------------------------------
-					// for API rate limiting testing only
-					// Define the number of times you want to run the function
-					// numberOfTimes := 40
-
-					// startChan := make(chan struct{})
-					// var wg sync.WaitGroup
-
-					// // Use a for loop to run a function X number of times. I'm just trying to lock the workspace X times.
-					// for i := 0; i < numberOfTimes; i++ {
-					// 	wg.Add(1)
-					// 	println("rate limit testing")
-					// 	go discoverDestStatesTEST(tfclient.GetClientContexts(), destWorkSpaceName, startChan, i, &wg)
-					// }
-
-					// // Signal all goroutines to start simultaneously
-					// close(startChan)
-
-					// // Wait for all goroutines to finish
-					// fmt.Println("Waiting for goroutines to finish...")
-					// wg.Wait()
-
-					// // ---------------------------------------
-					// // --- end rate limiting testing code ---
-					// // ---------------------------------------
-					rateLimitTest()
 					for retry := 0; retry <= 2; retry++ {
+						//rateLimitTest()
+						// Configure the rate limit to exceed 30 requests per second, set it to a higher value.
+						requestsPerSecond := 1000
+						requestInterval := time.Second / time.Duration(requestsPerSecond)
+
+						// Create a wait group to wait for all goroutines to finish.
+						var wg sync.WaitGroup
+
+						// Launch multiple goroutines to make API requests.
+						for i := 0; i < 1000; i++ { // Launch 100 goroutines
+							wg.Add(1)
+							go func() {
+								defer wg.Done()
+
+								// Create a timer to implement a timeout.
+								timer := time.NewTimer(10 * time.Second) // Adjust the timeout duration as needed.
+
+								select {
+								case <-timer.C:
+									// Handle the timeout case.
+									fmt.Println("API request timed out. Sleeping and retrying.")
+									timer.Stop()
+									return
+								default:
+									// Simulate making an API request.
+									resp, err := discoverDestTeams(tfclient.GetClientContexts())
+									if err != nil {
+										// Handle other errors here.
+										fmt.Println("Error:", err)
+										return
+									}
+									_ = resp
+									// Sleep for the specified interval before making the next request.
+									time.Sleep(requestInterval)
+								}
+							}()
+						}
+
+						// Wait for all goroutines to finish.
+						wg.Wait()
+
+						fmt.Println("All API requests completed.")
+						// // ---------------------------------------
+						// // --- end rate limiting testing code ---
+						// // ---------------------------------------
 						srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 							Type:             "",
 							Lineage:          &lineage,
