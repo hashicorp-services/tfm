@@ -72,7 +72,13 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 	if NumberOfStates != 0 {
 		o.AddFormattedMessageCalculated("Only the %d newest workspace states will be migrated", NumberOfStates)
 
-		// If a last X amount of states is given, remove all previous states except for the last X amount
+		// If a last X amount of states is given, remove all previous states except for the last X amount.
+		// If there are fewer states to keep than there are states, set the number to keep the same amount of states
+		// there are for the workspace
+		if NumberOfStates > len(srcStates) {
+			NumberOfStates = len(srcStates)
+		}
+		
 		srcStates = srcStates[:len(srcStates)-(len(srcStates)-NumberOfStates)]
 	}
 
