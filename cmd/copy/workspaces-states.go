@@ -4,7 +4,6 @@
 package copy
 
 import (
-	"crypto/md5"
 	b64 "encoding/base64"
 	"fmt"
 	"os"
@@ -296,7 +295,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					stringState := b64.StdEncoding.EncodeToString(state)
 
 					// Get the MD5 hash of the state
-					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
+					md5String := "test" //fmt.Sprintf("%x", md5.Sum([]byte(state)))
 
 					// Create an empty int
 					newSerial := int64(1)
@@ -332,56 +331,45 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
-
-					// // ---------------------------------------
-					// // --- START rate limiting testing code ---
-					// // ---------------------------------------
-					for retry := 0; retry <= 2; retry++ {
-						//rateLimitTest()
+					for retry := 0; retry <= 3; retry++ {
+						// // ------------------------------------------------------------------------------
+						// // --- START rate limiting testing code ------------------------------------------
+						// // --- Comment out when not testing ------------------------------------------
+						// // ------------------------------------------------------------------------------
 						// Configure the rate limit to exceed 30 requests per second, set it to a higher value.
-						requestsPerSecond := 1000
-						requestInterval := time.Second / time.Duration(requestsPerSecond)
+						// requestsPerSecond := 1000
+						// requestInterval := time.Second / time.Duration(requestsPerSecond)
 
-						// Create a wait group to wait for all goroutines to finish.
-						var wg sync.WaitGroup
+						// // Create a wait group to wait for all goroutines to finish.
+						// var wg sync.WaitGroup
 
-						// Launch multiple goroutines to make API requests.
-						for i := 0; i < 1000; i++ { // Launch 100 goroutines
-							wg.Add(1)
-							go func() {
-								defer wg.Done()
+						// // Launch multiple goroutines to make API requests.
+						// for i := 0; i < 1000; i++ { // Launch 100 goroutines
+						// 	wg.Add(1)
+						// 	go func() {
+						// 		defer wg.Done()
 
-								// Create a timer to implement a timeout.
-								timer := time.NewTimer(10 * time.Second) // Adjust the timeout duration as needed.
+						// 		// Simulate making an API request.
+						// 		resp, err := discoverDestTeams(tfclient.GetClientContexts())
+						// 		if err != nil {
+						// 			// Handle other errors here.
+						// 			fmt.Println("Error:", err)
+						// 			return
+						// 		}
+						// 		_ = resp
+						// 		// Sleep for the specified interval before making the next request.
+						// 		time.Sleep(requestInterval)
 
-								select {
-								case <-timer.C:
-									// Handle the timeout case.
-									fmt.Println("API request timed out. Sleeping and retrying.")
-									timer.Stop()
-									return
-								default:
-									// Simulate making an API request.
-									resp, err := discoverDestTeams(tfclient.GetClientContexts())
-									if err != nil {
-										// Handle other errors here.
-										fmt.Println("Error:", err)
-										return
-									}
-									_ = resp
-									// Sleep for the specified interval before making the next request.
-									time.Sleep(requestInterval)
-								}
-							}()
-						}
+						// 	}()
+						// }
 
-						// Wait for all goroutines to finish.
-						wg.Wait()
+						// // Wait for all goroutines to finish.
+						// wg.Wait()
 
-						fmt.Println("All API requests completed.")
-						// // ---------------------------------------
-						// // --- end rate limiting testing code ---
-						// // ---------------------------------------
+						// fmt.Println("All API requests completed.")
+						// // ------------------------------------------------------------------------------
+						// // --- end rate limiting testing code ------------------------------------------
+						// // ------------------------------------------------------------------------------
 						srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 							Type:             "",
 							Lineage:          &lineage,
@@ -402,7 +390,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 						if err != nil {
 
 							// Sleep for a moment before the next retry.
-							fmt.Println("There was an issue migrating state. Sleeping and retrying.")
+							fmt.Println("There was an issue migrating state. Sleeping for 2 seconds and retrying.")
 							time.Sleep(2 * time.Second) // Adjust the duration as needed.
 
 							return err
