@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sync"
+	"time"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -30,6 +32,35 @@ import (
 
 // Iterate backwards through the srcstate slice and append each element to a new slice
 // to create a reverse ordered slice of srcStates
+
+func rateLimitTest() {
+	// Configure the rate limit to exceed 30 requests per second, set it to a higher value.
+	requestsPerSecond := 1000
+	requestInterval := time.Second / time.Duration(requestsPerSecond)
+
+	// Create a wait group to wait for all goroutines to finish.
+	var wg sync.WaitGroup
+
+	// Launch multiple goroutines to make API requests.
+	for i := 0; i < 1000; i++ { // Launch 100 goroutines
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			// Simulate making an API request.
+			discoverDestTeams(tfclient.GetClientContexts())
+
+			// Sleep for the specified interval before making the next request.
+			time.Sleep(requestInterval)
+		}()
+	}
+
+	// Wait for all goroutines to finish.
+	wg.Wait()
+
+	fmt.Println("All API requests completed.")
+}
+
 func reverseSlice(input []*tfe.StateVersion) []*tfe.StateVersion {
 	inputLen := len(input)
 	output := make([]*tfe.StateVersion, inputLen)
@@ -301,6 +332,44 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
+					// // ------------------------------------------------------------------------------
+					// // --- START rate limiting testing code ------------------------------------------
+					// // --- Comment out when not testing ------------------------------------------
+					// // ------------------------------------------------------------------------------
+					// Configure the rate limit to exceed 30 requests per second, set it to a higher value.
+					// requestsPerSecond := 1000
+					// requestInterval := time.Second / time.Duration(requestsPerSecond)
+
+					// // Create a wait group to wait for all goroutines to finish.
+					// var wg sync.WaitGroup
+
+					// // Launch multiple goroutines to make API requests.
+					// for i := 0; i < 1000; i++ { // Launch 100 goroutines
+					// 	wg.Add(1)
+					// 	go func() {
+					// 		defer wg.Done()
+
+					// 		// Simulate making an API request.
+					// 		resp, err := discoverDestTeams(tfclient.GetClientContexts())
+					// 		if err != nil {
+					// 			// Handle other errors here.
+					// 			fmt.Println("Error:", err)
+					// 			return
+					// 		}
+					// 		_ = resp
+					// 		// Sleep for the specified interval before making the next request.
+					// 		time.Sleep(requestInterval)
+
+					// 	}()
+					// }
+
+					// // Wait for all goroutines to finish.
+					// wg.Wait()
+
+					// fmt.Println("All API requests completed.")
+					// // ------------------------------------------------------------------------------
+					// // --- end rate limiting testing code ------------------------------------------
+					// // ------------------------------------------------------------------------------
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
 						Type:             "",
 						Lineage:          &lineage,
@@ -314,12 +383,26 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					})
 
 					if err != nil {
-						return err
+						// Create a file to store workspace names with errors
+						errorLogFile, err := os.Create("workspace_error_log.txt")
+						if err != nil {
+							fmt.Printf("Failed to create error log file: %v\n", err)
+							return err
+						}
+						defer errorLogFile.Close()
+
+						// If there is an error output the error, log it, and move onto the next workspace.
+						fmt.Println("failed to migrate state file. Moving onto next workspace.", err)
+						errorLogFile.WriteString(fmt.Sprintf("Failed to migrate state file for source workspace: %v\n", srcworkspace.Name))
+						break
+
 					}
 
 					_ = srcstate
+
 				}
 			}
+
 			unlockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 		} else {
 			fmt.Printf("Source workspace (%v) does not exist in destination (%v). No states to migrate\n", srcworkspace.Name, destWorkSpaceName)

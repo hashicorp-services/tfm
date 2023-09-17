@@ -2,8 +2,7 @@
 
 `tfm copy workspaces --state` or `tfm copy ws --state` copies a workspaces' states from source to destination org.
 
-!!! note ""
-    *NOTE: Currently ALL states will be copied over to the destination.  Future update will be the ability to update 1 or choose X number of the latest states. *
+In the event a state file encounters an error when attempting to migrate, TFM will stop migrating state files for that particular workspace and move to the next workspace.
 
 
 ![copy_ws_state](../images/copy_ws_state.png)
@@ -19,6 +18,8 @@ This flag is designed for users who only want to copy the last X number of state
 
 !!! WARNING ""
     **WARNING: This operation should not be ran more than once**
+
+In the event a state file encounters an error when attempting to migrate, TFM will stop migrating state files for that particular workspace and move to the next workspace.
 
 ![copy_ws_state_last_x](../images/copy_ws_state_last_x.png)
 
