@@ -106,7 +106,7 @@ export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated 
 
 ### Config File
 
-A HCL file with the following as the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`. You can ls run `tfm generate --config` to create a tempalte config file for use.
+A HCL file with the following as the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`. You can also run `tfm generate --config` to create a tempalte config file for use.
 
 ```terraform
 src_tfe_hostname="tf.local.com"
