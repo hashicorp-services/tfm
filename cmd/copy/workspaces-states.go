@@ -375,8 +375,17 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					})
 
 					if err != nil {
-						// If there is an error output the error and move onto the next workspace.
+						// Create a file to store workspace names with errors
+						errorLogFile, err := os.Create("workspace_error_log.txt")
+						if err != nil {
+							fmt.Printf("Failed to create error log file: %v\n", err)
+							return err
+						}
+						defer errorLogFile.Close()
+
+						// If there is an error output the error, log it, and move onto the next workspace.
 						fmt.Println("failed to migrate state file. Moving onto next workspace.", err)
+						errorLogFile.WriteString(fmt.Sprintf("Failed to migrate state file for source workspace: %v\n", srcworkspace.Name))
 						break
 
 					}
