@@ -49,7 +49,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 	srcStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
-		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: NumberOfStates},
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
 		Organization: c.SourceOrganizationName,
 		Workspace:    ws,
 	}
@@ -61,17 +61,25 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 
 		srcStates = append(srcStates, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
-
-		if len(srcStates) >= NumberOfStates {
-			break
-		}
-
 		if items.CurrentPage >= items.TotalPages {
 			break
 		}
 		opts.PageNumber = items.NextPage
 
+	}
+	o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
+
+	if NumberOfStates != 0 {
+		o.AddFormattedMessageCalculated("Only the %d newest workspace states will be migrated", NumberOfStates)
+
+		// If a last X amount of states is given, remove all previous states except for the last X amount.
+		// If there are fewer states to keep than there are states, set the number to keep the same amount of states
+		// there are for the workspace
+		if NumberOfStates > len(srcStates) {
+			NumberOfStates = len(srcStates)
+		}
+		
+		srcStates = srcStates[:len(srcStates)-(len(srcStates)-NumberOfStates)]
 	}
 
 	return srcStates, nil
@@ -217,7 +225,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
-		// Check for the exsitence of the destination workspace in the destination target
+		// Check for the existence of the destination workspace in the destination target
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		if exists {
@@ -270,7 +278,6 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 						newSerial = currentState.Serial + 1
 					}
 
-
 					// Get Lineage from state file
 					plainTextState := string(state)
 
@@ -295,7 +302,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
-						Type: "",
+						Type:             "",
 						Lineage:          &lineage,
 						MD5:              tfe.String(md5String),
 						Serial:           &newSerial,
