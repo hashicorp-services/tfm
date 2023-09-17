@@ -70,6 +70,8 @@ Usage:
 
 Available Commands:
   copy        Copy command
+  delete      delete command
+  generate    generate command for generating .tfm.hcl config template
   help        Help about any command
   list        List command
 
@@ -77,6 +79,7 @@ Flags:
       --autoapprove     Auto Approve the tfm run. --autoapprove=true . false by default
       --config string   Config file, can be used to store common flags, (default is ./.tfm.hcl).
   -h, --help            help for tfm
+      --json            Print outputs in JSON (Projects and Workspaces Only)
   -v, --version         version for tfm
 
 Use "tfm [command] --help" for more information about a command.
@@ -103,7 +106,7 @@ export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated 
 
 ### Config File
 
-A HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`.
+A HCL file with the following as the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`. You can ls run `tfm generate --config` to create a tempalte config file for use.
 
 ```terraform
 src_tfe_hostname="tf.local.com"
