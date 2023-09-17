@@ -28,6 +28,7 @@ type ClientContexts struct {
 	DestinationToken            string
 }
 
+// Create the source client and if ther is an error, retry
 func createSrcClientWithRetry(sourceConfig *tfe.Config, maxRetries int, initialBackoff time.Duration) (*tfe.Client, error) {
 	var SourceClient *tfe.Client
 	var err error
@@ -55,6 +56,7 @@ func createSrcClientWithRetry(sourceConfig *tfe.Config, maxRetries int, initialB
 	return nil, fmt.Errorf("Max retries reached. Last error: %v", err)
 }
 
+// Create the destination client and if ther is an error, retry
 func createDestClientWithRetry(destinationConfig *tfe.Config, maxRetries int, initialBackoff time.Duration) (*tfe.Client, error) {
 	var destinationClient *tfe.Client
 	var err error
@@ -84,8 +86,8 @@ func createDestClientWithRetry(destinationConfig *tfe.Config, maxRetries int, in
 
 func GetClientContexts() ClientContexts {
 
-	maxRetries := 5                   // Maximum number of retries
-	initialBackoff := 2 * time.Second // Initial backoff duration
+	maxRetries := 5                   // Maximum number of retries. Used in instances where API rate limiting or network connectivity is less than ideal.
+	initialBackoff := 2 * time.Second // Initial backoff duration. Used in instances where API rate limiting or network connectivity is less than ideal.
 
 	sourceConfig := &tfe.Config{
 		Address:           "https://" + viper.GetString("src_tfe_hostname"),
@@ -97,7 +99,7 @@ func GetClientContexts() ClientContexts {
 
 	sourceClient, err := createSrcClientWithRetry(sourceConfig, maxRetries, initialBackoff)
 	if err != nil {
-		println("AHHHHHHHHHHHHHH1")
+		println("There was an issue creating the source client connection.")
 		log.Fatal(err)
 	}
 
@@ -111,7 +113,7 @@ func GetClientContexts() ClientContexts {
 
 	destinationClient, err := createDestClientWithRetry(destinationConfig, maxRetries, initialBackoff)
 	if err != nil {
-		println("AHHHHHHHHHHHHHH2")
+		println("There was an issue creating the destination client connection.")
 		log.Fatal(err)
 	}
 
