@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] (September 18, 2023)
+
+- TFM now retries connections in the event network issues or API rate limiting prevents an operation from taking place. __issue__ #143
+- BUG FIX: An earlier introduction of the `tfm copy workspaces --state --last x` command prevented pagination when copying state files. Implemented a fix. TFM will now copy more than 20 state files per worksapce. __issue__ #144
+- TFM will now handle errors encountered when migrating a state file for a given workspace. In the event an error is encountered TFM will stop migrating states for the given workspace and proceed to the next workspace. It will output a `workspace_error_log.txt` file in the working directory.
+
+## [0.4.1] (September 14, 2023)
+- BUG FIX: Applies after state migration would not upload the generated state file and output a 409 conflict error. TFM was not applying lineage to the workspace, but was copying the state file that contained a lineage. TFM now sets the lineage for the state files at the workspace level to match the one in the migrated state files.  __issue__ #139
+
 ## [0.1.0] (June 8, 2023)
 
 - TFM is now in beta and Open Source! :fireworks:
