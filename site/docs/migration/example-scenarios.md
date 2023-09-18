@@ -200,7 +200,7 @@ Each workspace in the destination should be verified a clean plan can be execute
 
 ### Example GitHub Actions Pipeline
 
-The following is an example GitHub Actions pipeline that uses the `tfm` binary. An assumption is made that some customers may want to pipeline the migration as `tfm` has been developed to be idempotent. 
+The following is an example GitHub Actions pipeline that uses the `tfm` binary. An assumption is made that some customers may want to pipeline the migration as `tfm` has been developed to be idempotent. You can also view the e2e.workflow file used for nightly testing of TFM for a more robust example. 
 
 ```yaml
 name: TFM migration pipeline
