@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] (September 19, 2023)
+- Error logs created during state copy failures are now unique with a timestamp instead of being overwritten.
+
 ## [0.4.2] (September 18, 2023)
 
 - TFM now retries connections in the event network issues or API rate limiting prevents an operation from taking place. __issue__ #143
