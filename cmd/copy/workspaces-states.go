@@ -109,7 +109,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 		if NumberOfStates > len(srcStates) {
 			NumberOfStates = len(srcStates)
 		}
-		
+
 		srcStates = srcStates[:len(srcStates)-(len(srcStates)-NumberOfStates)]
 	}
 
@@ -383,8 +383,12 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					})
 
 					if err != nil {
+						// Get the current timestamp and format it as a string
+						timestamp := time.Now().Format(time.RFC850)
+
 						// Create a file to store workspace names with errors
-						errorLogFile, err := os.Create("workspace_error_log.txt")
+						errorLogFileName := fmt.Sprintf("workspace_error_log_%s.txt", timestamp)
+						errorLogFile, err := os.Create(errorLogFileName)
 						if err != nil {
 							fmt.Printf("Failed to create error log file: %v\n", err)
 							return err
