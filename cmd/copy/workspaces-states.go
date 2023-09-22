@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"sync"
 	"time"
 
@@ -292,46 +293,65 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// Download state from source
 					state, err := downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
 
+					// Create an empty int
+					//newSerial := int64(1)
+
+					// Get properties of the state
+					// currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)
+
+					// Of if there is a state file, set the newSerial variable to the current state serial + 1
+					// if currentState != nil {
+					// 	newSerial = currentState.Serial + 1
+					// }
+
+					// Get state file as string
+					plainTextState := string(state)
+
+					// Define a regular expression pattern to match the "serial" value
+					serialPattern := `"serial":\s*(\d+)`
+
+					// Compile the regular expression
+					serialRe := regexp.MustCompile(serialPattern)
+
+					// Find the match
+					serialMatch := serialRe.FindStringSubmatch(plainTextState)
+
+					if len(serialMatch) != 2 {
+						fmt.Println("Serial not found in JSON")
+						return err
+					}
+
+					newSerialConversion, err :=  strconv.ParseInt(serialMatch[1], 10, 64)
+					if err != nil {
+						fmt.Printf("The source state wasn't a int64")
+					}
+
+					// Define a regular expression pattern to match the "lineage" value
+					lineagePattern := `"lineage":\s*"([^"]+)"`
+
+					// Compile the regular expression
+					lineageRe := regexp.MustCompile(lineagePattern)
+
+					// Find the match
+					lineageMatch := lineageRe.FindStringSubmatch(plainTextState)
+
+					if len(lineageMatch) != 2 {
+						fmt.Println("Lineage not found in JSON")
+						return err
+					}
+
+					lineage := lineageMatch[1]
+					//fmt.Println("State JSON Lineage:", lineage)
+
 					// Base64 encode the state as a string
 					stringState := b64.StdEncoding.EncodeToString(state)
 
 					// Get the MD5 hash of the state
 					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
 
-					// Create an empty int
-					newSerial := int64(1)
-
-					// Get properties of the state
-					currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)
-
-					// Of if there is a state file, set the newSerial variable to the current state serial + 1
-					if currentState != nil {
-						newSerial = currentState.Serial + 1
-					}
-
-					// Get Lineage from state file
-					plainTextState := string(state)
-
-					// Define a regular expression pattern to match the "lineage" value
-					pattern := `"lineage":\s*"([^"]+)"`
-
-					// Compile the regular expression
-					re := regexp.MustCompile(pattern)
-
-					// Find the match
-					match := re.FindStringSubmatch(plainTextState)
-
-					if len(match) != 2 {
-						fmt.Println("Lineage not found in JSON")
-						return err
-					}
-
-					lineage := match[1]
-					fmt.Println("Lineage:", lineage)
-
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
-					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
+					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerialConversion, srcworkspace.Name, destWorkSpaceName)
 					// // ------------------------------------------------------------------------------
 					// // --- START rate limiting testing code ------------------------------------------
 					// // --- Comment out when not testing ------------------------------------------
@@ -374,7 +394,8 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 						Type:             "",
 						Lineage:          &lineage,
 						MD5:              tfe.String(md5String),
-						Serial:           &newSerial,
+						Serial:           &newSerialConversion,
+						//Serial:           &newSerial,
 						State:            tfe.String(stringState),
 						Force:            new(bool),
 						Run:              &tfe.Run{},
