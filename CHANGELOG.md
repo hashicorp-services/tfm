@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] (September 25, 2023)
+- When setting the new state serial in the destination state, read the source state file's serial instead of using a computed serial number.
+
 ## [0.4.3] (September 19, 2023)
 - Error logs created during state copy failures are now unique with a timestamp instead of being overwritten.
 
