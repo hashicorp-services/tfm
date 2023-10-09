@@ -41,8 +41,8 @@ func assignAgentPool(c tfclient.ClientContexts, org string, destPoolId string, w
 	return workspace, nil
 }
 
-// Main function for --agents flag
-func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]string) error {
+// Main function for --agents flag if there is a map of agent pools
+func createAgentPoolAssignmentMap(c tfclient.ClientContexts, agentpools map[string]string) error {
 
 	// for each `sourceID=destID` string in the map, define the source agent pool ID and the target agent pool ID
 	for key, element := range agentpools {
@@ -95,6 +95,37 @@ func createAgentPoolAssignment(c tfclient.ClientContexts, agentpools map[string]
 
 			}
 		}
+	}
+	return nil
+}
+
+// Main function for --agents flag if there is a single agent pool to be assigned to all destination workspaces
+func createAgentPoolAssignmentSingle(c tfclient.ClientContexts, agentpool string) error {
+
+	// Get the source workspaces properties
+	srcWorkspaces, err := getSrcWorkspacesCfg(c)
+	if err != nil {
+		return errors.Wrap(err, "failed to list Workspaces from source while checking source agent pool IDs")
+	}
+
+	// Get/Check if Workspace map exists
+	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
+	if err != nil {
+		fmt.Println("invalid input for workspaces-map")
+	}
+
+	// For each source workspace update the destination workspace with
+	// the user provided agent pool ID that exists in the destination.
+	for _, ws := range srcWorkspaces {
+		destWorkSpaceName := ws.Name
+
+		// Check if the destination Workspace name differs from the source name
+		if len(wsMapCfg) > 0 {
+			destWorkSpaceName = wsMapCfg[ws.Name]
+		}
+
+		o.AddFormattedMessageUserProvided2("Updating destination workspace %v execution mode to type agent and assigning pool ID %v", destWorkSpaceName, agentpool)
+		assignAgentPool(c, c.DestinationOrganizationName, agentpool, destWorkSpaceName)
 	}
 	return nil
 }

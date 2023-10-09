@@ -54,15 +54,25 @@ var (
 
 			// A map is required if the --agents flag is provided. Check for a valid map.
 			case agents:
-				valid, apoolIDs, err := validateMap(tfclient.GetClientContexts(), "agents-map")
+
+				agentPoolID := viper.GetString("agent-assignment-id")
+				validMap, agentPoolIDs, err := validateMap(tfclient.GetClientContexts(), "agents-map")
 				if err != nil {
 					return err
 				}
 
-				if !valid {
+				if len(agentPoolID) > 0 && len(agentPoolIDs) > 0 {
+					o.AddErrorUserProvided("'agents-map' and 'agent-assignment-id' cannot be defined at the same time.")
 					os.Exit(0)
-				} else {
-					return createAgentPoolAssignment(tfclient.GetClientContexts(), apoolIDs)
+				} else if len(agentPoolID) > 0 {
+					return createAgentPoolAssignmentSingle(tfclient.GetClientContexts(), agentPoolID)
+
+				} else if len(agentPoolIDs) > 0 {
+					if !validMap {
+						os.Exit(0)
+					} else {
+						return createAgentPoolAssignmentMap(tfclient.GetClientContexts(), agentPoolIDs)
+					}
 				}
 
 			// A map is required if the --vcs flag is provided. Check for a valid map.

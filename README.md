@@ -81,6 +81,12 @@ agents-map = [
 ]
 ```
 
+Alternatively if the source workspaces are not configured to use an agent pool and all destination workspaces should be configured to use an agent pool, a single agent pool ID can be specified instead of an `agents-map` configuration. Note: an `agents-map` config and an `agent-assignment-id` config can not be specified at the same time.
+
+```hcl
+agent-assignment-id="apool-h896pi2MeP4JJvsB"
+```
+
 ## Copy Variable Sets
 
 To copy ALL variable sets from the source to the destination run the command:
