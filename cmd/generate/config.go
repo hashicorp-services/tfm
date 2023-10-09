@@ -73,7 +73,7 @@ dst_tfc_token=""
 #]
 
 # An agent Pool ID to assign to all workspaces in the destination. Conflicts with 'workspaces-map'
-#agent-assignment="apool-h896pi2MeP4JJvsB"
+#agent-assignment-id="apool-h896pi2MeP4JJvsB"
 
 # A list of source=destination variable set names. TFM will look at each source variable set and recreate the variable set with the specified destination name.
 #varsets-map = [

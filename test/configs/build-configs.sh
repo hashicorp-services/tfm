@@ -73,7 +73,7 @@ ssh-map=[
 EOF
 
 cat > ./test/configs/.e2e-workspaces-list-destination-agent-test.hcl <<EOF
-agent-assignment="$DESTINATION_AGENTPOOL_ID"
+agent-assignment-id="$DESTINATION_AGENTPOOL_ID"
 
 vcs-map=[
   "$SOURCE_VCS_ID=$DESTINATION_VCS_ID",

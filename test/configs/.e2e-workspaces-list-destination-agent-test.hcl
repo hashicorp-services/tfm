@@ -1,4 +1,4 @@
-agent-assignment="apool-7mev8r4Dck7D1iba"
+agent-assignment-id="apool-7mev8r4Dck7D1iba"
 
 vcs-map=[
   "ot-ctRWZMffM36canL2=ot-ctRWZMffM36canL2",
