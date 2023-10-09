@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"encoding/json"
+
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
@@ -40,7 +41,7 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 	srcWorkspaces := []*tfe.Workspace{}
 	workspaceJSON := make(map[string]interface{}) // Parent JSON object "workspace-names"
-	workspaceNames := []string{}                  // workspace names slice to go inside parent object "workspace-names"
+	workspaceData := []map[string]string{}        // workspace names slice to go inside parent object "workspace-names"
 
 	opts := tfe.WorkspaceListOptions{
 		ListOptions: tfe.ListOptions{
@@ -81,9 +82,6 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 			ws_repo := ""
 			projectID := ""
 			projectName := ""
-			if jsonOut {
-				workspaceNames = append(workspaceNames, i.Name) // Store workspace name in the slice
-			}
 
 			if i.VCSRepo != nil {
 				ws_repo = i.VCSRepo.DisplayIdentifier
@@ -100,13 +98,28 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				projectName = prjN
 			}
 
+			workspaceInfo := map[string]string{
+				"name":             i.Name,
+				"id":               i.ID,
+				"repo":             ws_repo,
+				"projectName":      projectName,
+				"projectId":        i.Project.ID,
+				"agentPool":        i.AgentPoolID,
+				"terraformVersion": i.TerraformVersion,
+				"executionMode":    i.ExecutionMode,
+			}
+
+			if jsonOut {
+				workspaceData = append(workspaceData, workspaceInfo) // Store workspace name in the slice
+			}
+
 			if jsonOut == false {
 				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
 			}
 
 		}
 		if jsonOut {
-			workspaceJSON["workspace-names"] = workspaceNames // Assign workspace names to the "workspace-names" key
+			workspaceJSON["workspaces"] = workspaceData // Assign workspace names to the "workspaces" key
 
 			jsonData, err := json.Marshal(workspaceJSON)
 			if err != nil {
@@ -153,10 +166,6 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 			projectID := ""
 			projectName := ""
 
-			if jsonOut {
-				workspaceNames = append(workspaceNames, i.Name) // Store workspace name in the slice
-			}
-
 			if i.VCSRepo != nil {
 				ws_repo = i.VCSRepo.DisplayIdentifier
 			}
@@ -172,13 +181,28 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				projectName = prjN
 			}
 
+			workspaceInfo := map[string]string{
+				"name":             i.Name,
+				"id":               i.ID,
+				"repo":             ws_repo,
+				"projectName":      projectName,
+				"projectId":        i.Project.ID,
+				"agentPool":        i.AgentPoolID,
+				"terraformVersion": i.TerraformVersion,
+				"executionMode":    i.ExecutionMode,
+			}
+
+			if jsonOut {
+				workspaceData = append(workspaceData, workspaceInfo) // Store workspace data in the slice
+			}
+
 			if jsonOut == false {
 				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
 			}
 		}
 		if jsonOut {
 
-			workspaceJSON["workspace-names"] = workspaceNames // Assign workspace names to the "workspace-names" key
+			workspaceJSON["workspaces"] = workspaceData // Assign workspace names to the "workspaces" key
 
 			jsonData, err := json.Marshal(workspaceJSON)
 			if err != nil {

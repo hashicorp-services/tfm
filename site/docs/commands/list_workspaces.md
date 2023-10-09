@@ -13,9 +13,9 @@ Providing the `--side destination` flag will list workspaces of the destination 
 
 
 ## `--json` flag
-Providing the `--json` flag will output the workspace names only in JSON format to make configuring the tfx configuration file more managable.
+Providing the `--json` flag will output information about the workspaces in JSON format to make configuring the tfx configuration file more managable and assist in automating tasks.
 
-![list_workspaces](../images/list_workspaces_src_json.png)
+![list_workspaces](../images/list_workspaces_json.png)
 
 
 
