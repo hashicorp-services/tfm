@@ -47,7 +47,7 @@ func nukeWorkspaces(c tfclient.ClientContexts) error {
 		}
 	}
 
-	if len(workspacesToNuke) > 1 {
+	if len(workspacesToNuke) > 0 {
 		o.AddFormattedMessageCalculated("Found %d Workspaces created by tfm to remove", len(workspacesToNuke))
 		o.AddTableHeaders("Name", "Description", "ExecutionMode", "VCS Repo", "Locked", "TF Version", "Workspace Source")
 
@@ -116,10 +116,24 @@ func confirm() bool {
 	var input string
 
 	fmt.Printf("Do you want to continue with this operation? [y|n]: ")
-	_, err := fmt.Scanln(&input)
+
+	auto, err := NukeCmd.Flags().GetBool("autoapprove")
+
 	if err != nil {
-		panic(err)
+		fmt.Println("Error Retrieving autoapprove flag value: ", err)
 	}
+
+	// Check if --autoapprove=false
+	if !auto {
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		input = "y"
+		fmt.Println("y(autoapprove=true)")
+	}
+
 	input = strings.ToLower(input)
 
 	if input == "y" || input == "yes" {

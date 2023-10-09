@@ -7,9 +7,11 @@
 - workflows contains the different workflows related to TFM.
 
 ## End to End Testing ( e2e.workflow.yml )
+
 `e2e.workflow.yml` is the entry point for end-to-end testing of TFM. It is scheduled to run daily.
 
 ### Setup
+
 Information about the e2e workflow in the event the maintainer needs to issue new API tokens or troubleshoot.
 
 - A github service account `svc-tfm` exists to facilitate creation of github tokens to create VCS connections using the tfe provider during testing.
@@ -20,18 +22,24 @@ Information about the e2e workflow in the event the maintainer needs to issue ne
 - A module is being sourced from `app.terraform.io/tfm-testing-source/workspacer-tfm/tfe`
 
 ### API Tokens
+
 - Update the `gh-actions-ci-master-workspace` workspace variable `TFE_TOKEN` with the SOURCE org `owner` team API token each time you issue a new one.
 - Update the `gh-actions-ci-master-workspace` workspace variable `tfm_source_token` with the SOURCE orgs `owner` team API token each time you issue a new one.
 - Update the `tfm` repo github actions secret `SOURCETOKEN` with the SOURCE orgs `owner` team API token each time you issue a new one.
 - Update the `gh-actions-ci-master-workspace` workspace variable `tfm_destination_token` with the DESTINATION orgs `owner` team API token each time you issue a new one.
 - Update the `tfm` repo github actions secret `DESTINATIONTOKEN` with the DESTINATION orgs `owner` team API token each time you issue a new one.
 - Update the `gh-actions-ci-master-workspace` workspace variable `gh_token` each time you issue a new one. The token string you were given by your VCS provider, e.g. ghp_xxxxxxxxxxxxxxx for a GitHub personal access token. For more information on how to generate this token string for your VCS provider, see the Create an OAuth Client documentation. This token is used for creating VCS connections to TFE/C Orgs.
-- - The `gh_token` needs to be issued by the `svc-tfm`  github service account.
+  - - The `gh_token` needs to be issued by the `svc-tfm`  github service account.
 
 ### Whats Happening
+
 1. The e2e workflow checks out the code in the `.github/workflows/terraform/tfe` folder and runs a CLI-driven run against the `gh-actions-ci-master-workspace` workspace within the TFC organization `tfm-testing-source`.
 2. That creates workspaces, teams, variables, etc. Everything TFM will need to test tfm commands.
-- - This creates resources in both the `tfm-testing-source` and `tfm-testing-destination` orgs.
+   - Note: This creates resources in both the `tfm-testing-source` and `tfm-testing-destination` orgs.
 3. All of the actions in `.github/actions` are run to test the various functions of TFM.
 4. All of the resources that were copied using TFM to the TFC org `tfm-testing-destination` are deleted.
 5. Terraform destroy is run from `gh-actions-ci-master-workspace` to clean up `tfm-testing-source` and `tfm-testing-destination` orgs.
+
+## Jira (jira-issues.yml)
+
+This action will use the org provided Jira service account to open issues in the ASE Service Portfolio Jira Board. This only runs when issues are created in the `tfm` repo and is not synced back from Jira to GitHub. Next `tfm` will support more functionality.
