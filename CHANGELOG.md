@@ -5,10 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] (October 09, 2023)
+
+- Added auto approve flag support to the `nuke` command
+- doc updates
+- Added more outputs to the workspaces `json` [#150](https://github.com/hashicorp-services/tfm/issues/150)
+- Added starter Jira GitHub Action to open issues when a new GH issue is opened
+- Add the ability to set all destination workspaces to use a agent pool even if the source doesn't [#126](https://github.com/hashicorp-services/tfm/issues/126)
+- Updated dependencies
+  - `go-tfe` from 1.32.1 to 1.35.0
+  - `viper` from 1.16.0 to 1.17.0
+  
 ## [0.4.4] (September 25, 2023)
+
 - When setting the new state serial in the destination state, read the source state file's serial instead of using a computed serial number.
 
 ## [0.4.3] (September 19, 2023)
+
 - Error logs created during state copy failures are now unique with a timestamp instead of being overwritten.
 
 ## [0.4.2] (September 18, 2023)
@@ -18,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TFM will now handle errors encountered when migrating a state file for a given workspace. In the event an error is encountered TFM will stop migrating states for the given workspace and proceed to the next workspace. It will output a `workspace_error_log.txt` file in the working directory.
 
 ## [0.4.1] (September 14, 2023)
+
 - BUG FIX: Applies after state migration would not upload the generated state file and output a 409 conflict error. TFM was not applying lineage to the workspace, but was copying the state file that contained a lineage. TFM now sets the lineage for the state files at the workspace level to match the one in the migrated state files.  __issue__ #139
 
 ## [0.1.0] (June 8, 2023)

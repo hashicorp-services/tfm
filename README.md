@@ -22,9 +22,9 @@ Binaries are created as part of a release, check out the [Release Page](https://
 
 ## Pre-Requisites
 
-`tfm` utilize a config file OR environment variables.
+`tfm` utilizes a config file OR environment variables.
 
-### Config File
+## Config File
 
 A HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`.
 
@@ -36,6 +36,20 @@ dst_tfc_hostname="app.terraform.io"
 dst_tfc_org="companyxyz"
 dst_tfc_token="<user token from destination TFE/TFC with owner permissions>"
 dst_tfc_project_id="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
+```
+
+## Environment Variables
+
+If no config file is found, the following environment variables can be set or used to override existing config file values.
+
+```bash
+export SRC_TFE_HOSTNAME="tf.local.com"
+export SRC_TFE_ORG="companyxyz"
+export SRC_TFE_TOKEN="<user token from source TFE/TFC with owner permissions>"
+export DST_TFC_HOSTNAME="app.terraform.io"
+export DST_TFC_ORG="companyxyz"
+export DST_TFC_TOKEN="<user token from source TFE/TFC with owner permissions>"
+export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ## Workspace List
@@ -65,6 +79,12 @@ agents-map = [
   "apool-DgzkahoomwHsB125=apool-vbrJZKLnPy6adwe3",
   "test=beep"
 ]
+```
+
+Alternatively if the source workspaces are not configured to use an agent pool and all destination workspaces should be configured to use an agent pool, a single agent pool ID can be specified instead of an `agents-map` configuration. Note: an `agents-map` config and an `agent-assignment-id` config can not be specified at the same time.
+
+```hcl
+agent-assignment-id="apool-h896pi2MeP4JJvsB"
 ```
 
 ## Copy Variable Sets
@@ -141,38 +161,36 @@ ssh-map=[
 ]
 ```
 
-### Environment Variables
-
-If no config file is found, the following environment variables can be set or used to override existing config file values.
-
-```bash
-export SRC_TFE_HOSTNAME="tf.local.com"
-export SRC_TFE_ORG="companyxyz"
-export SRC_TFE_TOKEN="<user token from source TFE/TFC with owner permissions>"
-export DST_TFC_HOSTNAME="app.terraform.io"
-export DST_TFC_ORG="companyxyz"
-export DST_TFC_TOKEN="<user token from source TFE/TFC with owner permissions>"
-export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
-```
-
-### Delete
+## Delete
 
 This command can be used to delete a resource in either the source or destination side. Today there are two resources that can be deleted
 
-#### workspace
+### workspace
 
 A  workspace can be deleted by the ID or name. This does not look for the hidden tfm source on workspaces that have been created by tfm, so this will let you delete any workspace.
 Note: This command will ask for confirmation, however this is a destructive operation and the workspace can not be recovered.
 
-#### Workspaces VCS Connection
+### Workspaces VCS Connection
 
 This command will look at the `.tfm` configuration for the workspaces on the source that should have their VCS connection removed. This would be utilized after a migration can been completed, and the existing VCS connections on the source should be removed from the workspaces, so runs are no longer triggered by VCS
 Note: This command will ask for confirmation. The source workspaces will not be deleted, only their VCS connection, which can be added back manually if needed.
 
-### Nuke
+## Nuke
 
 If workspaces that have been created in the destination organization need to be destroyed, `tfm nuke workspace` can be used to remove all workspaces that tfm created. This is done by listing all workspaces in the destination organization and checking if the `SourceName` is set to `tfm`. This command will prompt for confirmation. If Confirmed tfm will delete the workspaces. This is a destructive operation and the workspaces can not be recovered.
 
+## tfm in a Pipeline
+
+`tfm` can be used in a pipeline to automate migrations. There are a few considerations when using `tfm` in this manner.
+
+- For source and destination credentials use `SRC_TFE_TOKEN` and `DST_TFC_TOKEN` environment variables from the pipeline's secrete manager or other secure means. Don't embed these credentials in `tfm` configuration files
+- Several `tfm` commands require confirmation before proceeding, which are listed below. To override these in a pipeline, add the `--autoapprove` flag.
+  - `copy workspaces` Only when all workspaces are going to be migrated due to no workspace list, or map defined.
+  - `copy workspaces --state --last`
+  - `delete workspace`
+  - `delete workspaces-vcs`
+  - `nuke`
+  
 ## Architectural Decisions Record (ADR)
 
 An architecture decision record (ADR) is a document that captures an important architecture decision made along with its context and consequences.
