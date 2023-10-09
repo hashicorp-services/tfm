@@ -6,12 +6,13 @@ package copy
 import (
 	"fmt"
 
+	"strings"
+
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 var (

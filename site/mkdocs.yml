@@ -77,6 +77,8 @@ nav:
     - Delete:
       - General: commands/delete.md
       - Workspace: commands/delete_workspace.md
+    - Generate:
+      - General: commands/generate_config.md
   - Development:
     - MVP Details: code/mvp.md
     - Project Details: code/project-details.md
