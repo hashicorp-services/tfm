@@ -8,6 +8,10 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
+	"sync"
+	"time"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -29,6 +33,35 @@ import (
 
 // Iterate backwards through the srcstate slice and append each element to a new slice
 // to create a reverse ordered slice of srcStates
+
+func rateLimitTest() {
+	// Configure the rate limit to exceed 30 requests per second, set it to a higher value.
+	requestsPerSecond := 1000
+	requestInterval := time.Second / time.Duration(requestsPerSecond)
+
+	// Create a wait group to wait for all goroutines to finish.
+	var wg sync.WaitGroup
+
+	// Launch multiple goroutines to make API requests.
+	for i := 0; i < 1000; i++ { // Launch 100 goroutines
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			// Simulate making an API request.
+			discoverDestTeams(tfclient.GetClientContexts())
+
+			// Sleep for the specified interval before making the next request.
+			time.Sleep(requestInterval)
+		}()
+	}
+
+	// Wait for all goroutines to finish.
+	wg.Wait()
+
+	fmt.Println("All API requests completed.")
+}
+
 func reverseSlice(input []*tfe.StateVersion) []*tfe.StateVersion {
 	inputLen := len(input)
 	output := make([]*tfe.StateVersion, inputLen)
@@ -48,7 +81,7 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 	srcStates := []*tfe.StateVersion{}
 
 	opts := tfe.StateVersionListOptions{
-		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: NumberOfStates},
+		ListOptions:  tfe.ListOptions{PageNumber: 1, PageSize: 100},
 		Organization: c.SourceOrganizationName,
 		Workspace:    ws,
 	}
@@ -60,17 +93,25 @@ func discoverSrcStates(c tfclient.ClientContexts, ws string, NumberOfStates int)
 
 		srcStates = append(srcStates, items.Items...)
 
-		o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
-
-		if len(srcStates) >= NumberOfStates {
-			break
-		}
-
 		if items.CurrentPage >= items.TotalPages {
 			break
 		}
 		opts.PageNumber = items.NextPage
 
+	}
+	o.AddFormattedMessageCalculated("Found %d Workspace states", len(srcStates))
+
+	if NumberOfStates != 0 {
+		o.AddFormattedMessageCalculated("Only the %d newest workspace states will be migrated", NumberOfStates)
+
+		// If a last X amount of states is given, remove all previous states except for the last X amount.
+		// If there are fewer states to keep than there are states, set the number to keep the same amount of states
+		// there are for the workspace
+		if NumberOfStates > len(srcStates) {
+			NumberOfStates = len(srcStates)
+		}
+
+		srcStates = srcStates[:len(srcStates)-(len(srcStates)-NumberOfStates)]
 	}
 
 	return srcStates, nil
@@ -216,7 +257,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
-		// Check for the exsitence of the destination workspace in the destination target
+		// Check for the existence of the destination workspace in the destination target
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 
 		if exists {
@@ -252,31 +293,109 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// Download state from source
 					state, err := downloadSourceState(tfclient.GetClientContexts(), srcstate.DownloadURL)
 
+					// Create an empty int
+					//newSerial := int64(1)
+
+					// Get properties of the state
+					// currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)
+
+					// Of if there is a state file, set the newSerial variable to the current state serial + 1
+					// if currentState != nil {
+					// 	newSerial = currentState.Serial + 1
+					// }
+
+					// Get state file as string
+					plainTextState := string(state)
+
+					// Define a regular expression pattern to match the "serial" value
+					serialPattern := `"serial":\s*(\d+)`
+
+					// Compile the regular expression
+					serialRe := regexp.MustCompile(serialPattern)
+
+					// Find the match
+					serialMatch := serialRe.FindStringSubmatch(plainTextState)
+
+					if len(serialMatch) != 2 {
+						fmt.Println("Serial not found in JSON")
+						return err
+					}
+
+					newSerialConversion, err :=  strconv.ParseInt(serialMatch[1], 10, 64)
+					if err != nil {
+						fmt.Printf("The source state wasn't a int64")
+					}
+
+					// Define a regular expression pattern to match the "lineage" value
+					lineagePattern := `"lineage":\s*"([^"]+)"`
+
+					// Compile the regular expression
+					lineageRe := regexp.MustCompile(lineagePattern)
+
+					// Find the match
+					lineageMatch := lineageRe.FindStringSubmatch(plainTextState)
+
+					if len(lineageMatch) != 2 {
+						fmt.Println("Lineage not found in JSON")
+						return err
+					}
+
+					lineage := lineageMatch[1]
+					//fmt.Println("State JSON Lineage:", lineage)
+
 					// Base64 encode the state as a string
 					stringState := b64.StdEncoding.EncodeToString(state)
 
 					// Get the MD5 hash of the state
 					md5String := fmt.Sprintf("%x", md5.Sum([]byte(state)))
 
-					// Create an empty int
-					newSerial := int64(1)
-
-					// Get properties of the state
-					currentState, _ := c.DestinationClient.StateVersions.ReadCurrent(c.DestinationContext, destWorkspaceId)
-
-					// Of if there is a state file, set the newSerial variable to the current state serial + 1
-					if currentState != nil {
-						newSerial = currentState.Serial + 1
-					}
-
 					// Lock the destination workspace
 					lockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
-					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerial, srcworkspace.Name, destWorkSpaceName)
+					fmt.Printf("Migrating state version %v serial %v for workspace Src: %v Dst: %v\n", srcstate.StateVersion, newSerialConversion, srcworkspace.Name, destWorkSpaceName)
+					// // ------------------------------------------------------------------------------
+					// // --- START rate limiting testing code ------------------------------------------
+					// // --- Comment out when not testing ------------------------------------------
+					// // ------------------------------------------------------------------------------
+					// Configure the rate limit to exceed 30 requests per second, set it to a higher value.
+					// requestsPerSecond := 1000
+					// requestInterval := time.Second / time.Duration(requestsPerSecond)
+
+					// // Create a wait group to wait for all goroutines to finish.
+					// var wg sync.WaitGroup
+
+					// // Launch multiple goroutines to make API requests.
+					// for i := 0; i < 1000; i++ { // Launch 100 goroutines
+					// 	wg.Add(1)
+					// 	go func() {
+					// 		defer wg.Done()
+
+					// 		// Simulate making an API request.
+					// 		resp, err := discoverDestTeams(tfclient.GetClientContexts())
+					// 		if err != nil {
+					// 			// Handle other errors here.
+					// 			fmt.Println("Error:", err)
+					// 			return
+					// 		}
+					// 		_ = resp
+					// 		// Sleep for the specified interval before making the next request.
+					// 		time.Sleep(requestInterval)
+
+					// 	}()
+					// }
+
+					// // Wait for all goroutines to finish.
+					// wg.Wait()
+
+					// fmt.Println("All API requests completed.")
+					// // ------------------------------------------------------------------------------
+					// // --- end rate limiting testing code ------------------------------------------
+					// // ------------------------------------------------------------------------------
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
-						Type: "",
-						//Lineage:        Optional attribute, must be left empty or match source Lineage
+						Type:             "",
+						Lineage:          &lineage,
 						MD5:              tfe.String(md5String),
-						Serial:           &newSerial,
+						Serial:           &newSerialConversion,
+						//Serial:           &newSerial,
 						State:            tfe.String(stringState),
 						Force:            new(bool),
 						Run:              &tfe.Run{},
@@ -285,12 +404,30 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					})
 
 					if err != nil {
-						return err
+						// Get the current timestamp and format it as a string
+						timestamp := time.Now().Format(time.RFC850)
+
+						// Create a file to store workspace names with errors
+						errorLogFileName := fmt.Sprintf("workspace_error_log_%s.txt", timestamp)
+						errorLogFile, err := os.Create(errorLogFileName)
+						if err != nil {
+							fmt.Printf("Failed to create error log file: %v\n", err)
+							return err
+						}
+						defer errorLogFile.Close()
+
+						// If there is an error output the error, log it, and move onto the next workspace.
+						fmt.Println("failed to migrate state file. Moving onto next workspace.", err)
+						errorLogFile.WriteString(fmt.Sprintf("Failed to migrate state file for source workspace: %v\n", srcworkspace.Name))
+						break
+
 					}
 
 					_ = srcstate
+
 				}
 			}
+
 			unlockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)
 		} else {
 			fmt.Printf("Source workspace (%v) does not exist in destination (%v). No states to migrate\n", srcworkspace.Name, destWorkSpaceName)
