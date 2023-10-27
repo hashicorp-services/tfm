@@ -24,6 +24,8 @@ var (
 	vcs        bool
 	ssh        bool
 	last       int
+	lock       bool
+	unlock     bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -99,6 +101,12 @@ var (
 				} else {
 					return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
 				}
+
+			case lock:
+				workspaceLock(tfclient.GetClientContexts())
+
+			case unlock:
+				workspaceUnlock(tfclient.GetClientContexts())
 			}
 
 			return copyWorkspaces(
@@ -131,10 +139,11 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Mapping of source vcs Oauth ID to destination vcs Oath in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&ssh, "ssh", "", false, "Mapping of source ssh id to destination ssh id in config file")
+	workspacesCopyCmd.Flags().BoolVarP(&lock, "lock", "", false, "Lock all source workspaces")
+	workspacesCopyCmd.Flags().BoolVarP(&unlock, "unlock", "", false, "Unlock all source workspaces")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
-
 }
 
 // Gets all workspaces from the source target
