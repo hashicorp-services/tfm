@@ -101,12 +101,6 @@ var (
 				} else {
 					return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
 				}
-
-			case lock:
-				workspaceLock(tfclient.GetClientContexts())
-
-			case unlock:
-				workspaceUnlock(tfclient.GetClientContexts())
 			}
 
 			return copyWorkspaces(
