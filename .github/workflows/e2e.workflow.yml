@@ -234,7 +234,7 @@ jobs:
         run: ./tfm unlock workspaces 
 
       - name: Unlock workspaces destination
-        run: ./tfm unlocklock workspaces --side destination
+        run: ./tfm unlock workspaces --side destination
 
       - name: List workspaces in destination
         run: ./tfm list workspaces --side destination
@@ -341,7 +341,7 @@ jobs:
         run: ./tfm unlock workspaces 
 
       - name: Unlock workspaces destination
-        run: ./tfm unlocklock workspaces --side destination
+        run: ./tfm unlock workspaces --side destination
 
       - name: List workspaces destination
         run: ./tfm list workspaces --side destination
@@ -445,7 +445,7 @@ jobs:
         run: ./tfm unlock workspaces 
 
       - name: Unlock workspaces destination
-        run: ./tfm unlocklock workspaces --side destination
+        run: ./tfm unlock workspaces --side destination
       
       - name: List workspaces destination
         run: ./tfm list workspaces --side destination
@@ -549,7 +549,7 @@ jobs:
         run: ./tfm unlock workspaces 
 
       - name: Unlock workspaces destination
-        run: ./tfm unlocklock workspaces --side destination
+        run: ./tfm unlock workspaces --side destination
 
       - name: List workspaces in destination
         run: ./tfm list workspaces --side destination
