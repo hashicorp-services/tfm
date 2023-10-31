@@ -223,18 +223,19 @@ jobs:
       
       - name: Migrate Workspace Last X State Test --states --last 2 --autoapprove=true
         run: ./tfm copy workspaces --autoapprove=true --state --last 2 --config test/configs/.e2e-all-workspaces-test.hcl --autoapprove=true
+      
+      # Not locking or unlocking all workspaces
+      # - name: Lock workspaces source
+      #   run: ./tfm lock workspaces 
 
-      - name: Lock workspaces source
-        run: ./tfm lock workspaces 
+      # - name: Lock workspaces destination
+      #   run: ./tfm lock workspaces --side destination
 
-      - name: Lock workspaces destination
-        run: ./tfm lock workspaces --side destination
+      # - name: Unlock workspaces source
+      #   run: ./tfm unlock workspaces 
 
-      - name: Unlock workspaces source
-        run: ./tfm unlock workspaces 
-
-      - name: Unlock workspaces destination
-        run: ./tfm unlock workspaces --side destination
+      # - name: Unlock workspaces destination
+      #   run: ./tfm unlock workspaces --side destination
 
       - name: List workspaces in destination
         run: ./tfm list workspaces --side destination
