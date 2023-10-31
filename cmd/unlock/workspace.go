@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
-	"strings"
 )
 
 var (
@@ -325,13 +324,9 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	} else {
 		// Get ALL source workspaces
-		o.AddMessageUserProvided2("\nWarning:\n\n", "ALL WORKSPACES WILL BE MIGRATED from", viper.GetString("src_tfe_hostname"))
+		o.AddMessageUserProvided2("\nWarning:\n\n", "ALL WORKSPACES WILL BE UNLOCKED in", viper.GetString("src_tfe_hostname"))
 
 		srcWorkspaces, err = discoverSrcWorkspaces(tfclient.GetClientContexts(), false)
-		if !confirm() {
-			fmt.Println("\n\n**** Canceling tfm run **** ")
-			os.Exit(1)
-		}
 
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
@@ -402,13 +397,9 @@ func getDstWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	} else {
 		// Get ALL destination workspaces
-		o.AddMessageUserProvided2("\nWarning:\n\n", "ALL WORKSPACES WILL BE MIGRATED from", viper.GetString("src_tfe_hostname"))
+		o.AddMessageUserProvided2("\nWarning:\n\n", "ALL WORKSPACES WILL BE UNLOCKED in", viper.GetString("src_tfe_hostname"))
 
 		dstWorkspaces, err = discoverDstWorkspaces(tfclient.GetClientContexts(), false)
-		if !confirm() {
-			fmt.Println("\n\n**** Canceling tfm run **** ")
-			os.Exit(1)
-		}
 
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to list Workspaces from destination")
@@ -426,35 +417,4 @@ func getDstWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	}
 
 	return dstWorkspaces, nil
-}
-
-func confirm() bool {
-
-	var input string
-
-	fmt.Printf("Do you want to continue with this operation? [y|n]: ")
-
-	auto, err := UnlockCmd.Flags().GetBool("autoapprove")
-
-	if err != nil {
-		fmt.Println("Error Retrieving autoapprove flag value: ", err)
-	}
-
-	// Check if --autoapprove=false
-	if !auto {
-		_, err := fmt.Scanln(&input)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		input = "y"
-		fmt.Println("y(autoapprove=true)")
-	}
-
-	input = strings.ToLower(input)
-
-	if input == "y" || input == "yes" {
-		return true
-	}
-	return false
 }

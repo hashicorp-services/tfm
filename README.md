@@ -179,6 +179,10 @@ Note: This command will ask for confirmation. The source workspaces will not be 
 
 If workspaces that have been created in the destination organization need to be destroyed, `tfm nuke workspace` can be used to remove all workspaces that tfm created. This is done by listing all workspaces in the destination organization and checking if the `SourceName` is set to `tfm`. This command will prompt for confirmation. If Confirmed tfm will delete the workspaces. This is a destructive operation and the workspaces can not be recovered.
 
+## Lock & Unlock
+
+The `tfm lock workspaces` & `tfm unlock workspaces` commands can be used to lock and unlock a workspace in either the source or destination as needed. This will use the workspaces as configured in the `tfm` config file and either lock them or unlock them. If a workspace is already locked it will skip trying to lock the workspace, and same for the unlock command. It will default to the source side, however with `--side destination` it will lock the destination side.
+
 ## tfm in a Pipeline
 
 `tfm` can be used in a pipeline to automate migrations. There are a few considerations when using `tfm` in this manner.
