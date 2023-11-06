@@ -224,7 +224,7 @@ jobs:
       - name: Migrate Workspace Last X State Test --states --last 2 --autoapprove=true
         run: ./tfm copy workspaces --autoapprove=true --state --last 2 --config test/configs/.e2e-all-workspaces-test.hcl --autoapprove=true
       
-      # Not locking or unlocking all workspaces
+      # Not locking or unlocking all workspaces incase select workspaces are manually locked
       # - name: Lock workspaces source 
       #   run: ./tfm lock workspaces --config test/configs/.e2e-all-workspaces-test.hcl
 
@@ -541,16 +541,16 @@ jobs:
         run: ./tfm copy workspaces --autoapprove=true --state --last 2 --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl --autoapprove=true
 
       - name: Lock workspaces source
-        run: ./tfm lock workspaces --config test/configs/.e2e-workspace-map-test.hcl
+        run: ./tfm lock workspaces --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
 
       - name: Lock workspaces destination
-        run: ./tfm lock workspaces --side destination --config test/configs/.e2e-workspace-map-test.hcl
+        run: ./tfm lock workspaces --side destination --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
 
       - name: Unlock workspaces source
-        run: ./tfm unlock workspaces --config test/configs/.e2e-workspace-map-test.hcl
+        run: ./tfm unlock workspaces --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
 
       - name: Unlock workspaces destination
-        run: ./tfm unlock workspaces --side destination --config test/configs/.e2e-workspace-map-test.hcl
+        run: ./tfm unlock workspaces --side destination --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
 
       - name: List workspaces in destination
         run: ./tfm list workspaces --side destination
