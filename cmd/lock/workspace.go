@@ -5,6 +5,8 @@ package lock
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -12,7 +14,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
 )
 
 var (
@@ -42,7 +43,7 @@ func LockWorkspaces(c tfclient.ClientContexts) error {
 
 	if (LockCmd.Flags().Lookup("side").Value.String() == "source") || (!LockCmd.Flags().Lookup("side").Changed) {
 
-		o.AddMessageUserProvided("Locking all configured workspaces on:", c.SourceHostname)
+		o.AddMessageUserProvided("Locking configured workspaces on:", c.SourceHostname)
 
 		// Get the source workspaces properties
 		srcWorkspaces, err := getSrcWorkspacesCfg(c)
@@ -113,7 +114,9 @@ func LockWorkspaces(c tfclient.ClientContexts) error {
 }
 
 func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of Workspaces from:", c.SourceHostname)
+	// o.AddMessageUserProvided("Getting list of Workspaces from:", c.SourceHostname)
+
+	
 	srcWorkspaces := []*tfe.Workspace{}
 
 	//fmt.Println("Workspace list from config:", wsList)
@@ -161,7 +164,7 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 }
 
 func discoverSrcWorkspaces(c tfclient.ClientContexts, output bool) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("\nGetting list of Workspaces from:", c.SourceHostname)
+	// o.AddMessageUserProvided("\nGetting list of Workspaces from:", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -192,7 +195,7 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts, output bool) ([]*tfe.Works
 }
 
 func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of Workspaces from:", c.DestinationHostname)
+	// o.AddMessageUserProvided("Getting list of Workspaces from:", c.DestinationHostname)
 	dstWorkspaces := []*tfe.Workspace{}
 
 	fmt.Println("Workspace list from config:", wsList)
@@ -225,7 +228,6 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 					indexMatch++
 				}
 			}
-
 			dstWorkspaces = append(dstWorkspaces, items.Items[indexMatch])
 
 			if items.CurrentPage >= items.TotalPages {
@@ -379,7 +381,7 @@ func getDstWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		var wsList []string
 
 		for key := range wsMapCfg {
-			wsList = append(wsList, key)
+			wsList = append(wsList, wsMapCfg[key])
 		}
 
 		o.AddMessageUserProvided("Destination Workspaces found in `workspaces-map`:", wsList)
@@ -424,3 +426,4 @@ func getDstWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 
 	return dstWorkspaces, nil
 }
+

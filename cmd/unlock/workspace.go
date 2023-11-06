@@ -42,7 +42,7 @@ func init() {
 func workspaceUnlock(c tfclient.ClientContexts) error {
 
 	if (UnlockCmd.Flags().Lookup("side").Value.String() == "source") || (!UnlockCmd.Flags().Lookup("side").Changed) {
-		o.AddMessageUserProvided("Unlocking all configured workspaces on:", c.SourceHostname)
+		o.AddMessageUserProvided("Unlocking configured workspaces on:", c.SourceHostname)
 
 		// Get the source workspaces properties
 		srcWorkspaces, err := getSrcWorkspacesCfg(c)
@@ -107,7 +107,8 @@ func workspaceUnlock(c tfclient.ClientContexts) error {
 }
 
 func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of Workspaces from:", c.SourceHostname)
+	// o.AddMessageUserProvided("Getting list of Workspaces from:", c.SourceHostname)
+	
 	srcWorkspaces := []*tfe.Workspace{}
 
 	//fmt.Println("Workspace list from config:", wsList)
@@ -155,7 +156,7 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 }
 
 func discoverSrcWorkspaces(c tfclient.ClientContexts, output bool) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("\nGetting list of Workspaces from:", c.SourceHostname)
+	// o.AddMessageUserProvided("\nGetting list of Workspaces from:", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -186,7 +187,7 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts, output bool) ([]*tfe.Works
 }
 
 func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of Workspaces from:", c.DestinationHostname)
+	// o.AddMessageUserProvided("Getting list of Workspaces from:", c.DestinationHostname)
 	dstWorkspaces := []*tfe.Workspace{}
 
 	fmt.Println("Workspace list from config:", wsList)
@@ -373,9 +374,8 @@ func getDstWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		var wsList []string
 
 		for key := range wsMapCfg {
-			wsList = append(wsList, key)
+			wsList = append(wsList, wsMapCfg[key])
 		}
-
 		o.AddMessageUserProvided("Destination Workspaces found in `workspaces-map`:", wsList)
 
 		// Set destination workspaces
