@@ -181,7 +181,7 @@ If workspaces that have been created in the destination organization need to be 
 
 ## Lock & Unlock
 
-The `tfm lock workspaces` & `tfm unlock workspaces` commands can be used to lock and unlock a workspace in either the source or destination as needed. This will use the workspaces as configured in the `tfm` config file and either lock them or unlock them. If a workspace is already locked it will skip trying to lock the workspace, and same for the unlock command. It will default to the source side, however with `--side destination` it will lock the destination side.
+The `tfm lock workspaces` & `tfm unlock workspaces` commands can be used to lock and unlock a workspace in either the source or destination as needed. This will use the workspaces as configured in the `tfm` config file and either lock them or unlock them. If a workspace is already locked it will skip trying to lock the workspace, and same for the unlock command. It will default to the source side, however with `--side destination` it will lock or unlock the destination side.
 
 ## tfm in a Pipeline
 
