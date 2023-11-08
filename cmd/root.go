@@ -29,7 +29,9 @@ import (
 	"github.com/hashicorp-services/tfm/cmd/generate"
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/cmd/list"
+	"github.com/hashicorp-services/tfm/cmd/lock"
 	"github.com/hashicorp-services/tfm/cmd/nuke"
+	"github.com/hashicorp-services/tfm/cmd/unlock"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/version"
 	"github.com/logrusorgru/aurora"
@@ -113,6 +115,8 @@ func init() {
 	RootCmd.AddCommand(nuke.NukeCmd)
 	RootCmd.AddCommand(delete.DeleteCmd)
 	RootCmd.AddCommand(generate.GenerateCmd)
+	RootCmd.AddCommand(lock.LockCmd)
+	RootCmd.AddCommand(unlock.UnlockCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
