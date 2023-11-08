@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] (November 08, 2023)
+
+- Added command to lock and unlock workspaces. [[#155](https://github.com/hashicorp-services/tfm/issues/155)]
+- Updated Dependencies
+  - `go-tfe` from 1.35.0 to 1.39.0
+  - `cobra` from 1.7.0 to 1.8.0
+  - `color` from 1.15.0 to 1.16.0
+
 ## [0.5.0] (October 09, 2023)
 
 - Added auto approve flag support to the `nuke` command
