@@ -104,7 +104,7 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				"repo":             ws_repo,
 				"projectName":      projectName,
 				"projectId":        i.Project.ID,
-				"agentPool":        i.AgentPool.ID,
+				//"agentPool":        i.AgentPool.ID,
 				"terraformVersion": i.TerraformVersion,
 				"executionMode":    i.ExecutionMode,
 			}
@@ -187,7 +187,7 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				"repo":             ws_repo,
 				"projectName":      projectName,
 				"projectId":        i.Project.ID,
-				"agentPool":        i.AgentPool.ID,
+				//"agentPool":        i.AgentPool.ID,
 				"terraformVersion": i.TerraformVersion,
 				"executionMode":    i.ExecutionMode,
 			}
