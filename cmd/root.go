@@ -90,7 +90,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ./.tfm.hcl).")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ~/.tfm.hcl).")
 	RootCmd.PersistentFlags().BoolP("autoapprove", "", false, "Auto approve the tfm run. --autoapprove=true . false by default")
 	RootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "Print the output in JSON format")
 
