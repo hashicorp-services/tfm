@@ -573,6 +573,8 @@ jobs:
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
       DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
 
+    needs: initialize-tfc-resources
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -623,6 +625,8 @@ jobs:
       DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
       DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    needs: initialize-tfc-resources
 
     steps:
       - name: Checkout code
@@ -675,6 +679,8 @@ jobs:
       RUNNUKE: ${{ github.event.inputs.RunNuke }}
       DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
 
+    needs: initialize-tfc-resources
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
