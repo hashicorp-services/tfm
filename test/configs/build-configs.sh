@@ -102,3 +102,12 @@ cat ./test/configs/.e2e-workspaces-list-test.hcl
 
 echo "[INFO] .e2e-workspaces-list-destination-agent-test.hcl"
 cat ./test/configs/.e2e-workspaces-list-destination-agent-test.hcl
+
+echo "[INFO] .e2e-all-projects-test.hcl"
+cat ./test/configs/.e2e-all-projects-test.hcl
+
+echo "[INFO] .e2e-project-list-test.hcl"
+cat ./test/configs/.e2e-project-list-test.hcl
+
+echo "[INFO] .e2e-project-map-test.hcl"
+cat ./test/configs/.e2e-project-map-test.hcl

@@ -35,6 +35,15 @@ set -euo pipefail
     curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/varsets/$AWSVARSETID"
     curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/varsets/$AZUREVARSETID"
 
+    echo "Removing projects"
+
+    curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/projects/tfm-ci-test-0"
+    curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/projects/tfm-ci-test-1"
+    curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/projects/tfm-ci-test-3"
+    curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/projects/tfm-ci-test-20"
+    curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/projects/tfm-ci-test-30"
+    curl --header "Authorization: Bearer $DST_TFC_TOKEN" --request DELETE "https://app.terraform.io/api/v2/projects/tfm-ci-test-40"
+
     echo "Target Nuked!"
 
 

@@ -35,6 +35,20 @@ provider "tfe" {
   token        = var.destination_tfe_token
 }
 
+locals{
+  projects = {
+    project1 = "tfm-ci-test-0"
+    project2 = "tfm-ci-test-1"
+    project3 = "tfm-ci-test-3"
+  }
+}
+
+resource "tfe_project" "source" {
+  for_each     = local.projects
+  organization = var.source_tfe_organization
+  name         = each.value
+}
+
 # Source resources
 resource "tfe_agent_pool" "source" {
   provider = tfe.source
