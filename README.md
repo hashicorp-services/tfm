@@ -5,8 +5,7 @@
 HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
 
 > **Warning**
-> This CLI is in beta release and currently does not have official support!
-> TFM is currently being developed and tested by interested parties.
+> This CLI does not have official support, but the code owners will work with partners and interested parties to provide assitance when possible.
 > Check out our [case studies](https://hashicorp-services.github.io/tfm/migration/case-studies/). 
 
 

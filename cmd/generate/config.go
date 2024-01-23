@@ -66,6 +66,18 @@ dst_tfc_token=""
 #  "example-ws-2=new-ws-2"
 #    ]
 
+# A List of Projects to create/check are migrated across to new TFC
+#"projects" = [
+#  "example-proj-1",
+#  "example-proj-2"
+#]
+
+# A list of source=destination project names. TFM will look at each source project and recreate the project with the specified destination name.
+#"projects-map" = [
+#  "example-proj-1=new-proj-1",
+#  "example-proj-2=new-proj-2"
+#    ]
+
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID. Conflicts with 'agent-assignment'
 #agents-map = [
 #  "apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE",
