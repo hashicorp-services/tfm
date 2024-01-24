@@ -665,7 +665,7 @@ jobs:
         run: ./test/configs/build-configs.sh
 
       - name: Migrate projects
-        run: ./tfm copy projects --autoapprove=true --config test/configs/.e2e-projects-list-test.hcl
+        run: ./tfm copy projects --config test/configs/.e2e-project-list-test.hcl
 
   tfm-tests-copy-map-projects:
     runs-on: ubuntu-latest
@@ -718,7 +718,7 @@ jobs:
         run: ./test/configs/build-configs.sh
 
       - name: Migrate projects
-        run: ./tfm copy projects --autoapprove=true --config test/configs/.e2e-projects-map-test.hcl
+        run: ./tfm copy projects --config test/configs/.e2e-project-map-test.hcl
 
   destroy-tfc-resources:
     runs-on: "ubuntu-latest"
