@@ -71,7 +71,8 @@ func listSrcProjects(c tfclient.ClientContexts) ([]*tfe.Project, error) {
 		ListOptions: tfe.ListOptions{PageSize: 100},
 	}
 
-	var srcProjects []*tfe.Project
+	srcProjects := []*tfe.Project{}
+
 	for {
 		projects, err := c.SourceClient.Projects.List(c.SourceContext, c.SourceOrganizationName, &options)
 		if err != nil {
@@ -98,7 +99,8 @@ func listDestProjects(c tfclient.ClientContexts, output bool) ([]*tfe.Project, e
 		ListOptions: tfe.ListOptions{PageSize: 100},
 	}
 
-	var destProjects []*tfe.Project
+	destProjects := []*tfe.Project{}
+
 	for {
 		projects, err := c.DestinationClient.Projects.List(c.DestinationContext, c.DestinationOrganizationName, &options)
 		if err != nil {
@@ -125,7 +127,7 @@ func getSrcProjectsCfg(c tfclient.ClientContexts) ([]*tfe.Project, error) {
 	// Get source Project list from config list `projects` if it exists
 	srcProjectsCfg := viper.GetStringSlice("projects")
 
-	projMapCfg, err := helper.ViperStringSliceMap("project-map")
+	projMapCfg, err := helper.ViperStringSliceMap("projects-map")
 	if err != nil {
 		return srcProjects, errors.New("Invalid input for projects-map")
 	}
@@ -148,7 +150,7 @@ func getSrcProjectsCfg(c tfclient.ClientContexts) ([]*tfe.Project, error) {
 			projList = append(projList, key)
 		}
 
-		o.AddMessageUserProvided("Source Projects found in `project-map`:", projList)
+		o.AddMessageUserProvided("Source Projects found in `projects-map`:", projList)
 
 		// Set source projects
 		srcProjects, err = getSrcProjectsFilter(tfclient.GetClientContexts(), projList)
@@ -200,9 +202,9 @@ func getSrcProjectsFilter(c tfclient.ClientContexts, projList []string) ([]*tfe.
 	o.AddMessageUserProvided("Getting list of Projects from: ", c.SourceHostname)
 	srcProjects := []*tfe.Project{}
 
-	//fmt.Println("Project list from config:", projList)
-
 	for _, proj := range projList {
+
+		var found bool
 
 		for {
 			opts := tfe.ProjectListOptions{
@@ -214,24 +216,32 @@ func getSrcProjectsFilter(c tfclient.ClientContexts, projList []string) ([]*tfe.
 
 			items, err := c.SourceClient.Projects.List(c.SourceContext, c.SourceOrganizationName, &opts) // This should only return 1 result
 
-			indexMatch := 0
-
-			// If multiple Projects named similar, find exact match
-			if len(items.Items) > 1 {
-				for _, result := range items.Items {
-					if proj == result.Name {
-						// Finding matching Project name
-						break
-					}
-					indexMatch++
-				}
-			}
-
 			if err != nil {
 				return nil, err
 			}
 
-			srcProjects = append(srcProjects, items.Items[indexMatch])
+			indexMatch := -1
+
+			// If multiple Projects named similar, find exact match
+			for i, result := range items.Items {
+				if proj == result.Name {
+					indexMatch = i
+					found = true
+					break
+				}
+			}
+
+			// Append only if a matching project is found
+			if found && indexMatch >= 0 {
+				srcProjects = append(srcProjects, items.Items[indexMatch])
+				break // Break the inner loop if a match is found
+			}
+
+			// If no project is found for a given name in projList, handle it accordingly
+			if !found {
+				// You might want to log this or handle it as per your logic
+				o.AddMessageUserProvided("no project found with name: ", proj)
+			}
 
 			if items.CurrentPage >= items.TotalPages {
 				break
@@ -313,7 +323,7 @@ func copyProjects(c tfclient.ClientContexts, projMapCfg map[string]string) error
 	// Get Projects from Config OR get ALL Projects from source
 	destProjects, err := listDestProjects(tfclient.GetClientContexts(), false)
 	if err != nil {
-		return errors.Wrap(err, "Failed to list Projects from source target")
+		return errors.Wrap(err, "Failed to list Projects from destination target")
 	}
 
 	for _, srcproject := range srcProjects {
