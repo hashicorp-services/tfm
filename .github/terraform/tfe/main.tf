@@ -5,6 +5,20 @@ data "tfe_organization" "org" {
   name = var.organization
 }
 
+locals{
+  projects = {
+    project1 = "tfm-ci-test-0"
+    project2 = "tfm-ci-test-1"
+    project3 = "tfm-ci-test-3"
+  }
+}
+
+resource "tfe_project" "source" {
+  for_each     = local.projects
+  organization = var.source_tfe_organization
+  name         = each.value
+}
+
 resource "tfe_workspace" "ci-workspace-test" {
   name         = "ci-workspace-test"
   organization = data.tfe_organization.org.name
