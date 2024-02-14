@@ -62,42 +62,43 @@ func initializeRepos() error {
 
 	var initCount int
 
-	err := filepath.Walk(clonePath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if path == clonePath {
-			return nil
-		}
-		if info.IsDir() {
-			hasTfFiles, err := filepath.Glob(filepath.Join(path, "*.tf"))
-			if err != nil {
-				fmt.Printf("Error checking .tf files in %s: %v\n", path, err)
-				return err
-			}
-			if len(hasTfFiles) > 0 {
-				fmt.Printf("Initializing Terraform in: %s\n", path)
-				if err := runTerraformInit(path); err != nil {
-					fmt.Printf("Failed to initialize Terraform in %s: %v\n", path, err)
-					return nil
-				}
-				initCount++
-
-				// Pull the state and save it to pulled_terraform.tfstate
-				pulledStatePath := filepath.Join(path, ".terraform/pulled_terraform.tfstate")
-				if err := pullTerraformState(path, pulledStatePath); err != nil {
-					fmt.Printf("Failed to pull Terraform state in %s: %v\n", path, err)
-					return nil
-				}
-			}
-		}
-		return nil
-	})
-
+	// Read directories directly under clonePath
+	dirs, err := os.ReadDir(clonePath) // Using os.ReadDir, which is the recommended way since Go 1.16
 	if err != nil {
-		return fmt.Errorf("error walking through directories: %v", err)
+		return fmt.Errorf("error reading directories: %v", err)
 	}
 
-	fmt.Printf("Terraform initialization and state processing completed for %d repositories.\n", initCount)
+	for _, dir := range dirs {
+		if !dir.IsDir() {
+			continue // Skip files, process only directories
+		}
+		repoPath := filepath.Join(clonePath, dir.Name())
+
+		// Check for .tf files directly in the root of the repository
+		hasTfFiles, err := filepath.Glob(filepath.Join(repoPath, "*.tf"))
+		if err != nil {
+			fmt.Printf("Error checking .tf files in %s: %v\n", repoPath, err)
+			continue // Proceed to next directory on error
+		}
+		if len(hasTfFiles) > 0 {
+			fmt.Printf("Initializing Terraform in: %s\n", repoPath)
+			if err := runTerraformInit(repoPath); err != nil {
+				fmt.Printf("Failed to initialize Terraform in %s: %v\n", repoPath, err)
+				continue // Proceed to next directory on error
+			}
+			initCount++
+
+			// Pull the state and save it to pulled_terraform.tfstate
+			pulledStatePath := filepath.Join(repoPath, ".terraform/pulled_terraform.tfstate")
+			if err := pullTerraformState(repoPath, pulledStatePath); err != nil {
+				fmt.Printf("Failed to pull Terraform state in %s: %v\n", repoPath, err)
+				continue // Proceed to next directory despite the error
+			}
+
+			// Here you can add additional processing for the pulled state file as needed
+		}
+	}
+
+	o.AddFormattedMessageCalculated("Terraform initialization and state processing completed for %d repositories.\n", initCount)
 	return nil
 }

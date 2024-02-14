@@ -5,7 +5,7 @@ package oss
 
 import (
 	"crypto/md5"
-	b64 "encoding/base64"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -40,79 +40,73 @@ type TerraformState struct {
 }
 
 func uploadStateFiles(c tfclient.ClientContexts, clonePath string) error {
-
-	err := filepath.Walk(clonePath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() && path != clonePath {
-			tfstatePath := filepath.Join(path, ".terraform", "pulled_terraform.tfstate")
-			if _, err := os.Stat(tfstatePath); err != nil {
-				return nil
-			}
-
-			workspaceName := filepath.Base(path)
-			// Ensure workspace exists
-			workspace, err := c.DestinationClient.Workspaces.Read(c.DestinationContext, c.DestinationOrganizationName, workspaceName)
-			if err != nil {
-				return fmt.Errorf("failed to read workspace %s: %v", workspaceName, err)
-			}
-
-			// Lock the workspace
-			_, err = c.DestinationClient.Workspaces.Lock(c.DestinationContext, workspace.ID, tfe.WorkspaceLockOptions{
-				Reason: tfe.String("Uploading pulled_terraform.tfstate"),
-			})
-			if err != nil {
-				return fmt.Errorf("failed to lock workspace %s: %v", workspaceName, err)
-			}
-
-			// Schedule workspace unlock before handling any other error
-			defer func() {
-				if _, unlockErr := c.DestinationClient.Workspaces.Unlock(c.DestinationContext, workspace.ID); unlockErr != nil {
-					fmt.Printf("Failed to unlock workspace %s: %v\n", workspaceName, unlockErr)
-				}
-			}()
-
-			// Read pulled_terraform.tfstate file
-			stateFileContent, err := ioutil.ReadFile(tfstatePath)
-			if err != nil {
-				return fmt.Errorf("failed to read state file %s: %v", tfstatePath, err)
-			}
-
-			// Unmarshal the state file to extract lineage
-			var tfState TerraformState
-			if err := json.Unmarshal(stateFileContent, &tfState); err != nil {
-				return fmt.Errorf("failed to unmarshal pulled_terraform.tfstate: %v", err)
-			}
-
-			// Base64 encode the state as a string
-			stringState := b64.StdEncoding.EncodeToString(stateFileContent)
-
-			// Get the MD5 hash of the state
-			md5String := fmt.Sprintf("%x", md5.Sum([]byte(stateFileContent)))
-
-			// Upload state file to the workspace
-			_, err = c.DestinationClient.StateVersions.Create(c.DestinationContext, workspace.ID, tfe.StateVersionCreateOptions{
-				Type:             "",
-				Serial:           tfe.Int64(1),
-				Lineage:          tfe.String(tfState.Lineage),
-				MD5:              tfe.String(md5String),
-				State:            tfe.String(string(stringState)),
-				Force:            new(bool),
-				JSONState:        new(string),
-				JSONStateOutputs: new(string),
-			})
-			if err != nil {
-				return fmt.Errorf("failed to upload state file to workspace %s: %v", workspaceName, err)
-			}
-
-			fmt.Printf("Successfully uploaded pulled_terraform.tfstate to workspace: %s\n", workspaceName)
-		}
-		return nil
-	})
-
+	// List directories directly under clonePath
+	dirs, err := os.ReadDir(clonePath)
 	if err != nil {
-		return fmt.Errorf("error processing directories: %v", err)
+		return fmt.Errorf("error reading directories: %v", err)
 	}
+
+	for _, dir := range dirs {
+		if !dir.IsDir() {
+			continue // Skip files
+		}
+		path := filepath.Join(clonePath, dir.Name())
+		tfstatePath := filepath.Join(path, ".terraform", "pulled_terraform.tfstate")
+
+		if _, err := os.Stat(tfstatePath); err != nil {
+			continue // Skip if terraform.tfstate does not exist
+		}
+
+		workspaceName := filepath.Base(path)
+		workspace, err := c.DestinationClient.Workspaces.Read(c.DestinationContext, c.DestinationOrganizationName, workspaceName)
+		if err != nil {
+			fmt.Printf("Failed to read workspace %s: %v\n", workspaceName, err)
+			continue // Proceed to next directory on error
+		}
+
+		_, err = c.DestinationClient.Workspaces.Lock(c.DestinationContext, workspace.ID, tfe.WorkspaceLockOptions{
+			Reason: tfe.String("Uploading pulled_terraform.tfstate"),
+		})
+		if err != nil {
+			fmt.Printf("Failed to lock workspace %s: %v\n", workspaceName, err)
+			continue // Proceed to next directory on error
+		}
+
+		// Ensure workspace unlock in case of error after this point
+		defer func() {
+			if _, unlockErr := c.DestinationClient.Workspaces.Unlock(c.DestinationContext, workspace.ID); unlockErr != nil {
+				fmt.Printf("Failed to unlock workspace %s: %v\n", workspaceName, unlockErr)
+			}
+		}()
+
+		stateFileContent, err := ioutil.ReadFile(tfstatePath)
+		if err != nil {
+			fmt.Printf("Failed to read state file %s: %v\n", tfstatePath, err)
+			continue // Proceed to next directory on error
+		}
+
+		var tfState TerraformState
+		if err := json.Unmarshal(stateFileContent, &tfState); err != nil {
+			fmt.Printf("Failed to unmarshal pulled_terraform.tfstate: %v\n", err)
+			continue // Proceed to next directory on error
+		}
+
+		stringState := base64.StdEncoding.EncodeToString(stateFileContent)
+		md5String := fmt.Sprintf("%x", md5.Sum([]byte(stateFileContent)))
+
+		_, err = c.DestinationClient.StateVersions.Create(c.DestinationContext, workspace.ID, tfe.StateVersionCreateOptions{
+			Serial:  tfe.Int64(1),
+			Lineage: tfe.String(tfState.Lineage),
+			MD5:     tfe.String(md5String),
+			State:   tfe.String(stringState),
+		})
+		if err != nil {
+			fmt.Printf("Failed to upload state file to workspace %s: %v\n", workspaceName, err)
+			continue // Proceed to next directory on error
+		}
+
+		fmt.Printf("Successfully uploaded pulled_terraform.tfstate to workspace: %s\n", workspaceName)
+	}
+
 	return nil
 }

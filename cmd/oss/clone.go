@@ -23,7 +23,7 @@ var (
 	cloneCmd = &cobra.Command{
 		Use:   "clone",
 		Short: "Clone VCS repositories containing terraform code.",
-		Long:  "clone VCS repositories containing terraform code.",
+		Long:  "clone VCS repositories containing terraform code. These will be iterated upon by tfm to download state files, read them, and push them to workspaces.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			return cloneRepos(
@@ -45,7 +45,9 @@ func init() {
 
 // listRepos lists all repositories for the configured organization or user.
 func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
-	o.AddFormattedMessageUserProvided("Getting list of Repositories from Github organization: ", ctx.GithubOrganization)
+
+	o.AddFormattedMessageUserProvided("Getting list of Repositories from Github organization: \n", ctx.GithubOrganization)
+
 	var allRepos []*github.Repository
 	opt := &github.RepositoryListByOrgOptions{
 		ListOptions: github.ListOptions{PerPage: 10},
@@ -63,7 +65,7 @@ func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
 		opt.Page = resp.NextPage
 	}
 
-	o.AddFormattedMessageCalculated("Found %d Repositories", len(allRepos))
+	o.AddFormattedMessageCalculated("Found %d Repositories\n", len(allRepos))
 
 	return allRepos, nil
 }
@@ -94,7 +96,7 @@ func cloneRepos(ctx *githubclient.ClientContext) error {
 		} else {
 			fmt.Printf("Directory %s already exists, skipping clone of %s\n", dir, *repo.FullName)
 		}
-		o.AddDeferredMessageRead("Cloned", repo.Name)
+		o.AddDeferredMessageRead("Cloned\n", *repo.Name)
 	}
 
 	return nil

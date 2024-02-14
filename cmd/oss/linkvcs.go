@@ -39,7 +39,7 @@ func linkVCS(c tfclient.ClientContexts, clonePath string) error {
 		return fmt.Errorf("TFE organization or VCS provider ID not specified in configuration")
 	}
 
-	o.AddFormattedMessageCalculated3("Using VCS Provider %s in org %s", vcsProviderID, c.DestinationOrganizationName)
+	o.AddFormattedMessageCalculated3("Using VCS Provider %s in org %s\n", vcsProviderID, c.DestinationOrganizationName)
 
 	err := filepath.Walk(clonePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -55,7 +55,7 @@ func linkVCS(c tfclient.ClientContexts, clonePath string) error {
 			// Construct the GitHub repo URL; adjust as needed based on your repo naming conventions
 			repoIdentifier := fmt.Sprintf("%s/%s", githubOrganization, workspaceName)
 
-			o.AddFormattedMessageCalculated3("Linking repo %s to workspace %s.", repoIdentifier, workspaceName)
+			o.AddFormattedMessageCalculated3("Linking repo %s to workspace %s.\n", repoIdentifier, workspaceName)
 
 			workspace, err := c.DestinationClient.Workspaces.Read(c.DestinationContext, c.DestinationOrganizationName, workspaceName)
 			if err != nil {
