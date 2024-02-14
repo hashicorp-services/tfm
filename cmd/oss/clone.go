@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp-services/tfm/output"
 	githubclient "github.com/hashicorp-services/tfm/vcsclients"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -77,7 +78,9 @@ func cloneRepos(ctx *githubclient.ClientContext) error {
 
 	for _, repo := range repos {
 		// Construct the directory path based on the repository name.
-		dir := filepath.Join(".", *repo.Name)
+		clonePath := viper.GetString("github_clone_repos_path")
+
+		dir := filepath.Join(clonePath, *repo.Name)
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			fmt.Printf("Cloning %s into %s\n", *repo.FullName, dir)
 			_, err := git.PlainClone(dir, false, &git.CloneOptions{
