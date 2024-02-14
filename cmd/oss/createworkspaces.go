@@ -48,9 +48,13 @@ func createWorkspaces(c tfclient.ClientContexts, clonePath string) error {
 			workspaceName := filepath.Base(path)
 			fmt.Printf("Creating workspace for repository with terraform.tfstate: %s\n", workspaceName)
 
+			var tag []*tfe.Tag
+			tag = append(tag, &tfe.Tag{Name: "tfm"})
+
 			// Create TFE Workspace
 			_, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Name: &workspaceName,
+				Tags: tag,
 			})
 			if err != nil {
 				fmt.Printf("Failed to create workspace %s: %v\n", workspaceName, err)
