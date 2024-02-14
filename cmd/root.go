@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp-services/tfm/cmd/list"
 	"github.com/hashicorp-services/tfm/cmd/lock"
 	"github.com/hashicorp-services/tfm/cmd/nuke"
+	"github.com/hashicorp-services/tfm/cmd/oss"
 	"github.com/hashicorp-services/tfm/cmd/unlock"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/version"
@@ -117,6 +118,7 @@ func init() {
 	RootCmd.AddCommand(generate.GenerateCmd)
 	RootCmd.AddCommand(lock.LockCmd)
 	RootCmd.AddCommand(unlock.UnlockCmd)
+	RootCmd.AddCommand(oss.OssCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
