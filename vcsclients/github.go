@@ -10,7 +10,7 @@ import (
 
 func NewGitHubClient(ctx context.Context) *github.Client {
 	// Retrieve the GitHub token from viper
-	token := viper.GetString("github_token") // Ensure your HCL structure is reflected here
+	token := viper.GetString("github_token")
 
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
