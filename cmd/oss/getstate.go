@@ -5,6 +5,7 @@ package oss
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -38,22 +39,37 @@ func init() {
 	OssCmd.AddCommand(getstateCmd)
 }
 
+func runTerraformInit(dirPath string) error {
+	cmd := exec.Command("terraform", "init")
+	cmd.Dir = dirPath
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func pullTerraformState(dirPath, outputPath string) error {
+	cmd := exec.Command("terraform", "state", "pull")
+	cmd.Dir = dirPath
+	output, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(outputPath, output, 0644)
+}
+
 func initializeRepos() error {
 	clonePath := viper.GetString("github_clone_repos_path")
 
-	// Initialize a counter to keep track of initialized repos
 	var initCount int
 
 	err := filepath.Walk(clonePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		// Skip the root directory quickly
 		if path == clonePath {
 			return nil
 		}
 		if info.IsDir() {
-			// Check for .tf files to determine if it's a Terraform directory
 			hasTfFiles, err := filepath.Glob(filepath.Join(path, "*.tf"))
 			if err != nil {
 				fmt.Printf("Error checking .tf files in %s: %v\n", path, err)
@@ -61,20 +77,20 @@ func initializeRepos() error {
 			}
 			if len(hasTfFiles) > 0 {
 				fmt.Printf("Initializing Terraform in: %s\n", path)
-				cmd := exec.Command("terraform", "init")
-				cmd.Dir = path
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				if err := cmd.Run(); err != nil {
+				if err := runTerraformInit(path); err != nil {
 					fmt.Printf("Failed to initialize Terraform in %s: %v\n", path, err)
-				} else {
-					initCount++
+					return nil
 				}
-				// Skip further files in this directory since we've already run `terraform init`
-				return filepath.SkipDir
+				initCount++
+
+				// Pull the state and save it to pulled_terraform.tfstate
+				pulledStatePath := filepath.Join(path, ".terraform/pulled_terraform.tfstate")
+				if err := pullTerraformState(path, pulledStatePath); err != nil {
+					fmt.Printf("Failed to pull Terraform state in %s: %v\n", path, err)
+					return nil
+				}
 			}
 		}
-		// Continue walking into subdirectories
 		return nil
 	})
 
@@ -82,6 +98,6 @@ func initializeRepos() error {
 		return fmt.Errorf("error walking through directories: %v", err)
 	}
 
-	fmt.Printf("Terraform initialization completed for %d repositories.\n", initCount)
+	fmt.Printf("Terraform initialization and state processing completed for %d repositories.\n", initCount)
 	return nil
 }
