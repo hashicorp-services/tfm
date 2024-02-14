@@ -20,8 +20,8 @@ import (
 
 var uploadStateCmd = &cobra.Command{
 	Use:   "upload-state",
-	Short: "Upload terraform.tfstate files to TFE workspaces",
-	Long: `Iterates over directories containing .terraform/terraform.tfstate files, 
+	Short: "Upload pulled_terraform.tfstate files to TFE workspaces",
+	Long: `Iterates over directories containing .terraform/pulled_terraform.tfstate files, 
            finds corresponding TFE workspaces, locks the workspace, uploads the state file, 
            and then unlocks the workspace.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -46,9 +46,9 @@ func uploadStateFiles(c tfclient.ClientContexts, clonePath string) error {
 			return err
 		}
 		if info.IsDir() && path != clonePath {
-			tfstatePath := filepath.Join(path, ".terraform", "terraform.tfstate")
+			tfstatePath := filepath.Join(path, ".terraform", "pulled_terraform.tfstate")
 			if _, err := os.Stat(tfstatePath); err != nil {
-				return nil // Skip if terraform.tfstate does not exist
+				return nil
 			}
 
 			workspaceName := filepath.Base(path)
@@ -60,7 +60,7 @@ func uploadStateFiles(c tfclient.ClientContexts, clonePath string) error {
 
 			// Lock the workspace
 			_, err = c.DestinationClient.Workspaces.Lock(c.DestinationContext, workspace.ID, tfe.WorkspaceLockOptions{
-				Reason: tfe.String("Uploading terraform.tfstate"),
+				Reason: tfe.String("Uploading pulled_terraform.tfstate"),
 			})
 			if err != nil {
 				return fmt.Errorf("failed to lock workspace %s: %v", workspaceName, err)
@@ -73,7 +73,7 @@ func uploadStateFiles(c tfclient.ClientContexts, clonePath string) error {
 				}
 			}()
 
-			// Read terraform.tfstate file
+			// Read pulled_terraform.tfstate file
 			stateFileContent, err := ioutil.ReadFile(tfstatePath)
 			if err != nil {
 				return fmt.Errorf("failed to read state file %s: %v", tfstatePath, err)
@@ -82,7 +82,7 @@ func uploadStateFiles(c tfclient.ClientContexts, clonePath string) error {
 			// Unmarshal the state file to extract lineage
 			var tfState TerraformState
 			if err := json.Unmarshal(stateFileContent, &tfState); err != nil {
-				return fmt.Errorf("failed to unmarshal terraform.tfstate: %v", err)
+				return fmt.Errorf("failed to unmarshal pulled_terraform.tfstate: %v", err)
 			}
 
 			// Base64 encode the state as a string
@@ -106,7 +106,7 @@ func uploadStateFiles(c tfclient.ClientContexts, clonePath string) error {
 				return fmt.Errorf("failed to upload state file to workspace %s: %v", workspaceName, err)
 			}
 
-			fmt.Printf("Successfully uploaded terraform.tfstate to workspace: %s\n", workspaceName)
+			fmt.Printf("Successfully uploaded pulled_terraform.tfstate to workspace: %s\n", workspaceName)
 		}
 		return nil
 	})
