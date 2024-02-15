@@ -26,7 +26,7 @@ var (
 		Long:  "clone VCS repositories containing terraform code. These will be iterated upon by tfm to download state files, read them, and push them to workspaces.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			return cloneRepos(
+			return main(
 				githubclient.CreateContext())
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
@@ -43,12 +43,45 @@ func init() {
 	OssCmd.AddCommand(cloneCmd)
 }
 
-// listRepos lists all repositories for the configured organization or user.
-func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
+// // listRepos lists all repositories for the configured organization or user.
+// func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
 
-	o.AddFormattedMessageUserProvided("Getting list of Repositories from Github organization: \n", ctx.GithubOrganization)
+// 	// Get only the repos sepcified in the config file if  `repos_to_clone` is specified
+// 	reposList := viper.GetStringSlice("repos_to_clone")
+
+// 	if len(reposList) > 0 {
+// 		o.AddFormattedMessageCalculated("Found %d repos in `repos_to_clone` list", len(reposList))
+// 	}
+
+// 	o.AddFormattedMessageUserProvided("Getting list of Repositories from Github organization: \n", ctx.GithubOrganization)
+
+// 	var allRepos []*github.Repository
+// 	opt := &github.RepositoryListByOrgOptions{
+// 		ListOptions: github.ListOptions{PerPage: 10},
+// 	}
+
+// 	for {
+// 		repos, resp, err := ctx.GitHubClient.Repositories.ListByOrg(ctx.GithubContext, ctx.GithubOrganization, opt)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		allRepos = append(allRepos, repos...)
+// 		if resp.NextPage == 0 {
+// 			break
+// 		}
+// 		opt.Page = resp.NextPage
+// 	}
+
+// 	o.AddFormattedMessageCalculated("Found %d Repositories\n", len(allRepos))
+
+// 	return allRepos, nil
+// }
+
+func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
+	reposList := viper.GetStringSlice("repos_to_clone")
 
 	var allRepos []*github.Repository
+	var filteredRepos []*github.Repository
 	opt := &github.RepositoryListByOrgOptions{
 		ListOptions: github.ListOptions{PerPage: 10},
 	}
@@ -65,18 +98,35 @@ func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
 		opt.Page = resp.NextPage
 	}
 
-	o.AddFormattedMessageCalculated("Found %d Repositories\n", len(allRepos))
+	// If repos_to_clone is specified, filter the repositories
+	if len(reposList) > 0 {
 
-	return allRepos, nil
+		o.AddFormattedMessageCalculated("Found %d repos to clone in `repos_to_clone` list.", len(reposList))
+
+		repoMap := make(map[string]bool)
+		for _, repoName := range reposList {
+			repoMap[repoName] = true
+		}
+
+		for _, repo := range allRepos {
+			if _, ok := repoMap[*repo.Name]; ok {
+				filteredRepos = append(filteredRepos, repo)
+			}
+		}
+	} else {
+		filteredRepos = allRepos
+
+		o.AddFormattedMessageUserProvided("No repos_to_clone list found in config file. Getting All Repositories from Github organization: \n", ctx.GithubOrganization)
+	}
+
+	o.AddFormattedMessageCalculated("Found %d Repositories in GitHub org.\n", len(allRepos))
+
+	return filteredRepos, nil
 }
 
 // cloneRepos clones the repositories returned by listRepos.
 // It clones each repository into a subdirectory under the current working directory.
-func cloneRepos(ctx *githubclient.ClientContext) error {
-	repos, err := listRepos(ctx)
-	if err != nil {
-		return err
-	}
+func cloneRepos(ctx *githubclient.ClientContext, repos []*github.Repository) error {
 
 	for _, repo := range repos {
 		// Construct the directory path based on the repository name.
@@ -96,7 +146,24 @@ func cloneRepos(ctx *githubclient.ClientContext) error {
 		} else {
 			fmt.Printf("Directory %s already exists, skipping clone of %s\n", dir, *repo.FullName)
 		}
-		o.AddDeferredMessageRead("Cloned\n", *repo.Name)
+		o.AddDeferredMessageRead("Cloned:", *repo.Name)
+	}
+
+	return nil
+}
+
+func main(ctx *githubclient.ClientContext) error {
+
+	repos, err := listRepos(ctx)
+	if err != nil {
+		fmt.Printf("Failed to list repositories: %v\n", err)
+		return nil
+	}
+
+	err = cloneRepos(ctx, repos)
+	if err != nil {
+		fmt.Printf("Failed to clone repositories: %v\n", err)
+		return nil
 	}
 
 	return nil
