@@ -2,7 +2,12 @@
 
 ![TFM](site/docs/images/TFM-black.png)
 
-HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
+HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during:
+
+- Terraform open source / community edition / core to TFC/TFE
+- TFE to TFC
+- TFC to TFE
+- 1 TFC Organization to another TFC Organization
 
 > **Warning**
 > This CLI does not have official support, but the code owners will work with partners and interested parties to provide assitance when possible.
@@ -11,7 +16,7 @@ HashiCorp Implementation Services (IS) has identified a need to develop a purpos
 
 ## Overview
 
-This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows us the ability to offer a standardized offering to our customers.
+This tool has been develop to assist HashiCorp Implementation Services and customer engagements during an migration of Terraform open source to TFE or TFC or with a migration from TFE to TFC, TFC to TFE, or 1 TFC organization to another TFC organization. Having a tool allows us the ability to offer a standardized offering to our customers.
 
 Check out the full documentation at [https://hashicorp-services.github.io/tfm/](https://hashicorp-services.github.io/tfm/)
 
@@ -19,13 +24,19 @@ Check out the full documentation at [https://hashicorp-services.github.io/tfm/](
 
 Binaries are created as part of a release, check out the [Release Page](https://github.com/hashicorp-services/tfm/releases) for the latest version.
 
-## Pre-Requisites
+## Pre-Requisites - TFE to TFC, TFC to TFE, or TFC to TFC Migrations
 
-`tfm` utilizes a config file OR environment variables.
+The following prerequisites are used when migrating from or to TFE or TFC from TFE or TFC.
 
 ## Config File
 
-A HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`.
+`tfm` utilizes a config file OR environment variables.
+
+An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
+
+> [!NOTE]
+> Use the `tfm generate config` command to generate a sample configuration for quick editing.
+
 
 ```hcl
 src_tfe_hostname="tf.local.com"
