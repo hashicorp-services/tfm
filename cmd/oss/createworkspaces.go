@@ -15,23 +15,23 @@ import (
 )
 
 // Assuming OssCmd is your root or relevant subcommand group
-var createWorkspacesCmd = &cobra.Command{
+var CreateWorkspacesCmd = &cobra.Command{
 	Use:   "create-workspaces",
 	Short: "Create TFE workspaces for each cloned Terraform repo",
 	Long:  `Iterates over all directories in the specified clone path and creates a TFE workspace for each.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		clonePath := viper.GetString("github_clone_repos_path")
 
-		return createWorkspaces(tfclient.GetClientContexts(), clonePath)
+		return CreateWorkspaces(tfclient.GetClientContexts(), clonePath)
 	},
 }
 
 func init() {
-	OssCmd.AddCommand(createWorkspacesCmd)
+	OssCmd.AddCommand(CreateWorkspacesCmd)
 }
 
 // createWorkspaces iterates over directories in clonePath and creates TFE workspaces.
-func createWorkspaces(c tfclient.ClientContexts, clonePath string) error {
+func CreateWorkspaces(c tfclient.ClientContexts, clonePath string) error {
 
 	dirs, err := os.ReadDir(clonePath)
 	if err != nil {

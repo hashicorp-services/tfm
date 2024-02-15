@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var uploadStateCmd = &cobra.Command{
+var UploadStateCmd = &cobra.Command{
 	Use:   "upload-state",
 	Short: "Upload pulled_terraform.tfstate files to TFE workspaces",
 	Long: `Iterates over directories containing .terraform/pulled_terraform.tfstate files, 
@@ -32,7 +32,7 @@ var uploadStateCmd = &cobra.Command{
 }
 
 func init() {
-	OssCmd.AddCommand(uploadStateCmd) // Make sure OssCmd is your defined root or subgroup command
+	OssCmd.AddCommand(UploadStateCmd) // Make sure OssCmd is your defined root or subgroup command
 }
 
 type TerraformState struct {

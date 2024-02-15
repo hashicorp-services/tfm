@@ -17,7 +17,7 @@ import (
 var (
 
 	// `tfm oss getstate` command
-	getstateCmd = &cobra.Command{
+	GetStateCmd = &cobra.Command{
 		Use:   "getstate",
 		Short: "Initialize and get state from terraform VCS repos.",
 		Long:  "Initialize and get state from terraform VCS repos cloned by tfm.",
@@ -33,10 +33,10 @@ var (
 
 func init() {
 
-	getstateCmd.Flags().SetInterspersed(false)
+	GetStateCmd.Flags().SetInterspersed(false)
 
 	// Add commands
-	OssCmd.AddCommand(getstateCmd)
+	OssCmd.AddCommand(GetStateCmd)
 }
 
 func runTerraformInit(dirPath string) error {
@@ -63,14 +63,14 @@ func initializeRepos() error {
 	var initCount int
 
 	// Read directories directly under clonePath
-	dirs, err := os.ReadDir(clonePath) // Using os.ReadDir, which is the recommended way since Go 1.16
+	dirs, err := os.ReadDir(clonePath)
 	if err != nil {
 		return fmt.Errorf("error reading directories: %v", err)
 	}
 
 	for _, dir := range dirs {
 		if !dir.IsDir() {
-			continue // Skip files, process only directories
+			continue
 		}
 		repoPath := filepath.Join(clonePath, dir.Name())
 
@@ -78,13 +78,13 @@ func initializeRepos() error {
 		hasTfFiles, err := filepath.Glob(filepath.Join(repoPath, "*.tf"))
 		if err != nil {
 			fmt.Printf("Error checking .tf files in %s: %v\n", repoPath, err)
-			continue // Proceed to next directory on error
+			continue
 		}
 		if len(hasTfFiles) > 0 {
 			fmt.Printf("Initializing Terraform in: %s\n", repoPath)
 			if err := runTerraformInit(repoPath); err != nil {
 				fmt.Printf("Failed to initialize Terraform in %s: %v\n", repoPath, err)
-				continue // Proceed to next directory on error
+				continue
 			}
 			initCount++
 
@@ -92,10 +92,9 @@ func initializeRepos() error {
 			pulledStatePath := filepath.Join(repoPath, ".terraform/pulled_terraform.tfstate")
 			if err := pullTerraformState(repoPath, pulledStatePath); err != nil {
 				fmt.Printf("Failed to pull Terraform state in %s: %v\n", repoPath, err)
-				continue // Proceed to next directory despite the error
+				continue
 			}
 
-			// Here you can add additional processing for the pulled state file as needed
 		}
 	}
 

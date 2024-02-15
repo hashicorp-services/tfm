@@ -20,7 +20,7 @@ var (
 	o output.Output
 
 	// `tfm oss clone` command
-	cloneCmd = &cobra.Command{
+	CloneCmd = &cobra.Command{
 		Use:   "clone",
 		Short: "Clone VCS repositories containing terraform code.",
 		Long:  "clone VCS repositories containing terraform code. These will be iterated upon by tfm to download state files, read them, and push them to workspaces.",
@@ -37,10 +37,10 @@ var (
 
 func init() {
 
-	cloneCmd.Flags().SetInterspersed(false)
+	CloneCmd.Flags().SetInterspersed(false)
 
 	// Add commands
-	OssCmd.AddCommand(cloneCmd)
+	OssCmd.AddCommand(CloneCmd)
 }
 
 // // listRepos lists all repositories for the configured organization or user.

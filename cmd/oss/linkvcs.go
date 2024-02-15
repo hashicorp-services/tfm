@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var linkVCSCmd = &cobra.Command{
+var LinkVCSCmd = &cobra.Command{
 	Use:   "link-vcs",
 	Short: "Link repos to TFE workspaces via VCS",
 	Long:  `Iterates over cloned repositories containing .terraform/terraform.tfstate files, finds the corresponding TFE workspace, and links it to the GitHub repository.`,
@@ -23,15 +23,15 @@ var linkVCSCmd = &cobra.Command{
 		if clonePath == "" {
 			clonePath = "test" // Default path if not specified
 		}
-		return linkVCS(tfclient.GetClientContexts(), clonePath)
+		return LinkVCS(tfclient.GetClientContexts(), clonePath)
 	},
 }
 
 func init() {
-	OssCmd.AddCommand(linkVCSCmd) // Make sure OssCmd is your defined root or subgroup command
+	OssCmd.AddCommand(LinkVCSCmd) // Make sure OssCmd is your defined root or subgroup command
 }
 
-func linkVCS(c tfclient.ClientContexts, clonePath string) error {
+func LinkVCS(c tfclient.ClientContexts, clonePath string) error {
 	vcsProviderID := viper.GetString("vcs_provider_id")
 	githubOrganization := viper.GetString("github_organization")
 

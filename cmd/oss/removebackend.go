@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var removeBackendCmd = &cobra.Command{
+var RemoveBackendCmd = &cobra.Command{
 	Use:   "remove-backend",
 	Short: "Remove Terraform backend configurations",
 	Long:  `Searches through .tf files in the root of cloned repositories to remove backend configurations and commit them back on a new branch.`,
@@ -59,7 +59,7 @@ var removeBackendCmd = &cobra.Command{
 }
 
 func init() {
-	OssCmd.AddCommand(removeBackendCmd)
+	OssCmd.AddCommand(RemoveBackendCmd)
 }
 
 // detectBackendBlocks checks if there's a backend block in any .tf file within the repo.
