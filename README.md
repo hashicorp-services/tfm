@@ -28,11 +28,13 @@ Binaries are created as part of a release, check out the [Release Page](https://
 
 The following prerequisites are used when migrating from or to TFE or TFC from TFE or TFC.
 
-## Config File
+- A tfm config file
+- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating from
+- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating to
 
-`tfm` utilizes a config file OR environment variables.
+## Config File - TFE to TFC, TFC to TFE, or TFC to TFC Migrations
 
-An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
+`tfm` utilizes a config file OR environment variables. An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
 
 > [!NOTE]
 > Use the `tfm generate config` command to generate a sample configuration for quick editing.
@@ -48,7 +50,7 @@ dst_tfc_token="<user token from destination TFE/TFC with owner permissions>"
 dst_tfc_project_id="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
-## Environment Variables
+## Environment Variables - TFE to TFC, TFC to TFE, or TFC to TFC Migrations
 
 If no config file is found, the following environment variables can be set or used to override existing config file values.
 
@@ -127,7 +129,7 @@ vcs-map=[
 ]
 ```
 
-## Rename Workspaces in destination during a copy
+## Rename Workspaces in Destination During a Copy
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name.
 *NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names.*
@@ -171,11 +173,13 @@ ssh-map=[
 ]
 ```
 
-## Delete
+## Additional Commands
+
+### Delete
 
 This command can be used to delete a resource in either the source or destination side. Today there are two resources that can be deleted
 
-### workspace
+### Workspace
 
 A  workspace can be deleted by the ID or name. This does not look for the hidden tfm source on workspaces that have been created by tfm, so this will let you delete any workspace.
 Note: This command will ask for confirmation, however this is a destructive operation and the workspace can not be recovered.
@@ -185,13 +189,70 @@ Note: This command will ask for confirmation, however this is a destructive oper
 This command will look at the `.tfm` configuration for the workspaces on the source that should have their VCS connection removed. This would be utilized after a migration can been completed, and the existing VCS connections on the source should be removed from the workspaces, so runs are no longer triggered by VCS
 Note: This command will ask for confirmation. The source workspaces will not be deleted, only their VCS connection, which can be added back manually if needed.
 
-## Nuke
+### Nuke
 
 If workspaces that have been created in the destination organization need to be destroyed, `tfm nuke workspace` can be used to remove all workspaces that tfm created. This is done by listing all workspaces in the destination organization and checking if the `SourceName` is set to `tfm`. This command will prompt for confirmation. If Confirmed tfm will delete the workspaces. This is a destructive operation and the workspaces can not be recovered.
 
-## Lock & Unlock
+### Lock & Unlock
 
 The `tfm lock workspaces` & `tfm unlock workspaces` commands can be used to lock and unlock a workspace in either the source or destination as needed. This will use the workspaces as configured in the `tfm` config file and either lock them or unlock them. If a workspace is already locked it will skip trying to lock the workspace, and same for the unlock command. It will default to the source side, however with `--side destination` it will lock or unlock the destination side.
+
+## Pre-Requisites - Terraform Open Source / Community Edition to TFC/TFE
+
+The following prerequisites are used when migrating from terraform community edition (also known as open source) to TFC/TFE managed workspaces.
+
+- Terraform - Must be installed in the execution environment and avaible in the path
+- A configuration file
+- A terraform cloud or enterprise token with the permissions to create worksapces in an organization
+- A Github token with the permissions to read repositories containing terraform code to be migrated
+
+## Config File - Terraform Open Source / Community Edition to TFC/TFE
+
+`tfm` utilizes a config file OR environment variables. An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
+
+> [!NOTE]
+> Use the `tfm generate config` command to generate a sample configuration for quick editing.
+
+```
+dst_tfc_hostname="app.terraform.io for TFC or the hostname of your TFE application"
+dst_tfc_org="A TFE/TFC organization to create workspaces in"
+dst_tfc_token="A TFC/TFE Token with the permissions to create workspaces in the TFC/TFE organization"
+github_token = "A Github token with the permissions to read terraform code repositories you wish to migrate"
+github_organization = "The github organization containing terrafor code repositories"
+github_username = "A github username"
+github_clone_repos_path = "/path/on/local/system/to/clone/repos/to"
+```
+
+Additional configurations can be provided to assist in the community edition to TFC/TFE migration:
+
+```
+commit_message = "A commit message the tfm core remove-backend command uses when removing backend blocks from .tf files and commiting the changes back"
+commit_author_name = "the name that will appear as the commit author"
+commit_author_email = "the email that will appear for the commit author"
+vcs_provider_id = "An Oauth ID of a VCS provider connection configured in TFC/TFE"
+
+# A list of VCS repositories containing terraform code. TFM will clone each repo during the tfm core clone command for migrating opensource/commmunity edition terraform managed code to TFE/TFC.
+
+Organization.
+repos_to_clone =  [
+ "repo1",
+ "repo2",
+ "repo3"
+]
+```
+## Environment Variables - Terraform Open Source / Community Edition to TFC/TFE
+
+If no config file is found, the following environment variables can be set or used to override existing config file values.
+
+```bash
+export dst_tfc_hostname="app.terraform.io for TFC or the hostname of your TFE application"
+export dst_tfc_org="A TFE/TFC organization to create workspaces in"
+export dst_tfc_token="A TFC/TFE Token with the permissions to create workspaces in the TFC/TFE organization"
+export github_token = "A Github token with the permissions to read terraform code repositories you wish to migrate"
+export github_organization = "The github organization containing terrafor code repositories"
+export github_username = "A github username"
+export github_clone_repos_path = "/path/on/local/system/to/clone/repos/to"
+```
 
 ## tfm in a Pipeline
 
@@ -204,7 +265,8 @@ The `tfm lock workspaces` & `tfm unlock workspaces` commands can be used to lock
   - `delete workspace`
   - `delete workspaces-vcs`
   - `nuke`
-  
+
+
 ## Architectural Decisions Record (ADR)
 
 An architecture decision record (ADR) is a document that captures an important architecture decision made along with its context and consequences.
