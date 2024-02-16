@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"fmt"
@@ -39,7 +39,7 @@ var cleanupCmd = &cobra.Command{
 }
 
 func init() {
-	OssCmd.AddCommand(cleanupCmd)
+	coreCmd.AddCommand(cleanupCmd)
 	cleanupCmd.Flags().BoolVar(&autoApprove, "autoapprove", false, "Automatically approve the operation without a confirmation prompt")
 }
 

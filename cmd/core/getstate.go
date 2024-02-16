@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 
 var (
 
-	// `tfm oss getstate` command
+	// `tfm core getstate` command
 	GetStateCmd = &cobra.Command{
 		Use:   "getstate",
 		Short: "Initialize and get state from terraform VCS repos.",
@@ -36,7 +36,7 @@ func init() {
 	GetStateCmd.Flags().SetInterspersed(false)
 
 	// Add commands
-	OssCmd.AddCommand(GetStateCmd)
+	coreCmd.AddCommand(GetStateCmd)
 }
 
 func runTerraformInit(dirPath string) error {

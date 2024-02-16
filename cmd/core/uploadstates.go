@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"crypto/md5"
@@ -32,7 +32,7 @@ var UploadStateCmd = &cobra.Command{
 }
 
 func init() {
-	OssCmd.AddCommand(UploadStateCmd) // Make sure OssCmd is your defined root or subgroup command
+	coreCmd.AddCommand(UploadStateCmd) // Make sure coreCmd is your defined root or subgroup command
 }
 
 type TerraformState struct {

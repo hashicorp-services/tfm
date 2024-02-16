@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"fmt"
@@ -59,7 +59,7 @@ var RemoveBackendCmd = &cobra.Command{
 }
 
 func init() {
-	OssCmd.AddCommand(RemoveBackendCmd)
+	coreCmd.AddCommand(RemoveBackendCmd)
 }
 
 // detectBackendBlocks checks if there's a backend block in any .tf file within the repo.

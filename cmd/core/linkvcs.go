@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ var LinkVCSCmd = &cobra.Command{
 }
 
 func init() {
-	OssCmd.AddCommand(LinkVCSCmd) // Make sure OssCmd is your defined root or subgroup command
+	coreCmd.AddCommand(LinkVCSCmd) // Make sure coreCmd is your defined root or subgroup command
 }
 
 func LinkVCS(c tfclient.ClientContexts, clonePath string) error {

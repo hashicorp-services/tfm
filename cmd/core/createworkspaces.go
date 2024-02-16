@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Assuming OssCmd is your root or relevant subcommand group
+// Assuming coreCmd is your root or relevant subcommand group
 var CreateWorkspacesCmd = &cobra.Command{
 	Use:   "create-workspaces",
 	Short: "Create TFE workspaces for each cloned Terraform repo",
@@ -27,7 +27,7 @@ var CreateWorkspacesCmd = &cobra.Command{
 }
 
 func init() {
-	OssCmd.AddCommand(CreateWorkspacesCmd)
+	coreCmd.AddCommand(CreateWorkspacesCmd)
 }
 
 // createWorkspaces iterates over directories in clonePath and creates TFE workspaces.

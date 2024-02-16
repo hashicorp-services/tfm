@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ import (
 var (
 	o output.Output
 
-	// `tfm oss clone` command
+	// `tfm core clone` command
 	CloneCmd = &cobra.Command{
 		Use:   "clone",
 		Short: "Clone VCS repositories containing terraform code.",
@@ -40,7 +40,7 @@ func init() {
 	CloneCmd.Flags().SetInterspersed(false)
 
 	// Add commands
-	OssCmd.AddCommand(CloneCmd)
+	coreCmd.AddCommand(CloneCmd)
 }
 
 // // listRepos lists all repositories for the configured organization or user.

@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package oss
+package core
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ var migrateCmd = &cobra.Command{
 	Use:   "migrate",
 	Short: "Migrates opensource/community edition Terraform code and state to TFE/TFC.",
 	Long: `Executes a sequence of commands to clone repositories, get state, create workspaces, 
-upload state, link VCS, and optionally remove backend configurations as part of the OSS migration process.`,
+upload state, link VCS, and optionally remove backend configurations as part of the core migration process.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Validate included commands before executing the migration process
 		for _, includeCmd := range includeCommands {
@@ -63,6 +63,6 @@ upload state, link VCS, and optionally remove backend configurations as part of 
 }
 
 func init() {
-	OssCmd.AddCommand(migrateCmd)
+	coreCmd.AddCommand(migrateCmd)
 	migrateCmd.Flags().StringSliceVar(&includeCommands, "include", nil, "Specify additional commands to include in the migration process (e.g., --include remove-backend)")
 }

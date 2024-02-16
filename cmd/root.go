@@ -25,13 +25,13 @@ import (
 	"log"
 
 	"github.com/hashicorp-services/tfm/cmd/copy"
+	"github.com/hashicorp-services/tfm/cmd/core"
 	"github.com/hashicorp-services/tfm/cmd/delete"
 	"github.com/hashicorp-services/tfm/cmd/generate"
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/cmd/list"
 	"github.com/hashicorp-services/tfm/cmd/lock"
 	"github.com/hashicorp-services/tfm/cmd/nuke"
-	"github.com/hashicorp-services/tfm/cmd/oss"
 	"github.com/hashicorp-services/tfm/cmd/unlock"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/version"
@@ -118,7 +118,7 @@ func init() {
 	RootCmd.AddCommand(generate.GenerateCmd)
 	RootCmd.AddCommand(lock.LockCmd)
 	RootCmd.AddCommand(unlock.UnlockCmd)
-	RootCmd.AddCommand(oss.OssCmd)
+	RootCmd.AddCommand(core.CoreCmd)
 	// Turn off completion option
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
