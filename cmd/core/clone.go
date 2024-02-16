@@ -40,7 +40,7 @@ func init() {
 	CloneCmd.Flags().SetInterspersed(false)
 
 	// Add commands
-	coreCmd.AddCommand(CloneCmd)
+	CoreCmd.AddCommand(CloneCmd)
 }
 
 // // listRepos lists all repositories for the configured organization or user.

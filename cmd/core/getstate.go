@@ -36,7 +36,7 @@ func init() {
 	GetStateCmd.Flags().SetInterspersed(false)
 
 	// Add commands
-	coreCmd.AddCommand(GetStateCmd)
+	CoreCmd.AddCommand(GetStateCmd)
 }
 
 func runTerraformInit(dirPath string) error {

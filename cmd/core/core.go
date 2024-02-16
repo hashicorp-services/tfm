@@ -8,7 +8,7 @@ import (
 )
 
 // `tfm core` commands
-var coreCmd = &cobra.Command{
+var CoreCmd = &cobra.Command{
 	Use:   "core",
 	Short: "Command used to perform terraform open source (core) to TFE/TFC migration commands",
 	Long:  "Command used to perform terraform open source (core) to TFE/TFC migration commands",

@@ -39,7 +39,7 @@ var cleanupCmd = &cobra.Command{
 }
 
 func init() {
-	coreCmd.AddCommand(cleanupCmd)
+	CoreCmd.AddCommand(cleanupCmd)
 	cleanupCmd.Flags().BoolVar(&autoApprove, "autoapprove", false, "Automatically approve the operation without a confirmation prompt")
 }
 

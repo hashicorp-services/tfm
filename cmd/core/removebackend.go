@@ -59,7 +59,7 @@ var RemoveBackendCmd = &cobra.Command{
 }
 
 func init() {
-	coreCmd.AddCommand(RemoveBackendCmd)
+	CoreCmd.AddCommand(RemoveBackendCmd)
 }
 
 // detectBackendBlocks checks if there's a backend block in any .tf file within the repo.

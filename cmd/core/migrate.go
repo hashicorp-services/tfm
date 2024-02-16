@@ -63,6 +63,6 @@ upload state, link VCS, and optionally remove backend configurations as part of 
 }
 
 func init() {
-	coreCmd.AddCommand(migrateCmd)
+	CoreCmd.AddCommand(migrateCmd)
 	migrateCmd.Flags().StringSliceVar(&includeCommands, "include", nil, "Specify additional commands to include in the migration process (e.g., --include remove-backend)")
 }

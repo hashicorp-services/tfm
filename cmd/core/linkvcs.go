@@ -28,7 +28,7 @@ var LinkVCSCmd = &cobra.Command{
 }
 
 func init() {
-	coreCmd.AddCommand(LinkVCSCmd) // Make sure coreCmd is your defined root or subgroup command
+	CoreCmd.AddCommand(LinkVCSCmd) // Make sure coreCmd is your defined root or subgroup command
 }
 
 func LinkVCS(c tfclient.ClientContexts, clonePath string) error {

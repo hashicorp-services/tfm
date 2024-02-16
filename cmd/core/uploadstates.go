@@ -32,7 +32,7 @@ var UploadStateCmd = &cobra.Command{
 }
 
 func init() {
-	coreCmd.AddCommand(UploadStateCmd) // Make sure coreCmd is your defined root or subgroup command
+	CoreCmd.AddCommand(UploadStateCmd) // Make sure coreCmd is your defined root or subgroup command
 }
 
 type TerraformState struct {
