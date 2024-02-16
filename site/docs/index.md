@@ -3,7 +3,7 @@
 ![TFM](./images/TFM-black.png)
 
 !!! warning ""
-    Note: This CLI is in beta release and currently does not have official support! 
+    Note: This CLI currently does not have official support! 
 
     TFM is currently being developed and tested by interested parties.
     
@@ -14,11 +14,11 @@
 
    
 
-_tfm_ is a standalone CLI for Terraform Cloud and Terraform Enterprise migrations.
+_tfm_ is a standalone CLI for Terraform Community Edition, Terraform Cloud, Terraform Enterprise migrations.
 
-HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
+HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements, customers, and partners during migrations.
 
-This tool has been developed to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows HashiCorp and the customer the ability to standardize the migration process.
+This tool has been developed to assist HashiCorp Implementation Services and customer engagements during an migration of Terraform community edition configurations to TFC/TFE, TFE to TFC(or another TFE), or 1 TFC org to another TFC org. Having a tool allows HashiCorp and the customer the ability to standardize the migration process and reduce the time required to migrate at scale.
 
 
 

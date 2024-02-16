@@ -47,8 +47,6 @@ var (
 	cfgFile string
 	o       *output.Output
 	jsonOut bool
-	// autoapprove bool
-	//side    string
 
 	// Required to leverage viper defaults for optional Flags
 	bindPFlags = func(cmd *cobra.Command, args []string) {
@@ -62,7 +60,7 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:              "tfm",
-	Short:            "A CLI to assist with TFE Migration.",
+	Short:            "A CLI to assist with Terraform community edition, Terraform Cloud, and Terraform Enterprise migrations.",
 	SilenceUsage:     true,
 	SilenceErrors:    true,
 	Version:          version.String(),
@@ -73,7 +71,7 @@ var RootCmd = &cobra.Command{
 var copyCmd = &cobra.Command{
 	Use:   "copy",
 	Short: "Copy command",
-	Long:  "Copy objects from source org to destination org",
+	Long:  "Copy objects from source TFC/TFE org to destination TFC/TFE org",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -94,21 +92,6 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ~/.tfm.hcl).")
 	RootCmd.PersistentFlags().BoolP("autoapprove", "", false, "Auto approve the tfm run. --autoapprove=true . false by default")
 	RootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "Print the output in JSON format")
-
-	// RootCmd.PersistentFlags().StringVar(&side, "side", "", "Specify source or destination side to process")
-	// rootCmd.PersistentFlags().String("source-hostname", "", "The source hostname. Can also be set with the environment variable SOURCE_HOSTNAME.")
-	// rootCmd.PersistentFlags().String("source-organization", "", "The source Organization. Can also be set with the environment variable SOURCE_ORGANIZATION.")
-	// rootCmd.PersistentFlags().String("source-token", "", "The source API token used to authenticate. Can also be set with the environment variable SOURCE_TOKEN.")
-
-	// // required
-	// rootCmd.MarkPersistentFlagRequired("source-hostname")
-	// rootCmd.MarkPersistentFlagRequired("source-organization")
-	// rootCmd.MarkPersistentFlagRequired("source-token")
-
-	// // ENV aliases
-	// viper.BindEnv("source-hostname", "SOURCE_HOSTNAME")
-	// viper.BindEnv("source-organization", "SOURCE_ORGANIZATION")
-	// viper.BindEnv("source-token", "SOURCE_TOKEN")
 
 	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
