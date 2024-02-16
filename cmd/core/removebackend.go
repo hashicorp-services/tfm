@@ -22,10 +22,30 @@ import (
 )
 
 var RemoveBackendCmd = &cobra.Command{
+
 	Use:   "remove-backend",
 	Short: "Create a branch, remove Terraform backend configurations from cloned repos in github_clone_repos_path, commit the changes, and push to the origin.",
 	Long:  `Searches through .tf files in the root of cloned repositories to remove backend configurations and commit them back on a new branch.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Check for auto-approval
+		if !autoApprove {
+			promptMessage := `
+This command will perform the following actions in each cloned repository specified in the 'github_clone_repos_path':
+	1. Create a new branch named 'update-backend-<today's date>'.
+	2. Search for and remove the 'backend {}' block within the 'terraform {}' block in all .tf files.
+	3. Commit the changes with a message indicating the removal of the backend configuration.
+	4. Push the new branch to the origin repository.
+			
+	Are you sure you want to proceed? Type 'yes' to continue: `
+			o.AddPassUserProvided(promptMessage)
+			var response string
+			_, err := fmt.Scanln(&response)
+			if err != nil || response != "yes" {
+				fmt.Println("Operation aborted by the user.")
+				return nil // Exit if the user does not confirm
+			}
+		}
+
 		clonePath := viper.GetString("github_clone_repos_path")
 		branchName := "update-backend-" + time.Now().Format("20060102")
 
@@ -60,6 +80,7 @@ var RemoveBackendCmd = &cobra.Command{
 
 func init() {
 	CoreCmd.AddCommand(RemoveBackendCmd)
+	RemoveBackendCmd.Flags().BoolVar(&autoApprove, "autoapprove", false, "Automatically approve the operation without a confirmation prompt")
 }
 
 // detectBackendBlocks checks if there's a backend block in any .tf file within the repo.

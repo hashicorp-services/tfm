@@ -52,6 +52,7 @@ upload state, link VCS, and optionally remove backend configurations as part of 
 		for _, includeCmd := range includeCommands {
 			switch includeCmd {
 			case "remove-backend":
+				RemoveBackendCmd.Flags().Set("autoapprove", "true")
 				if err := RemoveBackendCmd.RunE(cmd, []string{}); err != nil {
 					return err
 				}

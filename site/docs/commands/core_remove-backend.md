@@ -13,3 +13,7 @@ commit_message = "commitm message"
 commit_author_name = "name"
 commit_author_email = "email"
 ```
+
+# Flags 
+
+`--autoapprove` Automatically approve the operation without a confirmation prompt.

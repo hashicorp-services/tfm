@@ -12,8 +12,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var autoApprove bool
-
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup",
 	Short: "Removes up all cloned repositories from the github_repos_clone_path.",

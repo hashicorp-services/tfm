@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var autoApprove bool
+
 // `tfm core` commands
 var CoreCmd = &cobra.Command{
 	Use:   "core",
