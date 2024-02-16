@@ -18,7 +18,7 @@ var validIncludeCommands = map[string]bool{
 
 var migrateCmd = &cobra.Command{
 	Use:   "migrate",
-	Short: "Migrates opensource/community edition Terraform code and state to TFE/TFC.",
+	Short: "Migrates opensource/community edition Terraform code and state to TFE/TFC in 1 continuous workflow.",
 	Long: `Executes a sequence of commands to clone repositories, get state, create workspaces, 
 upload state, link VCS, and optionally remove backend configurations as part of the core migration process.`,
 	RunE: func(cmd *cobra.Command, args []string) error {

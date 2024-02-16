@@ -23,7 +23,7 @@ import (
 
 var RemoveBackendCmd = &cobra.Command{
 	Use:   "remove-backend",
-	Short: "Remove Terraform backend configurations",
+	Short: "Create a branch, remove Terraform backend configurations from cloned repos in github_clone_repos_path, commit the changes, and push to the origin.",
 	Long:  `Searches through .tf files in the root of cloned repositories to remove backend configurations and commit them back on a new branch.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		clonePath := viper.GetString("github_clone_repos_path")

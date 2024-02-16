@@ -19,8 +19,8 @@ var (
 	// `tfm core getstate` command
 	GetStateCmd = &cobra.Command{
 		Use:   "getstate",
-		Short: "Initialize and get state from terraform VCS repos.",
-		Long:  "Initialize and get state from terraform VCS repos cloned by tfm.",
+		Short: "Initialize and get state from terraform repos in the github_clone_repos_path.",
+		Long:  "Initialize and get state from terraform repos in the github_clone_repos_path.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			return initializeRepos()

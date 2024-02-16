@@ -16,8 +16,8 @@ import (
 
 var LinkVCSCmd = &cobra.Command{
 	Use:   "link-vcs",
-	Short: "Link repos to TFE workspaces via VCS",
-	Long:  `Iterates over cloned repositories containing .terraform/terraform.tfstate files, finds the corresponding TFE workspace, and links it to the GitHub repository.`,
+	Short: "Link repos in the github_clone_repos_path to their corresponding workspaces in TFE/TFC.",
+	Long:  `Iterates over cloned repositories containing .terraform/pulled_terraform.tfstate files, finds the corresponding TFE/TFC workspace, and links it to the GitHub repository.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		clonePath := viper.GetString("github_clone_repos_path") // Ensure this is set
 		if clonePath == "" {

@@ -17,8 +17,8 @@ import (
 // Assuming coreCmd is your root or relevant subcommand group
 var CreateWorkspacesCmd = &cobra.Command{
 	Use:   "create-workspaces",
-	Short: "Create TFE workspaces for each cloned Terraform repo",
-	Long:  `Iterates over all directories in the specified clone path and creates a TFE workspace for each.`,
+	Short: "Create TFE/TFC workspaces for each cloned repo in the github_clone_repos_path that contains a pulled_terraform.tfstate file.",
+	Long:  `Create TFE/TFC workspaces for each cloned repo in the github_clone_repos_path that contains a pulled_terraform.tfstate file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		clonePath := viper.GetString("github_clone_repos_path")
 
@@ -27,7 +27,7 @@ var CreateWorkspacesCmd = &cobra.Command{
 }
 
 func init() {
-	coreCmd.AddCommand(CreateWorkspacesCmd)
+	CoreCmd.AddCommand(CreateWorkspacesCmd)
 }
 
 // createWorkspaces iterates over directories in clonePath and creates TFE workspaces.

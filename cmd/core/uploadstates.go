@@ -20,7 +20,7 @@ import (
 
 var UploadStateCmd = &cobra.Command{
 	Use:   "upload-state",
-	Short: "Upload pulled_terraform.tfstate files to TFE workspaces",
+	Short: "Upload .terraform/pulled_terraform.tfstate files from repos cloned into the github_clone_repos_path to TFE/TFC workspaces.",
 	Long: `Iterates over directories containing .terraform/pulled_terraform.tfstate files, 
            finds corresponding TFE workspaces, locks the workspace, uploads the state file, 
            and then unlocks the workspace.`,
