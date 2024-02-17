@@ -28,7 +28,7 @@ var LinkVCSCmd = &cobra.Command{
 }
 
 func init() {
-	CoreCmd.AddCommand(LinkVCSCmd) // Make sure coreCmd is your defined root or subgroup command
+	CoreCmd.AddCommand(LinkVCSCmd)
 }
 
 func LinkVCS(c tfclient.DestinationContexts, clonePath string) error {
@@ -46,7 +46,7 @@ func LinkVCS(c tfclient.DestinationContexts, clonePath string) error {
 			return err
 		}
 		if info.IsDir() && path != clonePath {
-			tfstatePath := filepath.Join(path, ".terraform", "terraform.tfstate")
+			tfstatePath := filepath.Join(path, ".terraform", "pulled_terraform.tfstate")
 			if _, err := os.Stat(tfstatePath); err != nil {
 				return nil
 			}
