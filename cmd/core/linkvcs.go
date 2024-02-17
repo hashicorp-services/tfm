@@ -23,7 +23,7 @@ var LinkVCSCmd = &cobra.Command{
 		if clonePath == "" {
 			clonePath = "test" // Default path if not specified
 		}
-		return LinkVCS(tfclient.GetClientContexts(), clonePath)
+		return LinkVCS(tfclient.GetDestinationClientContexts(), clonePath)
 	},
 }
 
@@ -31,7 +31,7 @@ func init() {
 	CoreCmd.AddCommand(LinkVCSCmd) // Make sure coreCmd is your defined root or subgroup command
 }
 
-func LinkVCS(c tfclient.ClientContexts, clonePath string) error {
+func LinkVCS(c tfclient.DestinationContexts, clonePath string) error {
 	vcsProviderID := viper.GetString("vcs_provider_id")
 	githubOrganization := viper.GetString("github_organization")
 

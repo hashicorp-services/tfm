@@ -22,7 +22,7 @@ var CreateWorkspacesCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		clonePath := viper.GetString("github_clone_repos_path")
 
-		return CreateWorkspaces(tfclient.GetClientContexts(), clonePath)
+		return CreateWorkspaces(tfclient.GetDestinationClientContexts(), clonePath)
 	},
 }
 
@@ -31,7 +31,7 @@ func init() {
 }
 
 // createWorkspaces iterates over directories in clonePath and creates TFE workspaces.
-func CreateWorkspaces(c tfclient.ClientContexts, clonePath string) error {
+func CreateWorkspaces(c tfclient.DestinationContexts, clonePath string) error {
 	if c.DestinationOrganizationName == "" || c.DestinationHostname == "" || c.DestinationToken == "" {
 		return fmt.Errorf("Destination TFC/TFE Organization, hostname, or token not configued.")
 	}

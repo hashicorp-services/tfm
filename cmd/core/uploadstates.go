@@ -27,7 +27,7 @@ var UploadStateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		clonePath := viper.GetString("github_clone_repos_path") // Ensure this is set
 
-		return uploadStateFiles(tfclient.GetClientContexts(), clonePath)
+		return uploadStateFiles(tfclient.GetDestinationClientContexts(), clonePath)
 	},
 }
 
@@ -39,7 +39,7 @@ type TerraformState struct {
 	Lineage string `json:"lineage"`
 }
 
-func uploadStateFiles(c tfclient.ClientContexts, clonePath string) error {
+func uploadStateFiles(c tfclient.DestinationContexts, clonePath string) error {
 	if c.DestinationOrganizationName == "" || c.DestinationHostname == "" || c.DestinationToken == "" {
 		return fmt.Errorf("Destination TFC/TFE Organization, hostname, or token not configued.")
 	}
