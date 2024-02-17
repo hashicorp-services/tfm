@@ -42,8 +42,8 @@ The following is what a `~/.tfm.hcl` file will look like for `tfm core` commands
 ```hcl
 dst_tfc_hostname="app.terraform.io"
 dst_tfc_org="organization"
-dst_tfc_token="token"
-github_token = "token"
+dst_tfc_token="token with permissions to create workspaces"
+github_token = "token with read permissions to cloned repos"
 github_organization = "organization"
 github_username = "username"
 github_clone_repos_path = "/opt/tfm-migration/repos"

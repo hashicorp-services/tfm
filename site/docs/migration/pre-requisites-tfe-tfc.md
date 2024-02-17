@@ -2,6 +2,7 @@
 
 ## The following pre-reqs should be completed in the destination TFC/TFE before using tfm:
 
+- A TFC/TFE Token with owner permissions is required
 - Existing Workspaces should have a recent clean TF Plan/Apply
 - VCS provisioned
     - VCS Map provided as configuration file

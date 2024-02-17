@@ -97,8 +97,8 @@ Use "tfm [command] --help" for more information about a command.
 The following prerequisites are used when migrating from or to TFE or TFC from TFE or TFC.
 
 - A tfm config file
-- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating from
-- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating to
+- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating from. Must have owner permissions.
+- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating to. Must have owner permissions.
 
 ### Environment Variables 
 
@@ -121,7 +121,7 @@ A HCL file with the following as the minimum located at `/home/user/.tfm.hcl` or
 > [!NOTE]
 > Use the `tfm generate config` command to generate a sample configuration for quick editing.
 
-```terraform
+```hcl
 src_tfe_hostname="tf.local.com"
 src_tfe_org="companyxyz"
 src_tfe_token="<user token from source TFE/TFC with owner permissions>"
