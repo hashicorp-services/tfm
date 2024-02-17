@@ -21,7 +21,7 @@
 package version
 
 var (
-	Version    = "0.6.0"
+	Version    = "0.7.0"
 	Prerelease = ""
 	Build      = ""
 	Date       = ""
