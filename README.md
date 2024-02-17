@@ -9,7 +9,7 @@ HashiCorp Implementation Services (IS) has identified a need to develop a purpos
 - TFC to TFE
 - 1 TFC Organization to another TFC Organization
 
-> **Warning**
+> [!Warning]
 > This CLI does not have official support, but the code owners will work with partners and interested parties to provide assitance when possible.
 > Check out our [case studies](https://hashicorp-services.github.io/tfm/migration/case-studies/). 
 

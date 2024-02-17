@@ -1,5 +1,7 @@
 # tfm core remove-backend
 
+Using this feature requires the GitHub token defined in the configuration file to have write permissions to the contents of the repository.
+
 `tfm core remove-backend` is used to assist in removing the `backend{}` configuration block from the `terraform{}` block in terraform configurations that have been migrated.
 
 tfm will iterate through all cloned repositories in the `github_clone_repos_path`. tfm will only look in the root of each repository. tfm will examine all files ending in a `.tf` extension and remove any instances of a `backend{}` configuration. 
