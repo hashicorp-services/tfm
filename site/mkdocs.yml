@@ -52,7 +52,9 @@ nav:
     - Pre-requisites TFE to TFC: migration/pre-requisites-tfe-tfc.md
     - Pre-requisites Community Edition to TFC: migration/pre-requisites-ce-tfc.md
     - Example Scenario TFE to TFC: migration/example-scenario-tfe-tfc.md
+    - Example Scenario Community Edition to TFC: migration/example-scenario-ce-tfc.md
     - Pre-Migration Questionaire TFE to TFC: migration/pre-migration-tfe-tfc.md
+    - Pre-Migration Questionaire Community Edition to TFC: migration/pre-migration-ce-tfc.md
     - Case Studies: migration/case-studies.md
   - Commands:
     - Core:
