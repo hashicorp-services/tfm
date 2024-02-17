@@ -65,7 +65,7 @@ jobs:
             ./pkg/tfm-linux-amd64
             ./pkg/tfm-windows-amd64.exe
         env:
-          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
       # - name: Release
       #   uses: softprops/action-gh-release@v1
