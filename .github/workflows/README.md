@@ -20,6 +20,7 @@ Information about the e2e workflow in the event the maintainer needs to issue ne
 - A team exists within the TFC organization `tfm-testing-source` named `owners`. Generate an API Token for this team.
 - A team exists within the TFC organization `tfm-testing-destination` named `owners`. Generate an API Token for this team.
 - A module is being sourced from `app.terraform.io/tfm-testing-source/workspacer-tfm/tfe`
+- `svc-tfm` has permissions to the repositories `tfm-oss-migration-rivendell`, `tfm-oss-migration-mordor2`, and `tfm-oss-migration-isengard` because these repos contain configurations using an s3 backend to store state for testing.
 
 ### API Tokens
 
@@ -35,6 +36,7 @@ Information about the e2e workflow in the event the maintainer needs to issue ne
 - Update the `tfm` repo github actions secret `GHTOKEN` with a GitHub token. This token is used to clone repos to the GitHub actions pipeline for testing.
   - - The `GHTOKEN` needs to be issued by the `svc-tfm` gtihub service account with read-write contents permissions to the repositories being cloned.
 - TO DO - FIGURE OUT HOW TO AUTH THE AN AWS ACCOUNT WITH GITHUB REPO STATE FILES STORED IN S3 BACKEND.
+
 ### Whats Happening
 
 1. The e2e workflow checks out the code in the `.github/workflows/terraform/tfe` folder and runs a CLI-driven run against the `gh-actions-ci-master-workspace` workspace within the TFC organization `tfm-testing-source`.
