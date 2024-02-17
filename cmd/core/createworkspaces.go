@@ -32,6 +32,9 @@ func init() {
 
 // createWorkspaces iterates over directories in clonePath and creates TFE workspaces.
 func CreateWorkspaces(c tfclient.ClientContexts, clonePath string) error {
+	if c.DestinationOrganizationName == "" || c.DestinationHostname == "" || c.DestinationToken == "" {
+		return fmt.Errorf("Destination TFC/TFE Organization, hostname, or token not configued.")
+	}
 
 	dirs, err := os.ReadDir(clonePath)
 	if err != nil {

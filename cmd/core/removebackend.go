@@ -173,7 +173,7 @@ func createBranchIfNeeded(clonePath, branchName string) ([]string, error) {
 
 			err = w.Checkout(&git.CheckoutOptions{
 				Branch: branchRefName,
-				Create: false, // Not creating a new branch here, just switching to it
+				Create: false,
 			})
 			if err != nil {
 				fmt.Printf("Failed to checkout branch '%s': %v\n", branchName, err)

@@ -35,8 +35,8 @@ func LinkVCS(c tfclient.ClientContexts, clonePath string) error {
 	vcsProviderID := viper.GetString("vcs_provider_id")
 	githubOrganization := viper.GetString("github_organization")
 
-	if c.DestinationOrganizationName == "" || vcsProviderID == "" {
-		return fmt.Errorf("TFE organization or VCS provider ID not specified in configuration")
+	if c.DestinationOrganizationName == "" || c.DestinationHostname == "" || c.DestinationToken == "" || vcsProviderID == "" {
+		return fmt.Errorf("Destination TFC/TFE Organization, hostname, token, or vcs_provider_id not configued.")
 	}
 
 	o.AddFormattedMessageCalculated3("Using VCS Provider %s in org %s\n", vcsProviderID, c.DestinationOrganizationName)

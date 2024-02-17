@@ -43,42 +43,12 @@ func init() {
 	CoreCmd.AddCommand(CloneCmd)
 }
 
-// // listRepos lists all repositories for the configured organization or user.
-// func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
-
-// 	// Get only the repos sepcified in the config file if  `repos_to_clone` is specified
-// 	reposList := viper.GetStringSlice("repos_to_clone")
-
-// 	if len(reposList) > 0 {
-// 		o.AddFormattedMessageCalculated("Found %d repos in `repos_to_clone` list", len(reposList))
-// 	}
-
-// 	o.AddFormattedMessageUserProvided("Getting list of Repositories from Github organization: \n", ctx.GithubOrganization)
-
-// 	var allRepos []*github.Repository
-// 	opt := &github.RepositoryListByOrgOptions{
-// 		ListOptions: github.ListOptions{PerPage: 10},
-// 	}
-
-// 	for {
-// 		repos, resp, err := ctx.GitHubClient.Repositories.ListByOrg(ctx.GithubContext, ctx.GithubOrganization, opt)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		allRepos = append(allRepos, repos...)
-// 		if resp.NextPage == 0 {
-// 			break
-// 		}
-// 		opt.Page = resp.NextPage
-// 	}
-
-// 	o.AddFormattedMessageCalculated("Found %d Repositories\n", len(allRepos))
-
-// 	return allRepos, nil
-// }
-
 func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
 	reposList := viper.GetStringSlice("repos_to_clone")
+
+	if ctx.GithubOrganization == "" || ctx.GithubToken == "" || ctx.GithubUsername == "" {
+		return nil, fmt.Errorf("github_organization, github_username, or github_token not provided")
+	}
 
 	var allRepos []*github.Repository
 	var filteredRepos []*github.Repository
@@ -113,6 +83,8 @@ func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
 				filteredRepos = append(filteredRepos, repo)
 			}
 		}
+
+		// If repos_to_clone list is empty then clone all repos in the github org
 	} else {
 		filteredRepos = allRepos
 
@@ -125,7 +97,7 @@ func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
 }
 
 // cloneRepos clones the repositories returned by listRepos.
-// It clones each repository into a subdirectory under the current working directory.
+// It clones each repository into a subdirectory under github_cloned_repos_path.
 func cloneRepos(ctx *githubclient.ClientContext, repos []*github.Repository) error {
 
 	for _, repo := range repos {

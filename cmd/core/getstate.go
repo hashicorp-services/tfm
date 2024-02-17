@@ -39,6 +39,7 @@ func init() {
 	CoreCmd.AddCommand(GetStateCmd)
 }
 
+// Runs terraform init. Terraform must be installed and in the path
 func runTerraformInit(dirPath string) error {
 	cmd := exec.Command("terraform", "init")
 	cmd.Dir = dirPath
@@ -47,6 +48,7 @@ func runTerraformInit(dirPath string) error {
 	return cmd.Run()
 }
 
+// Runs terraform state pull. Terraform must be installed and in the path
 func pullTerraformState(dirPath, outputPath string) error {
 	cmd := exec.Command("terraform", "state", "pull")
 	cmd.Dir = dirPath
