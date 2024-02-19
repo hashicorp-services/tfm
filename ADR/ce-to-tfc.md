@@ -125,10 +125,14 @@ Ideas:
 
 - How do you link workspaces to these state files? You can't. This requires an entire refactor of the terraform configuration repository to provide a separate working directory for each state.
 - How to help customers refactor repos quickly?
+- terraform init
 - terraform workspace list
 - terraform workspace select <workspace>
-- terraform init
-- terraform state pull
+- terraform state pull > workspace.tfstate
+- create workspace for each config path where use_workspaces: true
+  - workspace name = repo+configPath+workspace name
+  - upload state for each CE workspace to its corresponding TFC/TFE workspace
+  - Link the VCS for the repo_name back to the workspace
 
 Refactoring for Terraform Cloud:
 
@@ -137,6 +141,7 @@ Ideally, each Terraform Cloud workspace should be aligned with a specific enviro
 
 To effectively use TFC workspaces with a VCS-linked repository, consider organizing your repository to clearly separate different sets of configurations that will be managed as distinct environments in Terraform Cloud.
 This might mean restructuring your repository so that each major environment or set of configurations has its own directory, which can then be directly mapped to a TFC workspace with a corresponding working directory.
+
 
 ### Phase 4
 - Support for additional VCSs.

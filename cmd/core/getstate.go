@@ -4,6 +4,7 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -59,47 +60,108 @@ func pullTerraformState(dirPath, outputPath string) error {
 	return ioutil.WriteFile(outputPath, output, 0644)
 }
 
+func selectTerraformWorkspace(dirPath, ceWorkspaceName string) error {
+	cmd := exec.Command("terraform", "workspace", "select", ceWorkspaceName)
+	cmd.Dir = dirPath
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+type metadata struct {
+	RepoConfigs []RepoConfig `json:"repo_configs"`
+}
+
+type repoConfig struct {
+	RepoName    string           `json:"repo_name"`
+	ConfigPaths []ConfigPathInfo `json:"config_paths"`
+}
+
+type configPathInfo struct {
+	Path          string        `json:"path"`
+	WorkspaceInfo WorkspaceInfo `json:"workspace_info"`
+}
+
+type workspaceInfo struct {
+	UsesWorkspaces bool     `json:"uses_workspaces"`
+	WorkspaceNames []string `json:"workspace_names,omitempty"`
+}
+
+func loadMetadata() ([]RepoConfig, error) {
+	metadataFile := "terraform_config_metadata.json"
+	file, err := os.Open(metadataFile)
+	if err != nil {
+		return nil, fmt.Errorf("error opening metadata file: %v", err)
+	}
+	defer file.Close()
+
+	var repoConfigs []RepoConfig
+	err = json.NewDecoder(file).Decode(&repoConfigs)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding metadata file: %v", err)
+	}
+
+	return repoConfigs, nil
+}
+
 func initializeRepos() error {
+	repoConfigs, err := loadMetadata()
+	if err != nil {
+		return err
+	}
+
 	clonePath := viper.GetString("github_clone_repos_path")
+	if clonePath == "" {
+		return fmt.Errorf("github_clone_repos_path is not configured")
+	}
 
 	var initCount int
 
-	// Read directories directly under clonePath
-	dirs, err := os.ReadDir(clonePath)
-	if err != nil {
-		return fmt.Errorf("error reading directories: %v", err)
-	}
+	for _, repoConfig := range repoConfigs {
+		for _, configPathInfo := range repoConfig.ConfigPaths {
+			// fullPath is directly constructed from clonePath and configPathInfo.Path
+			fullPath := filepath.Join(clonePath, configPathInfo.Path)
 
-	for _, dir := range dirs {
-		if !dir.IsDir() {
-			continue
-		}
-		repoPath := filepath.Join(clonePath, dir.Name())
-
-		// Check for .tf files directly in the root of the repository
-		hasTfFiles, err := filepath.Glob(filepath.Join(repoPath, "*.tf"))
-		if err != nil {
-			fmt.Printf("Error checking .tf files in %s: %v\n", repoPath, err)
-			continue
-		}
-		if len(hasTfFiles) > 0 {
-			fmt.Printf("Initializing Terraform in: %s\n", repoPath)
-			if err := runTerraformInit(repoPath); err != nil {
-				fmt.Printf("Failed to initialize Terraform in %s: %v\n", repoPath, err)
+			fmt.Printf("Initializing Terraform in: %s\n", fullPath)
+			if err := runTerraformInit(fullPath); err != nil {
+				fmt.Printf("Failed to initialize Terraform in %s: %v\n", fullPath, err)
 				continue
 			}
+
+			if configPathInfo.WorkspaceInfo.UsesWorkspaces {
+				for _, workspace := range configPathInfo.WorkspaceInfo.WorkspaceNames {
+					if workspace == "default" && len(configPathInfo.WorkspaceInfo.WorkspaceNames) == 1 {
+						continue // Skip default workspace handling if it's the only one and uses_workspaces is true
+					}
+					fmt.Printf("Handling workspace '%s' in %s\n", workspace, fullPath)
+
+					// Conditional logic based on workspace presence
+					if workspace != "default" {
+						if err := selectTerraformWorkspace(fullPath, workspace); err != nil {
+							fmt.Printf("Failed to select workspace '%s' in %s: %v\n", workspace, fullPath, err)
+							continue
+						}
+					}
+
+					stateFilePath := filepath.Join(fullPath, fmt.Sprintf(".terraform/pulled_%s_terraform.tfstate", workspace))
+					if err := pullTerraformState(fullPath, stateFilePath); err != nil {
+						fmt.Printf("Failed to pull Terraform state for workspace '%s' in %s: %v\n", workspace, fullPath, err)
+						continue
+					}
+				}
+			} else {
+				// Handle non-workspace scenario
+				stateFilePath := filepath.Join(fullPath, ".terraform/pulled_terraform.tfstate")
+				if err := pullTerraformState(fullPath, stateFilePath); err != nil {
+					fmt.Printf("Failed to pull Terraform state in %s: %v\n", fullPath, err)
+					continue
+				}
+			}
+
 			initCount++
-
-			// Pull the state and save it to pulled_terraform.tfstate
-			pulledStatePath := filepath.Join(repoPath, ".terraform/pulled_terraform.tfstate")
-			if err := pullTerraformState(repoPath, pulledStatePath); err != nil {
-				fmt.Printf("Failed to pull Terraform state in %s: %v\n", repoPath, err)
-				continue
-			}
-
 		}
 	}
 
-	o.AddFormattedMessageCalculated("Terraform initialization and state processing completed for %d repositories.\n", initCount)
+	fmt.Printf("Terraform initialization and state processing completed for %d configurations.\n", initCount)
 	return nil
 }
