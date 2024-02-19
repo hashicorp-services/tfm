@@ -1,6 +1,7 @@
 
 tfm
 .tfm.hcl
+terraform_config_metadata.json
 
 # Local .terraform directories
 **/.terraform/*

@@ -2,9 +2,11 @@ package core
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -24,20 +26,26 @@ identifies directories containing Terraform configurations, and builds a metadat
 }
 
 func init() {
-	// Assuming rootCmd is your application's root Cobra command
 	CoreCmd.AddCommand(initReposCmd)
 }
 
-// RepoConfig represents the metadata for a repository's Terraform configurations
-type RepoConfig struct {
-	RepoName    string   `json:"repo_name"`
-	ConfigPaths []string `json:"config_paths"`
+type WorkspaceInfo struct {
+	UsesWorkspaces bool     `json:"uses_workspaces"`
+	WorkspaceNames []string `json:"workspace_names,omitempty"`
 }
 
-// initRepos scans repositories for Terraform configurations containing a backend block and generates metadata
+type ConfigPathInfo struct {
+	Path          string        `json:"path"`
+	WorkspaceInfo WorkspaceInfo `json:"workspace_info"`
+}
+
+type RepoConfig struct {
+	RepoName    string           `json:"repo_name"`
+	ConfigPaths []ConfigPathInfo `json:"config_paths"`
+}
+
 func initRepos() error {
 	clonedReposPath := viper.GetString("github_clone_repos_path")
-
 	if clonedReposPath == "" {
 		return fmt.Errorf("github_clone_repos_path is not configured")
 	}
@@ -49,7 +57,6 @@ func initRepos() error {
 			return err
 		}
 		if !d.IsDir() && filepath.Ext(path) == ".tf" {
-			// Check if the file contains a backend block within a terraform block
 			containsBackend, err := fileContainsBackendBlock(path)
 			if err != nil {
 				return err
@@ -103,30 +110,86 @@ func fileContainsBackendBlock(filePath string) (bool, error) {
 }
 
 func addRepoConfig(repoConfigs *[]RepoConfig, repoName, configPath string) {
+	fullConfigDir := filepath.Join(viper.GetString("github_clone_repos_path"), configPath)
+
+	workspaceInfo := checkTerraformWorkspaces(fullConfigDir)
+
 	for i, rc := range *repoConfigs {
 		if rc.RepoName == repoName {
-			if !contains(rc.ConfigPaths, configPath) {
-				(*repoConfigs)[i].ConfigPaths = append(rc.ConfigPaths, configPath)
-			}
+			(*repoConfigs)[i].ConfigPaths = append(rc.ConfigPaths, ConfigPathInfo{
+				Path:          configPath,
+				WorkspaceInfo: workspaceInfo,
+			})
 			return
 		}
 	}
 	*repoConfigs = append(*repoConfigs, RepoConfig{
 		RepoName:    repoName,
-		ConfigPaths: []string{configPath},
+		ConfigPaths: []ConfigPathInfo{{Path: configPath, WorkspaceInfo: workspaceInfo}},
 	})
 }
 
-func contains(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
+func parseWorkspaceListOutput(output string) []string {
+	var workspaces []string
+	scanner := bufio.NewScanner(strings.NewReader(output))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		line = strings.TrimPrefix(line, "* ")
+		if line != "" {
+			workspaces = append(workspaces, line)
 		}
 	}
-	return false
+	return workspaces
 }
 
-// saveMetadata saves the repositories' Terraform configuration metadata to a file
+func runTerraformInit2(configDir string) error {
+	initCmd := exec.Command("terraform", "init", "-input=false", "-no-color")
+	initCmd.Dir = configDir
+	initCmd.Stdout = os.Stdout
+	initCmd.Stderr = os.Stderr
+	return initCmd.Run()
+}
+
+func listTerraformWorkspaces(configDir string) ([]string, error) {
+	cmd := exec.Command("terraform", "workspace", "list", "-no-color")
+	cmd.Dir = configDir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return nil, fmt.Errorf("error listing Terraform workspaces: %w", err)
+	}
+
+	// Parse output to extract workspace names
+	workspaces := parseWorkspaceListOutput(out.String())
+	return workspaces, nil
+}
+
+func checkTerraformWorkspaces(configDir string) WorkspaceInfo {
+	// run terraform init
+	if err := runTerraformInit(configDir); err != nil {
+		fmt.Printf("Error initializing Terraform: %s\n", err)
+		return WorkspaceInfo{} // Consider how you want to handle init errors
+	}
+
+	// list workspaces
+	workspaces, err := listTerraformWorkspaces(configDir)
+	if err != nil {
+		fmt.Printf("Error listing Terraform workspaces: %s\n", err)
+		return WorkspaceInfo{}
+	}
+
+	// Determine if using workspaces beyond 'default'
+	usesWorkspaces := len(workspaces) > 1 || (len(workspaces) == 1 && workspaces[0] != "default")
+
+	return WorkspaceInfo{
+		UsesWorkspaces: usesWorkspaces,
+		WorkspaceNames: workspaces,
+	}
+}
+
 func saveMetadata(repoConfigs []RepoConfig) error {
 	metadataFile, err := os.Create("terraform_config_metadata.json")
 	if err != nil {
