@@ -4,9 +4,10 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
+	"io/ioutil"
+	"strings"
 
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
@@ -14,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Assuming coreCmd is your root or relevant subcommand group
+// tfm core create-workspaces command
 var CreateWorkspacesCmd = &cobra.Command{
 	Use:   "create-workspaces",
 	Short: "Create TFE/TFC workspaces for each cloned repo in the github_clone_repos_path that contains a pulled_terraform.tfstate file.",
@@ -30,46 +31,115 @@ func init() {
 	CoreCmd.AddCommand(CreateWorkspacesCmd)
 }
 
-// createWorkspaces iterates over directories in clonePath and creates TFE workspaces.
+// Main function that creates the workspaces in the destination TFC/TFE organization.
 func CreateWorkspaces(c tfclient.DestinationContexts, clonePath string) error {
 	if c.DestinationOrganizationName == "" || c.DestinationHostname == "" || c.DestinationToken == "" {
-		return fmt.Errorf("Destination TFC/TFE Organization, hostname, or token not configued.")
+		return fmt.Errorf("Destination TFC/TFE Organization, hostname, or token not configured.")
 	}
 
-	dirs, err := os.ReadDir(clonePath)
+	// The metadata file needs to have been generated using the tfm core init-repos command
+	metadataFile := "terraform_config_metadata.json"
+	metadata, err := loadMetadataCreateWS(metadataFile)
 	if err != nil {
-		return fmt.Errorf("error reading directories: %v", err)
+		return fmt.Errorf("error loading metadata: %v", err)
 	}
 
-	for _, dir := range dirs {
-		if !dir.IsDir() {
-			continue
-		}
-		repoPath := filepath.Join(clonePath, dir.Name())
-		tfstatePath := filepath.Join(repoPath, ".terraform", "pulled_terraform.tfstate")
+	// Slice to store names of created workspaces for output later
+	var createdWorkspaces []string
 
-		if _, err := os.Stat(tfstatePath); os.IsNotExist(err) {
-			continue
-		}
+	// for each repo in the metadata file get the config paths
+	for _, repoConfig := range metadata {
+		for _, configPath := range repoConfig.ConfigPaths {
+			basePath := strings.TrimPrefix(configPath.Path, repoConfig.RepoName+"/")
 
-		// Terraform state file exists, proceed to create workspace
-		workspaceName := dir.Name()
-		fmt.Printf("Creating workspace for repository with pulled_terraform.tfstate: %s\n", workspaceName)
+			// Replace all '/' with '-' because TFC/TFE workspace names cannot contain '/'
+			basePath = strings.ReplaceAll(basePath, "/", "-")
 
-		var tag []*tfe.Tag
-		tag = append(tag, &tfe.Tag{Name: "tfm"})
-		workspaceSource := "tfm"
+			isRootConfigPath := basePath == "" || basePath == repoConfig.RepoName
+			basePathForWorkspaceNaming := ""
+			if !isRootConfigPath {
+				basePathForWorkspaceNaming = "-" + basePath
+			}
 
-		// Create TFE Workspace
-		_, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
-			Name:       &workspaceName,
-			Tags:       tag,
-			SourceName: &workspaceSource,
-		})
-		if err != nil {
-			fmt.Printf("Failed to create workspace %s: %v\n", workspaceName, err)
+			// If workspaces are being used then construct the workspace name based on repo_name+config_path+workspace_name
+			if configPath.WorkspaceInfo.UsesWorkspaces {
+				for _, workspaceName := range configPath.WorkspaceInfo.WorkspaceNames {
+
+					// Skip the default workspace if it's not the only one
+					if workspaceName == "default" && len(configPath.WorkspaceInfo.WorkspaceNames) > 1 {
+						continue
+					}
+
+					fullWorkspaceName := fmt.Sprintf("%s%s-%s", repoConfig.RepoName, basePathForWorkspaceNaming, workspaceName)
+
+					// Special handling for root configs to avoid appending the repo name twice
+					if isRootConfigPath && workspaceName == "default" {
+
+						// Use repo name as workspace name only for default workspace at root
+						fullWorkspaceName = repoConfig.RepoName
+					}
+
+					if err := createWorkspace(c, strings.Trim(fullWorkspaceName, "-")); err != nil {
+						fmt.Printf("Failed to create workspace %s: %v\n", fullWorkspaceName, err)
+
+					} else {
+
+						// Add the successfully created workspace name to the slice for output later
+						createdWorkspaces = append(createdWorkspaces, fullWorkspaceName)
+					}
+				}
+			} else {
+
+				// If CE workspaces aren't in use then build the workspace name using repo_name+config_path
+				fullWorkspaceName := repoConfig.RepoName + basePathForWorkspaceNaming
+				if err := createWorkspace(c, strings.Trim(fullWorkspaceName, "-")); err != nil {
+					fmt.Printf("Failed to create workspace %s: %v\n", fullWorkspaceName, err)
+
+					// Log the successful creation of a workspace
+					o.AddDeferredMessageRead("Created workspace:", fullWorkspaceName)
+				} else {
+
+					// Add the successfully created workspace name to the slice
+					createdWorkspaces = append(createdWorkspaces, fullWorkspaceName)
+				}
+			}
 		}
 	}
 
+	// Output the names of all created workspaces
+	fmt.Println("Workspaces created successfully:")
+	for _, wsName := range createdWorkspaces {
+		fmt.Println(wsName)
+	}
 	return nil
+}
+
+// Loads the metadata file information for use
+func loadMetadataCreateWS(metadataFile string) ([]RepoConfig, error) {
+	var metadata []RepoConfig
+	file, err := ioutil.ReadFile(metadataFile)
+	if err != nil {
+		return nil, fmt.Errorf("error reading metadata file: %v", err)
+	}
+	err = json.Unmarshal(file, &metadata)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling metadata: %v", err)
+	}
+	return metadata, nil
+}
+
+// This function creates the workspaces
+func createWorkspace(c tfclient.DestinationContexts, workspaceName string) error {
+	var tag []*tfe.Tag
+	tag = append(tag, &tfe.Tag{Name: "tfm"})
+
+	// This is an invisible attribute that the tfm nuke workspaces command uses to identify workspaces created by tfm for easy destruction later
+	workspaceSource := "tfm"
+
+	_, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
+		Name:       &workspaceName,
+		Tags:       tag,
+		SourceName: &workspaceSource,
+	})
+	return err
 }

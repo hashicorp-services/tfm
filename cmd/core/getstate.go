@@ -68,10 +68,6 @@ func selectTerraformWorkspace(dirPath, ceWorkspaceName string) error {
 	return cmd.Run()
 }
 
-type metadata struct {
-	RepoConfigs []RepoConfig `json:"repo_configs"`
-}
-
 type repoConfig struct {
 	RepoName    string           `json:"repo_name"`
 	ConfigPaths []ConfigPathInfo `json:"config_paths"`
