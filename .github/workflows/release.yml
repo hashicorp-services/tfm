@@ -51,29 +51,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release
+      - name: Update Changelog
         uses: cycjimmy/semantic-release-action@v3
         with:
           semantic_version: 18.0.0
           extra_plugins: |
             @semantic-release/changelog@6.0.0
-            @semantic-release/git@10.0.0
             conventional-changelog-conventionalcommits@4.6.3
-          files: |
-            ./pkg/tfm-darwin-amd64
-            ./pkg/tfm-darwin-arm64
-            ./pkg/tfm-linux-amd64
-            ./pkg/tfm-windows-amd64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
-      # - name: Release
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     tag_name: ${{ github.event.inputs.version }}
-      #     files: |
-      #       ./pkg/tfm-darwin-amd64
-      #       ./pkg/tfm-darwin-arm64
-      #       ./pkg/tfm-linux-amd64
-      #       ./pkg/tfm-windows-amd64.exe
+       - name: Release
+         uses: softprops/action-gh-release@v1
+         with:
+           tag_name: ${{ github.event.inputs.version }}
+           files: |
+             ./pkg/tfm-darwin-amd64
+             ./pkg/tfm-darwin-arm64
+             ./pkg/tfm-linux-amd64
+             ./pkg/tfm-windows-amd64.exe
 

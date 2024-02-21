@@ -49,3 +49,25 @@ Information about the e2e workflow in the event the maintainer needs to issue ne
 ## Jira (jira-issues.yml)
 
 This action will use the org provided Jira service account to open issues in the ASE Service Portfolio Jira Board. This only runs when issues are created in the `tfm` repo and is not synced back from Jira to GitHub. Next `tfm` will support more functionality.
+
+## PR Titles (pr-title.yml)
+
+This action will verify that PR titles follow a consistent format. PR Titles must be in the format:
+
+```
+feat(ui): Add `Button` component
+^    ^    ^
+|    |    |__ Subject
+|    |_______ Scope
+|____________ Type
+```
+
+Acceptable types:
+
+```
+fix
+feat
+docs
+ci
+chore
+```
