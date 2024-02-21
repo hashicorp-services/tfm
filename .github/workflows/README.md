@@ -20,7 +20,7 @@ Information about the e2e workflow in the event the maintainer needs to issue ne
 - A team exists within the TFC organization `tfm-testing-source` named `owners`. Generate an API Token for this team.
 - A team exists within the TFC organization `tfm-testing-destination` named `owners`. Generate an API Token for this team.
 - A module is being sourced from `app.terraform.io/tfm-testing-source/workspacer-tfm/tfe`
-- `svc-tfm` has permissions to the repositories `tfm-oss-migration-rivendell`, `tfm-oss-migration-mordor2`, and `tfm-oss-migration-isengard` because these repos contain configurations using an s3 backend to store state for testing.
+- `svc-tfm` has permissions to the repositories `hashicorp-services/tfm-oss-migration-rivendell`, `hashicorp-services/tfm-oss-migration-mordor2`, and `hashicorp-services/tfm-oss-migration-isengard` because these repos contain configurations using an s3 backend to store state for testing.
 
 ### API Tokens
 
