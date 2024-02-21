@@ -61,13 +61,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
-       - name: Release
-         uses: softprops/action-gh-release@v1
-         with:
-           tag_name: ${{ github.event.inputs.version }}
-           files: |
-             ./pkg/tfm-darwin-amd64
-             ./pkg/tfm-darwin-arm64
-             ./pkg/tfm-linux-amd64
-             ./pkg/tfm-windows-amd64.exe
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: |
+            ./pkg/tfm-darwin-amd64
+            ./pkg/tfm-darwin-arm64
+            ./pkg/tfm-linux-amd64
+            ./pkg/tfm-windows-amd64.exe
 
