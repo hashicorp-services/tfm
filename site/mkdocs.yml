@@ -48,14 +48,29 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Migration Planning:
-    - Migration Journey: migration/journey.md
-    - Pre-requisites: migration/pre-requisites.md
-    - Example Scenario: migration/example-scenarios.md
-    - Pre-Migration Questionaire: migration/pre-migration.md
+    - Migration Journey TFE to TFC: migration/journey-tfe-tfc.md
+    - Pre-requisites TFE to TFC: migration/pre-requisites-tfe-tfc.md
+    - Pre-requisites Community Edition to TFC: migration/pre-requisites-ce-tfc.md
+    - Example Scenario TFE to TFC: migration/example-scenario-tfe-tfc.md
+    - Example Scenario Community Edition to TFC: migration/example-scenario-ce-tfc.md
+    - Pre-Migration Questionaire TFE to TFC: migration/pre-migration-tfe-tfc.md
+    - Pre-Migration Questionaire Community Edition to TFC: migration/pre-migration-ce-tfc.md
     - Case Studies: migration/case-studies.md
   - Commands:
+    - Core:
+      - General: commands/core.md
+      - Clone: commands/core_clone.md
+      - Getstate: commands/core_getstate.md
+      - Create-worksapces: commands/core_create-workspaces.md
+      - Upload-state: commands/core_upload-state.md
+      - Link-vcs: commands/core_link-vcs.md
+      - Remove-backend: commands/core_remove-backend.md
+      - Cleanup: commands/core_cleanup.md
+      - Migrate: commands/core_migrate.md
     - Copy: 
       - General: commands/copy.md
+      - Projects:
+        - General: commands/copy_projects.md
       - Workspaces:
         - General: commands/copy_workspaces.md
         - States: commands/copy_workspace_state.md
