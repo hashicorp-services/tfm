@@ -2,11 +2,18 @@
 
 ## Who is `tfm` developed for?
 
+Engineers/Operators that need to migrate terraform community edition code management to TFC/TFE.
+
 Engineers/Operators that manage/admin Terraform Enterprise/Cloud organizations that need to perform a migration of workspaces. 
 
 ## What is `tfm` intended to do?
 
-`tfm` will assist with migration of TFE/TFC workspaces from one TFE/TFC instance/organization to another TFE/TFC instance/organization. 
+`tfm` will assist with migration of:
+
+- Terraform open source / community edition / core to TFC/TFE
+- TFE to TFC
+- TFC to TFE
+- 1 TFC Organization to another TFC Organization
 
 
 ### Migrations of workspaces
@@ -56,8 +63,15 @@ The following are environment/configuration constraints where a migration of wor
 
 ## Does tfm store the state file to disk?
 
+It depends.
+
+For the `tfm copy state` command:
+
 No tfm streams the statefile from the source to memory and then sends it to the destination. No statefile or any kind of file is written to disk. The statefile is also encrypted when fetched from the TFE API. 
 
+For the `tfm core getstate` command:
+
+Yes. tfm downloads the state to disk before uploading it to TFC/TFE. The `tfm core cleanup` command can be used to remove it easily after migration.
 
 ## Will this work on a very old version of Terraform Enterprise?
 

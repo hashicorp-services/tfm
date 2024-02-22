@@ -561,6 +561,244 @@ jobs:
       #- name: Destroy extra workspaces in the destination not part of the ci test
       #  run: ./tfm nuke workspaces --autoapprove=true
 
+  tfm-tests-copy-all-projects:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    needs: initialize-tfc-resources
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+
+      - name: Migrate projects
+        run: ./tfm copy projects --autoapprove=true --config test/configs/.e2e-all-projects-test.hcl
+
+  tfm-tests-copy-list-projects:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    needs: initialize-tfc-resources
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+
+      - name: Migrate projects
+        run: ./tfm copy projects --config test/configs/.e2e-project-list-test.hcl
+
+  tfm-tests-copy-map-projects:
+    runs-on: ubuntu-latest
+    env: 
+      SRC_TFE_HOSTNAME: ${{vars.SOURCEHOSTNAME}}
+      SRC_TFE_ORG: ${{vars.SOURCEORGANIZATION}}
+      SRC_TFE_TOKEN: ${{secrets.SOURCETOKEN}}
+      DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+      DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+      DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+      RUNNUKE: ${{ github.event.inputs.RunNuke }}
+      DST_TFC_PROJECT_ID: ${{ vars.DST_PROJECT_ID}}
+
+    needs: initialize-tfc-resources
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Install gox
+        run: |
+          go get github.com/mitchellh/gox 
+          go install github.com/mitchellh/gox 
+
+      - name: Install zip
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install zip -q
+
+      - name: Cross compile
+        run: |
+          gox \
+            -os="linux" \
+            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+            -arch="amd64" \
+            -output "./tfm" \
+            .
+
+      - name: Print version
+        run: ./tfm --version
+
+      - name: Build config files
+        run: ./test/configs/build-configs.sh
+
+      - name: Migrate projects
+        run: ./tfm copy projects --config test/configs/.e2e-project-map-test.hcl
+
+  # tfm-tests-ce-to-tfc-migration:
+  #   runs-on: ubuntu-latest
+  #   env: 
+  #     DST_TFC_HOSTNAME: ${{vars.DESTINATIONHOSTNAME}}
+  #     DST_TFC_ORG: ${{vars.DESTINATIONORGANIZATION}}
+  #     DST_TFC_TOKEN: ${{secrets.DESTINATIONTOKEN}}
+  #     GITHUB_USERNAME: ${{secrets.GHUSERNAME}}
+  #     GITHUB_ORGANIZATION: ${{secrets.GHORGANIZATION}}
+  #     GITHUB_TOKEN: ${{secrets.GHTOKEN}}
+  #     RUNNUKE: ${{ github.event.inputs.RunNuke }}
+
+  #   needs: initialize-tfc-resources
+
+  #   steps:
+
+  #     - uses: hashicorp/setup-terraform@v1
+  #       id: terraform-setup
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+
+  #     - name: Install Go
+  #       uses: actions/setup-go@v3
+  #       with:
+  #         go-version: 1.19.5
+
+  #     - name: Install gox
+  #       run: |
+  #         go get github.com/mitchellh/gox 
+  #         go install github.com/mitchellh/gox 
+
+  #     - name: Install zip
+  #       run: |
+  #         sudo apt-get update -q
+  #         sudo apt-get install zip -q
+
+  #     - name: Cross compile
+  #       run: |
+  #         gox \
+  #           -os="linux" \
+  #           -ldflags="-X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
+  #           -arch="amd64" \
+  #           -output "./tfm" \
+  #           .
+
+  #     - name: Print version
+  #       run: ./tfm --version
+
+  #     - name: Build config files
+  #       run: ./test/configs/build-configs.sh
+
+  #     - name: Create Repos Clone Path ./test
+  #       run: mkdir ./test
+
+  #     - name: Clone GitHub repos rivendell, mordor2, and isengard to .
+  #       run: ./tfm core clone --config test/configs/.e2e-ce-to-tfc-test.hcl
+
+  #     - name: Retrieve State Files
+  #       run: ./tfm core getstate --config test/configs/.e2e-ce-to-tfc-test.hcl
+
+  #     - name: Create Workspaces
+  #       run: ./tfm core create-workspaces --config test/configs/.e2e-ce-to-tfc-test.hcl
+
+  #     - name: Upload State Files
+  #       run: ./tfm core upload-state --config test/configs/.e2e-ce-to-tfc-test.hcl
+
+  #     - name: Link GitHub Repo to Workspace
+  #       run: ./tfm core link-vcs --config test/configs/.e2e-ce-to-tfc-test.hcl
+
+  #     - name: Remove backend{} blocks
+  #       run: ./tfm core remove-backend --autoapprove --config test/configs/.e2e-ce-to-tfc-test.hcl
+
+  #     - name: Removed Cloned Repos From ./test
+  #       run: ./tfm core cleanup --autoapprove --config test/configs/.e2e-ce-to-tfc-test.hcl
+
+  #     - name: Remove created TFC Workspaces
+  #       run: ./tfm nuke workspaces --autoapprove=true
 
   destroy-tfc-resources:
     runs-on: "ubuntu-latest"
