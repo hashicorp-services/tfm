@@ -42,10 +42,10 @@ const templateContent = `
 
 src_tfe_hostname=""
 src_tfe_org=""
-src_tfe_token=""
+src_tfe_token="Must have owner permissions"
 dst_tfc_hostname=""
 dst_tfc_org=""
-dst_tfc_token=""
+dst_tfc_token="Must have owner permissions"
 #dst_tfc_project_id=""
 
 # A list of source=destination VCS oauth IDs. TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID.
@@ -96,6 +96,25 @@ dst_tfc_token=""
 # A list of source=destination SSH IDs. TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID.
 #ssh-map=[
 #  "sshkey-sPLAKMcqnWtHPSgx=sshkey-CRLmPJpoHwsNFAoN"
+#]
+
+# THE FOLLOWING ARE ONLY USED FOR MIGRATING FROM TERRAFORM OPEN SOURCE / COMMUNITY EDITION TO TFE/TFC
+
+#commit_message = "A commit message the tfm core remove-backend command uses when removing backend blocks from .tf files and commiting the changes back"
+#commit_author_name = "the name that will appear as the commit author"
+#commit_author_email = "the email that will appear for the commit author"
+#github_token = "A github token used with the tfm core clone command. Must have read permissions to clone repos and write permissions to use the remove-backend command"
+#github_organization = "The github Organization to clone repos from"
+#github_username = "A github username"
+#github_clone_repos_path = "/path/on/local/host/to/clone/repos/to"
+#vcs_provider_id = "An Oauth ID of a VCS provider connection configured in TFC/TFE"
+
+# A list of VCS repositories containing terraform code. TFM will clone each repo during the tfm core clone command for migrating opensource/commmunity edition terraform managed code to TFE/TFC.
+# If one is not provided then tfm will attempt to clone every repo it has read access to in the Github Organization.
+#repos_to_clone =  [
+# "repo1",
+# "repo2",
+# "repo3"
 #]
 `
 

@@ -1,8 +1,8 @@
-# Exmple Scenario with TFM
+# Exmple Scenario for Migrating From TFE to TFC
 
 ![tfe_tfm_tfc](../images/tfe_tfm_tfc.png)
 
-## Happy Path Scenario
+## Happy Path Scenario - TFE to TFC
 
 Customer has been running Terraform Enterprise and has decided to move to Terraform Cloud. As part of choosing to buy than build their suite of platform tools and services, they are embarking on using as many tools as a service. Terraform Cloud is one of them. 
 

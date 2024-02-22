@@ -59,8 +59,8 @@ The high level Migration path has 6 key components:
 - Establish Workspace Deprecation process in Terraform Enterprise (Common Options: Locking, Deleting, Archiving)
 - Establish Validation process as agreed upon with the Customer
 - Determine required API tokens needed for the migration (must have access to all needed Organizations)
-    - Terraform Enterprise (Source)
-    - Terraform Cloud (Destination)
+    - Terraform Enterprise token with Owner permissions(Source)
+    - Terraform Cloud token with Owner permissions (Destination)
 - Determine if Workspace Code changes are required (Module Sourcing, Provider Initialization)
 - Design Cloud Agent Pool structure and required infrastructure, including networking and authentication routes
 - Determine how to update destination Workspace Variables that are marked as "sensitive" in the source Workspace

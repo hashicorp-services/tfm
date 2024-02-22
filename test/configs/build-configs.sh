@@ -111,3 +111,6 @@ cat ./test/configs/.e2e-project-list-test.hcl
 
 echo "[INFO] .e2e-project-map-test.hcl"
 cat ./test/configs/.e2e-project-map-test.hcl
+
+echo "[INFO] .e2e-ce-to-tfc-test.hcl"
+cat ./test/configs/.e2e-ce-to-tfc-test.hcl

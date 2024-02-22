@@ -3,7 +3,7 @@
 ![TFM](./images/TFM-black.png)
 
 !!! warning ""
-    Note: This CLI is in beta release and currently does not have official support! 
+    Note: This CLI currently does not have official support! 
 
     TFM is currently being developed and tested by interested parties.
     
@@ -14,11 +14,14 @@
 
    
 
-_tfm_ is a standalone CLI for Terraform Cloud and Terraform Enterprise migrations.
+_tfm_ is a standalone CLI for Terraform Community Edition, Terraform Cloud, Terraform Enterprise migrations.
 
-HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements and customers during a TFE to TFC migration.
+HashiCorp Implementation Services (IS) has identified a need to develop a purpose built tool to assist our engagements, partners, and customers during:
 
-This tool has been developed to assist HashiCorp Implementation Services and customer engagements during an migration of TFE to TFC(or another TFE). Having a tool allows HashiCorp and the customer the ability to standardize the migration process.
+- Terraform open source / community edition / core to TFC/TFE
+- TFE to TFC
+- TFC to TFE
+- 1 TFC Organization to another TFC Organization
 
 
 
@@ -63,23 +66,27 @@ curl -L -o tfm.exe "https://github.com/hashicorp-services/tfm/releases/download/
 `tfm -h`
 
 ```bash
-A CLI to assist with TFE Migration.
+tfm -h
+A CLI to assist with Terraform community edition, Terraform Cloud, and Terraform Enterprise migrations.
 
 Usage:
   tfm [command]
 
 Available Commands:
   copy        Copy command
+  core        Command used to perform terraform open source (core) to TFE/TFC migration commands
   delete      delete command
   generate    generate command for generating .tfm.hcl config template
   help        Help about any command
   list        List command
+  lock        Lock
+  unlock      Unlock
 
 Flags:
-      --autoapprove     Auto Approve the tfm run. --autoapprove=true . false by default
-      --config string   Config file, can be used to store common flags, (default is ./.tfm.hcl).
+      --autoapprove     Auto approve the tfm run. --autoapprove=true . false by default
+      --config string   Config file, can be used to store common flags, (default is ~/.tfm.hcl).
   -h, --help            help for tfm
-      --json            Print outputs in JSON (Projects and Workspaces Only)
+      --json            Print the output in JSON format
   -v, --version         version for tfm
 
 Use "tfm [command] --help" for more information about a command.
@@ -87,10 +94,13 @@ Use "tfm [command] --help" for more information about a command.
 
 ## Pre-Requisites
 
-`tfm` utilize a config file AND/OR environment variables.
-We recommend using environment variables for sensitive tokens from TFE/TFC instead of storing it in a config file. 
+The following prerequisites are used when migrating from or to TFE or TFC from TFE or TFC.
 
-### Environment Variables
+- A tfm config file
+- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating from. Must have owner permissions.
+- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating to. Must have owner permissions.
+
+### Environment Variables 
 
 The following environment variables can be set or used to override existing config file values.
 
@@ -108,7 +118,10 @@ export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated 
 
 A HCL file with the following as the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`. You can also run `tfm generate config` to create a tempalte config file for use.
 
-```terraform
+> [!NOTE]
+> Use the `tfm generate config` command to generate a sample configuration for quick editing.
+
+```hcl
 src_tfe_hostname="tf.local.com"
 src_tfe_org="companyxyz"
 src_tfe_token="<user token from source TFE/TFC with owner permissions>"
@@ -127,7 +140,7 @@ Utilise `tfm list projects --side destination` to determine the `project id`.
 
 Set either the environment variable:
 
-```bast
+```bash
 export DST_TFC_PROJECT_ID=prj-XXXX
 ```
 
