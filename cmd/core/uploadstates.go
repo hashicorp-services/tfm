@@ -45,7 +45,7 @@ func loadMetadataUploadState(metadataFile string) ([]RepoConfig, error) {
 	var metadata []RepoConfig
 	file, err := ioutil.ReadFile(metadataFile)
 	if err != nil {
-		return nil, fmt.Errorf("error reading metadata file: %v", err)
+		return nil, fmt.Errorf("error reading metadata file: %v. Run tfm core init-repos first.", err)
 	}
 	err = json.Unmarshal(file, &metadata)
 	if err != nil {

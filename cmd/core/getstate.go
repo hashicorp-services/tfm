@@ -87,7 +87,7 @@ func loadMetadata() ([]RepoConfig, error) {
 	metadataFile := "terraform_config_metadata.json"
 	file, err := os.Open(metadataFile)
 	if err != nil {
-		return nil, fmt.Errorf("error opening metadata file: %v", err)
+		return nil, fmt.Errorf("error opening metadata file: %v. Run tfm core init-repos first.", err)
 	}
 	defer file.Close()
 
