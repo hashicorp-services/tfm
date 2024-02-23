@@ -6,6 +6,20 @@
 
 - Github
 
+## Requirements
+
+### Credentials
+
+tfm will used the following configuration file settings to authenticate to GitHub and clone the repos:
+
+The api token must have read access to the repositories to clone them.
+
+```
+github_token = "api token"
+github_organization = "org"
+github_username = "username"
+```
+
 ## Clone a List of Repositories
 
 Provide a `repos_to_clone` list in the config file of repositories that you would like to clone for migration.
@@ -21,15 +35,3 @@ repos_to_clone =  [
 ## Clone All Repositories
 
 Not providing a `repos_to_clone` list will result in tfm attempting to clone every repository in the GitHub org.
-
-## Credentials
-
-tfm will used the following configuration file settings to authenticate to GitHub and clone the repos:
-
-The api token must have read access to the repositories to clone them.
-
-```
-github_token = "api token"
-github_organization = "org"
-github_username = "username"
-```
