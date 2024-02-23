@@ -28,11 +28,35 @@ upload state, link VCS, and optionally remove backend configurations as part of 
 				return fmt.Errorf("invalid command specified in --include: %s", includeCmd)
 			}
 		}
+		// Check for auto-approval
+		if !autoApprove {
+			promptMessage := `
+This command will run all of the commands listed below in order.:
+	1. tfm core clone
+	2. tfm core init-repos
+	3. tfm core getstate
+	4. tfm core create-workspaces
+	5. tfm core upload-state
+	6. tfm core link-vcs
+	7. (Optional) If you provided the flag --include remove-backend then tfm core remove-backen will run.
+			
+	Are you sure you want to proceed? Type 'yes' to continue: `
+			o.AddPassUserProvided(promptMessage)
+			var response string
+			_, err := fmt.Scanln(&response)
+			if err != nil || response != "yes" {
+				fmt.Println("Operation aborted by the user.")
+				return nil // Exit if the user does not confirm
+			}
+		}
 
 		commonArgs := []string{}
 
 		// Directly invoke the RunE function of each command
 		if err := CloneCmd.RunE(cmd, commonArgs); err != nil {
+			return err
+		}
+		if err := InitReposCmd.RunE(cmd, commonArgs); err != nil {
 			return err
 		}
 		if err := GetStateCmd.RunE(cmd, commonArgs); err != nil {
@@ -65,5 +89,6 @@ upload state, link VCS, and optionally remove backend configurations as part of 
 
 func init() {
 	CoreCmd.AddCommand(migrateCmd)
+	migrateCmd.Flags().BoolVar(&autoApprove, "autoapprove", false, "Automatically approve the operation without a confirmation prompt")
 	migrateCmd.Flags().StringSliceVar(&includeCommands, "include", nil, "Specify additional commands to include in the migration process (e.g., --include remove-backend)")
 }
