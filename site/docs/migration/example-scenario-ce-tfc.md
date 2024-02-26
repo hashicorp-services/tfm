@@ -22,9 +22,9 @@ application-rbac
 
 A suitable repository for migration with tfm (at this time) has the following requirements:
 
-- The root of the repository contains the terraform configurations and the backend{} configuration block.
-- The initial release of the CE migration feature only supports this configuration. There is no support (yet) for monorepos that contain multiple directories with multiple terraform configurations and backend{} configurations. There is no support for repositories that user the terraform workspace feature to manage multiple state files with one backedn{} configuration.
-
+- The repository contains the terraform configurations and the backend{} configuration block.
+- The repository can be a monorepo with many configurations in many directory paths.
+- The repository can be using 1 backend to share multiple state files using terraform CE workspaces.
 
 ### Preparing the destination (TFC/TFE organization)
 
@@ -72,37 +72,111 @@ With the configuration file configured the migration team clones the repos to th
 
 tfm populates the `github_clone_repos_path` with the 4 repos defined in the config file above.
 
+### Build the Metadata File
+
+With the repos cloned locally the migration team builds a metadata file with information about how the repositories are using terraform.
+
+`tfm core init-repos`
+
+tfm looks through all paths in the repo and identifies paths using a `.tf` file with a `terraform { backend {} }` configuration. tfm also runs `tfm workspace list` and determines if the path is using terraform ce workspaces. tfm builds a `terraform_config_metadata.json` file in the tfm working directory that contains information about each repo.
+
+```json
+  {
+    "repo_name": "isengard",
+    "config_paths": [
+      {
+        "path": "isengard/infra/east/primary",
+        "workspace_info": {
+          "uses_workspaces": true,
+          "workspace_names": [
+            "default",
+            "newisengard",
+            "oldisengard"
+          ]
+        }
+      },
+      {
+        "path": "isengard/infra/east/secondary",
+        "workspace_info": {
+          "uses_workspaces": false,
+          "workspace_names": [
+            "default"
+          ]
+        }
+      },
+```
+
 ### Get State
 
-With the repos cloned locally the migration team retrieves the state files for each repo.
+With the repos cloned locally and the metadata file built the migration team retrieves the state files for each repo.
 
 `tfm core getstate`
 
-tfm runs `terraform init` and `terraform state pull > .terraform/pulled_terraform.tfstate` to retrieve that state for each repo. Terraform must be installed locally or in the execution environment and available in the path.
+tfm will use the `terraform_config_metadata.json` config file to  iterate through all of the cloned repositories in the `github_clone_repos_path` and metadata `config_paths` to download the state files from the backend. 
+
+tfm will use the locally installed terraform binary to perform `terraform init` and `terraform state pull > .terraform/pulled_terraform.tfstate` commands. 
+
+If tfm cannot successfully run a `terraform init` for a cloned repo tfm will return an error and continue with the next repository initilization attempt.
+
+For any `config_path` with `uses_workspaces: true`, tfm will run `tfm workspace select` for each workspace in the `workspace_names` list and `terraform state pull > .terraform/pulled_<worspace name>_terraform.tfstate`. The end result will be multiple state files within the `config_path` for each workspace.
 
 ### Create Workspaces
 The migration team creates TFC/TFE workspaces for each terraform configuration and state file to be managed by TFE/TFC
 
 `tfm core create-workspaces`
 
-tfm looks at all of the cloned repos and looks for the ones containing `.terraform/pulled_terraform.tfstate` and creates a workpace with the identical name as the cloned repository directory.
+tfm will use the `terraform_config_metadata.json` config file to create a TFC/TFE workspace in the `dst_tfc_org` defined in the config file for each repository. 
 
+Workspace names are generated using the metadata file in the following format:
+
+- Config path using terraform ce workspaces:
+`repo_name+config_path+workspace_name`
+
+- Config path without terraform ce workspaces:
+`repo_name+config_path`
+
+As an example, the below metadata would create 2 TFC/TFE workspaces with the names:
+
+- `isengard-infra-east-primary-newisengard`
+- `isengard-infra-east-primary-oldisengard`
+
+```json
+  {
+    "repo_name": "isengard",
+    "config_paths": [
+      {
+        "path": "isengard/infra/east/primary",
+        "workspace_info": {
+          "uses_workspaces": true,
+          "workspace_names": [
+            "default",
+            "newisengard",
+            "oldisengard"
+          ]
+        }
+      },
+```
 
 ### Migrate State
 The migration team can now upload state to the workspaces.
 
-`tfm core get-state`
+`tfm core upload-state`
 
-tfm looks at all of the cloned repos and looks for the ones containing `.terraform/pulled_terraform.tfstate` and uploads the state file to the workspace with the same name as the repository directory it belongs to.
+`tfm core upload-state` is used to upload the state files that were downloaded using the `tfm core getstate` command to workspace created with the `tfm core create-worksapces` command. tfm will use the `terraform_config_metadata.json` config file to iterate through all of the `config_paths`. Any config path containing a `.terraform/pulled_terraform.tfstate` or `.terraform/pulled_workspaceName_terraform.tfstate` file will have the state file uploaded to a workspace that matches with the `config_path`.
 
 ### Link Repositories
 The migration team can now attach the repository containing the terraform code to the workspace.
 
 `tfm core link-vcs`
 
-tfm looks at all of the cloned repos and looks for a TFC/TFE workspace with the same name as the cloned repository directory. tfm uses the provided `vcs_provider_id` in the tfm configuration file and the name of the repository to update the workspaces VCS connection.
+tfm will use the `terraform_config_metadata.json` file and look at each `config_path` and find a matching TFC/TFE workspace with a name that matches to the path.
+
+tfm will update the workspace settings using the `vcs_provider_id` defined in the config file and the `repo_name` that the `config_path` belongs to and map the repo to the workspace.
  
 ### Validation
+
+The migration team assigns a TFC/TFE variable set to each workspace with the correct credentials required to authenticate with the provider.
+
 The migration team can now run a terraform plan and apply on the workspace and expect no changes to be made. If changes are being shown then verify there were no changes expected before migration.
 
 

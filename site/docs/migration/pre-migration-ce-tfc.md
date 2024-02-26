@@ -6,8 +6,8 @@ Migrating from Terraform Community Edition to Terraform Cloud or Terraform Enter
 ### Software
 
 - Are you permitted to run TFM in an environment that can access the supported VCS and TFC/TFE at the same time?
-- Terraform CLI must be installed in the execution environment to use the tfm features for downloading state.
-- The local execution environment running tfm must be able to authenticate to the backend store state files to use the tfm features for downloading stae.
+- Terraform CLI must be installed in the execution environment to use the tfm features.
+- The local execution environment running tfm must be able to authenticate to the backend store state files to use the tfm features for downloading state.
 
 ### Terraform Cloud or Terraform Enterprise
 - TFE Version?  (If applicable)
@@ -37,10 +37,11 @@ The migration propject has 6 key phases:
 - Determine current Terraform Community Edition landscape
     - Version Control Providers (Which VCS)
     - Structure(s) of VCS repositories (monorepos, terraform workspaces in use, terragrunt or other 3rd party tools being used)
-    - Estimated number of repositories and terraform configurations.
+    - Estimated number of repositories and terraform configurations per repository.
+    - Estimated number of total terraform configurations to migrate.
 - Establish Workspace criteria required to be eligible for migration. Migrating everything or just some.
 - Discuss workspace creation
-  - tfm only has the capabilities to create workspaces with the same name as the repo at this time.
+  - tfm only has the capabilities to create workspaces with constructed from the metadata file tfm generates with the following format: `repo_name+config_path+workspace_name` for configurations using terraform ce workspaces and `repo_name+config_path` for configurations not using terraform ce workspaces.
   - Future releases aim to allow workspace names to be modified during creation or map to existing worksapces created with the terraform tfe provider.
 - Discuss State Migration on Workspaces (Latest State only)
 
@@ -55,12 +56,14 @@ The migration propject has 6 key phases:
 - Establish Validation process as agreed upon with the Customer.
     - Running a plan and apply after the migration to verify no changes are expected.
     - How to assign credentials to all of the workspaces after migration.
-- Establish a control plane to run tfm from to perform migration tasks. Requires access to the Terraform Enterprise/Terraform Cloud destination org and the VCS GitHub org at the same time.
+- Establish a control plane to run tfm from to perform migration tasks. Requires access to the Terraform Enterprise/Terraform Cloud destination org and the VCS GitHub org at the same time. Requires credentials to authenticate to the terraform backends.
 
 #### Configuration
 
 - Configure the TFE/TFC Version Control connection
 - Configure the tfm configuration file
+- Install terraform in the working environment
+- Configure backend authentication credentials in the working environment
 
 #### Technical Validation (Proof of Concept)
 
@@ -72,12 +75,14 @@ The migration propject has 6 key phases:
     - ( Optional) Run tfm core migrate to migrate an entire GitHub org at once.
     - ( Recommended ) Run tfm core commands in the order defined:
         - tfm core clone
+        - tfm core init-repos
         - tfm core getstate
         - tfm core create-workspaces
         - tfm core upload-state
         - tfm core link-vcs
     - Run plan and apply on TFC/TFE workspaces and verify no changes are expected.
     - Validate.
+    - tfm core remove-backend if desired to cleanup the code and push branches.
 
 #### End-User Validation
 - Run plan and apply on TFC/TFE workspaces and verify no changes are expected.
@@ -86,9 +91,10 @@ The migration propject has 6 key phases:
 ### Migration Flow
 The high level migration flow has 6 key steps:
 1. Clone terraform configuration repositories
-2. Retreieve state files
-3. Create TFC/TFE workspaces
-4. Upload state files to workspaces
-5. Link configuration repositories to workspaces
-6. Cleanup configuration code
+2. Build the metadata file describing the layout of each repo
+3. Retreieve state files
+4. Create TFC/TFE workspaces
+5. Upload state files to workspaces
+6. Link configuration repositories to workspaces
+7. Cleanup configuration code
 

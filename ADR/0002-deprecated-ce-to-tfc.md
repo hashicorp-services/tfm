@@ -1,4 +1,8 @@
-# Open Source / Community Edition to TFC/TFE Feature(s)
+# ADR #0002: Open Source / Community Edition to TFC/TFE Feature(s)
+
+# Deprecated
+
+Superseded by [0003-ce-to-tfc](0003-ce-to-tfc.md)
 
 ## Phases
 This feature will be implemented in phases
