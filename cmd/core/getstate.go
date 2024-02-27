@@ -4,7 +4,9 @@
 package core
 
 import (
+
 	"encoding/json"
+
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -59,6 +61,7 @@ func pullTerraformState(dirPath, outputPath string) error {
 	}
 	return ioutil.WriteFile(outputPath, output, 0644)
 }
+
 
 func selectTerraformWorkspace(dirPath, ceWorkspaceName string) error {
 	cmd := exec.Command("terraform", "workspace", "select", ceWorkspaceName)
@@ -159,5 +162,6 @@ func initializeRepos() error {
 	}
 
 	fmt.Printf("Terraform initialization and state processing completed for %d configurations.\n", initCount)
+
 	return nil
 }

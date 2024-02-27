@@ -31,5 +31,4 @@ Global Flags:
       --json            Print the output in JSON format
 ```
 
-
 Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 

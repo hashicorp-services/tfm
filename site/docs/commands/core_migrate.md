@@ -1,5 +1,6 @@
 # tfm core migrate
 
+
 ## Requirements
 
 - The VCS provider must be configured in TFE/TFC and you must provide the VCS providers Oauth ID as the `vcs_provider_id` in the config file.
@@ -33,6 +34,7 @@ tfm will run the following commands in the following order when the migrate comm
 `tfm core create-worksapces`
 `tfm core upload-state`
 `tfm core link-vcs`
+
 
 ## Flags
 

@@ -28,6 +28,7 @@ commit_author_name = "name"
 commit_author_email = "email"
 ```
 
+
 ## Flags 
 
 `--autoapprove` Automatically approve the operation without a confirmation prompt.
@@ -35,3 +36,4 @@ commit_author_email = "email"
 ## Cleanup
 
 `tfm core cleanup` can be used to remove all cloned repos from the `github_clone_repos_path`
+

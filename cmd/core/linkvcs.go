@@ -4,10 +4,12 @@
 package core
 
 import (
+
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"strings"
+
 
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
@@ -31,6 +33,7 @@ var LinkVCSCmd = &cobra.Command{
 func init() {
 	CoreCmd.AddCommand(LinkVCSCmd)
 }
+
 
 // Loads the metadata file information for use
 func loadMetadataLinkVcs(metadataFile string) ([]RepoConfig, error) {

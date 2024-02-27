@@ -1,5 +1,6 @@
 # tfm core getstate
 
+
 ## Requirements
 
 - Terraform community edition must be installed and in your path in the environment where this command is run.
@@ -17,3 +18,4 @@ If tfm cannot successfully run a `terraform init` for a cloned repo tfm will ret
 ## Terraform CE Workspaces
 
 For any `config_path` with `uses_workspaces: true`, tfm will run `tfm workspace select` for each workspace in the `workspace_names` list and `terraform state pull > .terraform/pulled_<worspace name>_terraform.tfstate`. The end result will be multiple state files within the `config_path` for each workspace.
+

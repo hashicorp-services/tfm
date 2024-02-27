@@ -296,6 +296,7 @@ func uploadStateFiles(c tfclient.DestinationContexts, clonePath string) error {
 				fmt.Printf("Successfully uploaded state file %s to workspace: %s\n", tfstatePath, workspaceName)
 			}
 		}
+
 	}
 
 	return nil

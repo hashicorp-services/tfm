@@ -28,6 +28,7 @@ upload state, link VCS, and optionally remove backend configurations as part of 
 				return fmt.Errorf("invalid command specified in --include: %s", includeCmd)
 			}
 		}
+
 		// Check for auto-approval
 		if !autoApprove {
 			promptMessage := `
@@ -49,6 +50,7 @@ This command will run all of the commands listed below in order.:
 				return nil // Exit if the user does not confirm
 			}
 		}
+
 
 		commonArgs := []string{}
 

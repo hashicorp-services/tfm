@@ -58,12 +58,14 @@ The migration propject has 6 key phases:
     - How to assign credentials to all of the workspaces after migration.
 - Establish a control plane to run tfm from to perform migration tasks. Requires access to the Terraform Enterprise/Terraform Cloud destination org and the VCS GitHub org at the same time. Requires credentials to authenticate to the terraform backends.
 
+
 #### Configuration
 
 - Configure the TFE/TFC Version Control connection
 - Configure the tfm configuration file
 - Install terraform in the working environment
 - Configure backend authentication credentials in the working environment
+
 
 #### Technical Validation (Proof of Concept)
 
@@ -82,7 +84,9 @@ The migration propject has 6 key phases:
         - tfm core link-vcs
     - Run plan and apply on TFC/TFE workspaces and verify no changes are expected.
     - Validate.
+
     - tfm core remove-backend if desired to cleanup the code and push branches.
+
 
 #### End-User Validation
 - Run plan and apply on TFC/TFE workspaces and verify no changes are expected.

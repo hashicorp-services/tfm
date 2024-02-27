@@ -333,6 +333,7 @@ func constructFullPath(clonePath string, repoConfig RepoConfig, configPath Confi
 // 	return nil
 // }
 
+
 func commitChanges(repoPath, branchName string) error {
 	commitMessage := viper.GetString("commit_message")
 	if commitMessage == "" {

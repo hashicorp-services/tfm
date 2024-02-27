@@ -22,6 +22,7 @@ application-rbac
 
 A suitable repository for migration with tfm (at this time) has the following requirements:
 
+
 - The repository contains the terraform configurations and the backend{} configuration block.
 - The repository can be a monorepo with many configurations in many directory paths.
 - The repository can be using 1 backend to share multiple state files using terraform CE workspaces.
@@ -71,6 +72,7 @@ With the configuration file configured the migration team clones the repos to th
 `tfm core clone`
 
 tfm populates the `github_clone_repos_path` with the 4 repos defined in the config file above.
+
 
 ### Build the Metadata File
 
@@ -160,6 +162,7 @@ As an example, the below metadata would create 2 TFC/TFE workspaces with the nam
 ### Migrate State
 The migration team can now upload state to the workspaces.
 
+
 `tfm core upload-state`
 
 `tfm core upload-state` is used to upload the state files that were downloaded using the `tfm core getstate` command to workspace created with the `tfm core create-worksapces` command. tfm will use the `terraform_config_metadata.json` config file to iterate through all of the `config_paths`. Any config path containing a `.terraform/pulled_terraform.tfstate` or `.terraform/pulled_workspaceName_terraform.tfstate` file will have the state file uploaded to a workspace that matches with the `config_path`.
@@ -176,6 +179,7 @@ tfm will update the workspace settings using the `vcs_provider_id` defined in th
 ### Validation
 
 The migration team assigns a TFC/TFE variable set to each workspace with the correct credentials required to authenticate with the provider.
+
 
 The migration team can now run a terraform plan and apply on the workspace and expect no changes to be made. If changes are being shown then verify there were no changes expected before migration.
 
