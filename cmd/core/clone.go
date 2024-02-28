@@ -104,6 +104,10 @@ func cloneRepos(ctx *githubclient.ClientContext, repos []*github.Repository) err
 		// Construct the directory path based on the repository name.
 		clonePath := viper.GetString("github_clone_repos_path")
 
+		if clonePath == "" {
+			return fmt.Errorf("github_clone_repos_path is not configured")
+		}
+
 		dir := filepath.Join(clonePath, *repo.Name)
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			fmt.Printf("Cloning %s into %s\n", *repo.FullName, dir)
