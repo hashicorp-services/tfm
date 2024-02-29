@@ -51,7 +51,6 @@ This command will run all of the commands listed below in order.:
 			}
 		}
 
-
 		commonArgs := []string{}
 
 		// Directly invoke the RunE function of each command
