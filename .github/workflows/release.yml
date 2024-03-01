@@ -70,4 +70,3 @@ jobs:
             ./pkg/tfm-darwin-arm64
             ./pkg/tfm-linux-amd64
             ./pkg/tfm-windows-amd64.exe
-

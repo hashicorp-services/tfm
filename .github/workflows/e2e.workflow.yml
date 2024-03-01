@@ -720,6 +720,7 @@ jobs:
       - name: Migrate projects
         run: ./tfm copy projects --config test/configs/.e2e-project-map-test.hcl
 
+
   # tfm-tests-ce-to-tfc-migration:
   #   runs-on: ubuntu-latest
   #   env: 
@@ -799,6 +800,7 @@ jobs:
 
   #     - name: Remove created TFC Workspaces
   #       run: ./tfm nuke workspaces --autoapprove=true
+
 
   destroy-tfc-resources:
     runs-on: "ubuntu-latest"

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0](https://github.com/hashicorp-services/tfm/compare/v0.7.0...v0.8.0) (2024-03-01)
+
+### Features
+
+* **Terraform CE to TFC/TFE Migration** TFM now supports discovery and migration of VCS repos configured as monorepos ( repos with more than 1 terraform configuration ) and terraform community edition workspaces. See docs and `tfm core -h` for more info.
+* **Terraform CE to TFC/TFE Migration:** `tfm core init-repos` command added to assist in migrations. Builds a metadata file in the tfm working directory with information about how each VCS repo is configured.
+* **tfm core migrate:** `tfm core migrate` command now executes the `tfm core init-repos` command.
+
 ## [0.7.0](https://github.com/hashicorp-services/tfm/compare/v0.6.0...v0.7.0) (2024-02-21)
 
 ### Features

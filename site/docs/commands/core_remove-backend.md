@@ -1,10 +1,22 @@
 # tfm core remove-backend
 
-Using this feature requires the GitHub token defined in the configuration file to have write permissions to the contents of the repository.
+## Requirements
+
+- Using this feature requires the GitHub token defined in the configuration file to have write permissions to the contents of the repository.
+- Add the following the configuration file:
+
+```
+github_token = "api token"
+github_organization = "org"
+github_username = "username"
+commit_message = "Remove Terraform backend configuration"
+commit_author_name = "username"
+commit_author_email = "user@email.com"
+```
 
 `tfm core remove-backend` is used to assist in removing the `backend{}` configuration block from the `terraform{}` block in terraform configurations that have been migrated.
 
-tfm will iterate through all cloned repositories in the `github_clone_repos_path`. tfm will only look in the root of each repository. tfm will examine all files ending in a `.tf` extension and remove any instances of a `backend{}` configuration. 
+tfm will use the `terraform_config_metadata.json` config file to iterate through all cloned repositories in the `github_clone_repos_path`. tmf will removed the backend from all `config_paths` for the repo.
 
 tfm will create a branch, commit the branch, and push it to the origin for code owners to create a PR.
 
@@ -16,6 +28,12 @@ commit_author_name = "name"
 commit_author_email = "email"
 ```
 
-# Flags 
+
+## Flags 
 
 `--autoapprove` Automatically approve the operation without a confirmation prompt.
+
+## Cleanup
+
+`tfm core cleanup` can be used to remove all cloned repos from the `github_clone_repos_path`
+
