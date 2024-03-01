@@ -33,7 +33,7 @@ jobs:
       - name: Copy Architectual Decision Records for docs site
         uses: canastro/copy-action@master
         with:
-          source: "ADR/adr.md"
+          source: "ADR/0001-initial-adr.md"
           target: "site/docs/code/adr.md"
       # - name: test copy
       #   run: ls -l site/docs/about 
