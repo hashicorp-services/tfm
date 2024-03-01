@@ -60,6 +60,7 @@ nav:
     - Core:
       - General: commands/core.md
       - Clone: commands/core_clone.md
+      - Init-repos: command/core_init-repos.md
       - Getstate: commands/core_getstate.md
       - Create-worksapces: commands/core_create-workspaces.md
       - Upload-state: commands/core_upload-state.md
