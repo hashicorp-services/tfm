@@ -38,6 +38,22 @@ An ADR should be created for each VCS provider as they require different client 
 
 A new file `vcsclients/gitlab.go` should create the gitlab client context for use with tfm functions that interact with GitLab.
 
+Need create a struct similiar to the following:
+
+> [!IMPORTANT]
+> Gitlab uses groups instead of organizations
+
+```go
+type ClientContext struct {
+	GitLabClient       *gitlab.Client
+	GitLabToken        string
+	GitLabGroup        string 
+	GitLabUsername     string
+}
+```
+
+### Testing
+
 ## Decision
 
 This section describes our response to these forces and what we are actually proposing on doing. It is stated in full sentences, with active voice. "We will ..."
