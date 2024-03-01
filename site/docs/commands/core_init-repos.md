@@ -5,6 +5,7 @@
 - Terraform community edition must be installed and in your path in the environment where this command is run.
 - Credentials to authenticate to the configured backend must be configured in the environment where this command is run.
 
+## Init Repos
 `tfm core init-repos` will iterate through the cloned repositories in the `github_clone_repos_path` and build a `terraform_config_metadata.json` file that contains information about how the repositories are configured. It will determine all paths within the repo that contain terraform configurations and if terraform CE workspaces are being used.
 
 Any directory containing a `.tf` file with a `backend {}` configuration contained within a `terraform {}` configuration will be added to the metadata file as a `config_path`.
