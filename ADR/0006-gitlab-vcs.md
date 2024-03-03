@@ -46,18 +46,41 @@ Need create a struct similiar to the following:
 ```go
 type ClientContext struct {
 	GitLabClient       *gitlab.Client
+    GitLabContext      context.Context
 	GitLabToken        string
 	GitLabGroup        string 
 	GitLabUsername     string
 }
 ```
 
+### TFM Config File
+
+The following new configurations will be added and required for use with GitLab:
+
+- gitlab_token
+- gitlab_group
+- gitlab_username
+
 ### Testing
+
+GitLab offers a free tier that can be used for nightly/weekly testing with GitLab. A service account can be created for implementing a nightly/weekly test for interaction with gitlab.
+
+### Changes to Existing Code
+
+- `tfm core clone` must be modified to clone repos based on VCS.
+  - We can add an additional config file option `vcs_type` and use that as an input for the clone function.
+- The configuration file option `github_clone_repos_path` needs to be modified to `clone_repo_path`.
+- Many functions enforce the requirements of `github_username` `github_token` `github_organization`. Functions should me refactored to be VCS agnostic or, if required, a seprate function should be created for each VCS.
 
 ## Decision
 
-This section describes our response to these forces and what we are actually proposing on doing. It is stated in full sentences, with active voice. "We will ..."
+- A new `gitlab.go` will be created as part of the `vcsclients` package and will build a context for client creation and use with Viper.
+- Additional config file items will be added for GitLab support.
+- `github_clone_repos_path` will be modified to be VCS agnostic.
+- Existing functions will be made VCS agnostic.
+- A new config file option `vcs_type` will be added to the config file.
 
 ## Consequences
 
-What becomes easier or more difficult because of the decision made. This section describes the resulting context, after applying the decision. All consequences should be listed here, not just the "positive" ones. A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future.
+- Users will have the ability to use GitLab with the `tfm core clone` and `tfm core remove-backend` commands.
+- TFM will be made VCS agnostic for future implementation of supported VCS providers.
