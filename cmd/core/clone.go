@@ -138,7 +138,15 @@ func cloneReposGithub(ctx *vcsclients.ClientContext, repos []*github.Repository)
 }
 
 func listReposGitLab(ctx *vcsclients.GitLabClientContext) ([]*gitlab.Project, error) {
-	// add function to get from list
+	reposList := viper.GetStringSlice("repos_to_clone")
+
+	if ctx.GitLabGroup == "" || ctx.GitLabToken == "" || ctx.GitLabUsername == "" {
+		return nil, fmt.Errorf("gitlab_group, gitlab_username, or gitlab_token not provided")
+	}
+
+	var allRepos []*gitlab.Project
+	var filteredRepos []*gitlab.Project
+
 	listOptions := gitlab.ListGroupProjectsOptions{
 		ListOptions: gitlab.ListOptions{
 			PerPage: 10,
@@ -160,7 +168,32 @@ func listReposGitLab(ctx *vcsclients.GitLabClientContext) ([]*gitlab.Project, er
 		listOptions.Page = response.NextPage
 	}
 
-	return allProjects, nil
+	// If repos_to_clone is specified, filter the repositories
+	if len(reposList) > 0 {
+
+		o.AddFormattedMessageCalculated("Found %d repos to clone in `repos_to_clone` list.", len(reposList))
+
+		repoMap := make(map[string]bool)
+		for _, repoName := range reposList {
+			repoMap[repoName] = true
+		}
+
+		for _, project := range allProjects {
+			if _, ok := repoMap[*&project.Name]; ok {
+				filteredRepos = append(filteredRepos, project)
+			}
+		}
+
+		// If repos_to_clone list is empty then clone all repos in the gitlab group
+	} else {
+		filteredRepos = allRepos
+
+		o.AddFormattedMessageUserProvided("No repos_to_clone list found in config file. Getting All Repositories from GitLab Group: \n", ctx.GitLabGroup)
+	}
+
+	o.AddFormattedMessageCalculated("Found %d Repositories in GitLab group.\n", len(allProjects))
+
+	return filteredRepos, nil
 }
 
 func cloneReposGitLab(ctx *vcsclients.GitLabClientContext, repos []*gitlab.Project) error {
@@ -190,6 +223,8 @@ func cloneReposGitLab(ctx *vcsclients.GitLabClientContext, repos []*gitlab.Proje
 		} else {
 			fmt.Printf("Directory %s already exists, skipping clone of %s\n", dir, repo.WebURL)
 		}
+		o.AddDeferredMessageRead("Cloned:", *&repo.Name)
+
 	}
 
 	return nil
