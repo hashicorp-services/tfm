@@ -8,12 +8,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/google/go-github/github"
 	"github.com/hashicorp-services/tfm/output"
-	githubclient "github.com/hashicorp-services/tfm/vcsclients"
+	vcsclients "github.com/hashicorp-services/tfm/vcsclients"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/xanzy/go-gitlab"
 )
 
 var (
@@ -26,8 +29,16 @@ var (
 		Long:  "clone VCS repositories containing terraform code. These will be iterated upon by tfm to download state files, read them, and push them to workspaces.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			return main(
-				githubclient.CreateContext())
+			vcsType := viper.GetString("vcs_type")
+
+			switch vcsType {
+			case "github":
+				return main(vcsclients.CreateContext())
+			case "gitlab":
+				return main(vcsclients.CreateContextGitlab())
+			default:
+				return fmt.Errorf("unsupported VCS type: %s", vcsType)
+			}
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			o.Close()
@@ -43,7 +54,7 @@ func init() {
 	CoreCmd.AddCommand(CloneCmd)
 }
 
-func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
+func listReposGithub(ctx *vcsclients.ClientContext) ([]*github.Repository, error) {
 	reposList := viper.GetStringSlice("repos_to_clone")
 
 	if ctx.GithubOrganization == "" || ctx.GithubToken == "" || ctx.GithubUsername == "" {
@@ -96,9 +107,7 @@ func listRepos(ctx *githubclient.ClientContext) ([]*github.Repository, error) {
 	return filteredRepos, nil
 }
 
-// cloneRepos clones the repositories returned by listRepos.
-// It clones each repository into a subdirectory under github_cloned_repos_path.
-func cloneRepos(ctx *githubclient.ClientContext, repos []*github.Repository) error {
+func cloneReposGithub(ctx *vcsclients.ClientContext, repos []*github.Repository) error {
 
 	for _, repo := range repos {
 		// Construct the directory path based on the repository name.
@@ -128,18 +137,107 @@ func cloneRepos(ctx *githubclient.ClientContext, repos []*github.Repository) err
 	return nil
 }
 
-func main(ctx *githubclient.ClientContext) error {
-
-	repos, err := listRepos(ctx)
-	if err != nil {
-		fmt.Printf("Failed to list repositories: %v\n", err)
-		return nil
+func listReposGitLab(ctx *vcsclients.GitLabClientContext) ([]*gitlab.Project, error) {
+	// add function to get from list
+	listOptions := gitlab.ListGroupProjectsOptions{
+		ListOptions: gitlab.ListOptions{
+			PerPage: 10,
+			Page:    1,
+		},
 	}
 
-	err = cloneRepos(ctx, repos)
+	var allProjects []*gitlab.Project
+	for {
+		projects, response, err := ctx.GitLabClient.Groups.ListGroupProjects(ctx.GitLabGroup, &listOptions)
+		if err != nil {
+			return nil, err
+		}
+		allProjects = append(allProjects, projects...)
+
+		if response.CurrentPage >= response.TotalPages {
+			break
+		}
+		listOptions.Page = response.NextPage
+	}
+
+	return allProjects, nil
+}
+
+func cloneReposGitLab(ctx *vcsclients.GitLabClientContext, repos []*gitlab.Project) error {
+	clonePath := viper.GetString("clone_repos_path")
+	if clonePath == "" {
+		return fmt.Errorf("clone_repos_path is not configured")
+	}
+
+	auth := &http.BasicAuth{
+		Username: ctx.GitLabUsername,
+		Password: ctx.GitLabToken,
+	}
+
+	for _, repo := range repos {
+		dir := filepath.Join(clonePath, repo.Name)
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			fmt.Printf("Cloning %s into %s\n", repo.WebURL, dir)
+			_, err := git.PlainClone(dir, false, &git.CloneOptions{
+				URL:      repo.HTTPURLToRepo,
+				Progress: os.Stdout,
+				Auth:     auth,
+			})
+			if err != nil {
+				fmt.Printf("Error cloning %s: %v\n", repo.WebURL, err)
+				continue
+			}
+		} else {
+			fmt.Printf("Directory %s already exists, skipping clone of %s\n", dir, repo.WebURL)
+		}
+	}
+
+	return nil
+}
+
+func main(ctx interface{}) error {
+	vcsType := viper.GetString("vcs_type")
+
+	var err error
+	switch vcsType {
+	case "github":
+		githubCtx, ok := ctx.(*vcsclients.ClientContext)
+		if !ok {
+			return fmt.Errorf("invalid context for GitHub")
+		}
+		repos, err := listReposGithub(githubCtx)
+		if err != nil {
+			fmt.Printf("Failed to list GitHub repositories: %v\n", err)
+			return err
+		}
+		err = cloneReposGithub(githubCtx, repos)
+		if err != nil {
+			fmt.Printf("Failed to cloneGitHub repos: %v\n", err)
+			return err
+		}
+
+	case "gitlab":
+		gitlabCtx, ok := ctx.(*vcsclients.GitLabClientContext)
+		if !ok {
+			return fmt.Errorf("invalid context for GitLab")
+		}
+		repos, err := listReposGitLab(gitlabCtx)
+		if err != nil {
+			fmt.Printf("Failed to list GitLab repositories: %v\n", err)
+			return err
+		}
+		err = cloneReposGitLab(gitlabCtx, repos)
+		if err != nil {
+			fmt.Printf("Failed to clone GitLab repos: %v\n", err)
+			return err
+		}
+	default:
+		return fmt.Errorf("unsupported VCS type: %s", vcsType)
+	}
+
 	if err != nil {
 		fmt.Printf("Failed to clone repositories: %v\n", err)
-		return nil
+		return err
 	}
 
 	return nil
