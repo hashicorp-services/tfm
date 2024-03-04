@@ -69,14 +69,14 @@ GitLab offers a free tier that can be used for nightly/weekly testing with GitLa
 
 - `tfm core clone` must be modified to clone repos based on VCS.
   - We can add an additional config file option `vcs_type` and use that as an input for the clone function.
-- The configuration file option `github_clone_repos_path` needs to be modified to `clone_repo_path`.
+- The configuration file option `clone_repos_path` needs to be modified to `clone_repo_path`.
 - Many functions enforce the requirements of `github_username` `github_token` `github_organization`. Functions should me refactored to be VCS agnostic or, if required, a seprate function should be created for each VCS.
 
 ## Decision
 
 - A new `gitlab.go` will be created as part of the `vcsclients` package and will build a context for client creation and use with Viper.
 - Additional config file items will be added for GitLab support.
-- `github_clone_repos_path` will be modified to be VCS agnostic.
+- `clone_repos_path` will be modified to be VCS agnostic.
 - Existing functions will be made VCS agnostic.
 - A new config file option `vcs_type` will be added to the config file.
 

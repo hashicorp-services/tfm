@@ -26,13 +26,13 @@ import (
 var RemoveBackendCmd = &cobra.Command{
 
 	Use:   "remove-backend",
-	Short: "Create a branch, remove Terraform backend configurations from cloned repos in github_clone_repos_path, commit the changes, and push to the origin.",
+	Short: "Create a branch, remove Terraform backend configurations from cloned repos in clone_repos_path, commit the changes, and push to the origin.",
 	Long:  `Searches through .tf files in the root of cloned repositories to remove backend configurations and commit them back on a new branch.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Check for auto-approval
 		if !autoApprove {
 			promptMessage := `
-This command will perform the following actions in each cloned repository specified in the 'github_clone_repos_path':
+This command will perform the following actions in each cloned repository specified in the 'clone_repos_path':
 	1. Create a new branch named 'update-backend-<today's date>'.
 	2. Search for and remove the 'backend {}' block within the 'terraform {}' block in all .tf files.
 	3. Commit the changes with a message indicating the removal of the backend configuration.
@@ -55,7 +55,7 @@ This command will perform the following actions in each cloned repository specif
 
 		_ = metadata
 
-		clonePath := viper.GetString("github_clone_repos_path")
+		clonePath := viper.GetString("clone_repos_path")
 		branchName := "update-backend-" + time.Now().Format("20060102")
 
 		// Step 1: Create branches as needed
@@ -332,7 +332,6 @@ func constructFullPath(clonePath string, repoConfig RepoConfig, configPath Confi
 
 // 	return nil
 // }
-
 
 func commitChanges(repoPath, branchName string) error {
 	commitMessage := viper.GetString("commit_message")

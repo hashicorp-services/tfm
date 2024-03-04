@@ -18,10 +18,10 @@ import (
 // tfm core create-workspaces command
 var CreateWorkspacesCmd = &cobra.Command{
 	Use:   "create-workspaces",
-	Short: "Create TFE/TFC workspaces for each cloned repo in the github_clone_repos_path that contains a pulled_terraform.tfstate file.",
-	Long:  `Create TFE/TFC workspaces for each cloned repo in the github_clone_repos_path that contains a pulled_terraform.tfstate file.`,
+	Short: "Create TFE/TFC workspaces for each cloned repo in the clone_repos_path that contains a pulled_terraform.tfstate file.",
+	Long:  `Create TFE/TFC workspaces for each cloned repo in the clone_repos_path that contains a pulled_terraform.tfstate file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		clonePath := viper.GetString("github_clone_repos_path")
+		clonePath := viper.GetString("clone_repos_path")
 
 		return CreateWorkspaces(tfclient.GetDestinationClientContexts(), clonePath)
 	},

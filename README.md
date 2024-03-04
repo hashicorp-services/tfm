@@ -220,7 +220,7 @@ dst_tfc_token="A TFC/TFE Token with the permissions to create workspaces in the 
 github_token = "A Github token with the permissions to read terraform code repositories you wish to migrate"
 github_organization = "The github organization containing terrafor code repositories"
 github_username = "A github username"
-github_clone_repos_path = "/path/on/local/system/to/clone/repos/to"
+clone_repos_path = "/path/on/local/system/to/clone/repos/to"
 ```
 
 Additional configurations can be provided to assist in the community edition to TFC/TFE migration:
@@ -251,7 +251,7 @@ export dst_tfc_token="A TFC/TFE Token with the permissions to create workspaces 
 export github_token = "A Github token with the permissions to read terraform code repositories you wish to migrate"
 export github_organization = "The github organization containing terrafor code repositories"
 export github_username = "A github username"
-export github_clone_repos_path = "/path/on/local/system/to/clone/repos/to"
+export clone_repos_path = "/path/on/local/system/to/clone/repos/to"
 ```
 
 ## tfm in a Pipeline

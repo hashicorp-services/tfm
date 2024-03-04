@@ -16,7 +16,7 @@ commit_author_email = "user@email.com"
 
 `tfm core remove-backend` is used to assist in removing the `backend{}` configuration block from the `terraform{}` block in terraform configurations that have been migrated.
 
-tfm will use the `terraform_config_metadata.json` config file to iterate through all cloned repositories in the `github_clone_repos_path`. tmf will removed the backend from all `config_paths` for the repo.
+tfm will use the `terraform_config_metadata.json` config file to iterate through all cloned repositories in the `clone_repos_path`. tmf will removed the backend from all `config_paths` for the repo.
 
 tfm will create a branch, commit the branch, and push it to the origin for code owners to create a PR.
 
@@ -35,5 +35,5 @@ commit_author_email = "email"
 
 ## Cleanup
 
-`tfm core cleanup` can be used to remove all cloned repos from the `github_clone_repos_path`
+`tfm core cleanup` can be used to remove all cloned repos from the `clone_repos_path`
 

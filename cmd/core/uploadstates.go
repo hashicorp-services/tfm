@@ -21,12 +21,12 @@ import (
 
 var UploadStateCmd = &cobra.Command{
 	Use:   "upload-state",
-	Short: "Upload .terraform/pulled_terraform.tfstate files from repos cloned into the github_clone_repos_path to TFE/TFC workspaces.",
+	Short: "Upload .terraform/pulled_terraform.tfstate files from repos cloned into the clone_repos_path to TFE/TFC workspaces.",
 	Long: `Iterates over directories containing .terraform/pulled_terraform.tfstate files, 
            finds corresponding TFE workspaces, locks the workspace, uploads the state file, 
            and then unlocks the workspace.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		clonePath := viper.GetString("github_clone_repos_path") // Ensure this is set
+		clonePath := viper.GetString("clone_repos_path") // Ensure this is set
 
 		return uploadStateFiles(tfclient.GetDestinationClientContexts(), clonePath)
 	},

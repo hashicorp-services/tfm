@@ -4,12 +4,10 @@
 package core
 
 import (
-
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"strings"
-
 
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
@@ -19,10 +17,10 @@ import (
 
 var LinkVCSCmd = &cobra.Command{
 	Use:   "link-vcs",
-	Short: "Link repos in the github_clone_repos_path to their corresponding workspaces in TFE/TFC.",
+	Short: "Link repos in the clone_repos_path to their corresponding workspaces in TFE/TFC.",
 	Long:  `Iterates over cloned repositories containing .terraform/pulled_terraform.tfstate files, finds the corresponding TFE/TFC workspace, and links it to the GitHub repository.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		clonePath := viper.GetString("github_clone_repos_path") // Ensure this is set
+		clonePath := viper.GetString("clone_repos_path") // Ensure this is set
 		if clonePath == "" {
 			clonePath = "test" // Default path if not specified
 		}
@@ -33,7 +31,6 @@ var LinkVCSCmd = &cobra.Command{
 func init() {
 	CoreCmd.AddCommand(LinkVCSCmd)
 }
-
 
 // Loads the metadata file information for use
 func loadMetadataLinkVcs(metadataFile string) ([]RepoConfig, error) {
