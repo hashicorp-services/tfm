@@ -14,7 +14,7 @@ import (
 
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup",
-	Short: "Removes up all cloned repositories from the github_repos_clone_path.",
+	Short: "Removes up all cloned repositories from the clone_repos_path.",
 	Long:  `Deletes all repositories that were cloned into the specified clone path, cleaning up the workspace.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		clonePath := viper.GetString("clone_repos_path")

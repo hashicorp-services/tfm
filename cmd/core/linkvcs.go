@@ -18,11 +18,11 @@ import (
 var LinkVCSCmd = &cobra.Command{
 	Use:   "link-vcs",
 	Short: "Link repos in the clone_repos_path to their corresponding workspaces in TFE/TFC.",
-	Long:  `Iterates over cloned repositories containing .terraform/pulled_terraform.tfstate files, finds the corresponding TFE/TFC workspace, and links it to the GitHub repository.`,
+	Long:  `Iterates over cloned repositories containing .terraform/pulled_terraform.tfstate files, finds the corresponding TFE/TFC workspace, and links it to the VCS repository.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		clonePath := viper.GetString("clone_repos_path") // Ensure this is set
+		clonePath := viper.GetString("clone_repos_path")
 		if clonePath == "" {
-			clonePath = "test" // Default path if not specified
+			clonePath = "test"
 		}
 		return LinkVCS(tfclient.GetDestinationClientContexts(), clonePath)
 	},
@@ -89,6 +89,25 @@ func constructWorkspaceNames(repoConfig RepoConfig, configPath ConfigPathInfo) [
 }
 
 func LinkVCS(c tfclient.DestinationContexts, clonePath string) error {
+	vcsType := viper.GetString("vcs_type")
+	var repoIdentifierBase string
+
+	switch vcsType {
+	case "github":
+		githubOrganization := viper.GetString("github_organization")
+		if githubOrganization == "" {
+			return fmt.Errorf("github_organization is not configured")
+		}
+		repoIdentifierBase = githubOrganization
+	case "gitlab":
+		gitlabGroup := viper.GetString("gitlab_group")
+		if gitlabGroup == "" {
+			return fmt.Errorf("gitlab_group is not configured")
+		}
+		repoIdentifierBase = gitlabGroup
+	default:
+		return fmt.Errorf("Missing or unsupported VCS type: %s. Configure vcs_type in config file.", vcsType)
+	}
 
 	// Check for necessary configurations
 	metadata, err := loadMetadataLinkVcs("terraform_config_metadata.json")
@@ -110,7 +129,7 @@ func LinkVCS(c tfclient.DestinationContexts, clonePath string) error {
 		for _, configPath := range repoConfig.ConfigPaths {
 			workspaceNames := constructWorkspaceNames(repoConfig, configPath)
 			for _, workspaceName := range workspaceNames {
-				repoIdentifier := fmt.Sprintf("%s/%s", githubOrganization, repoConfig.RepoName)
+				repoIdentifier := fmt.Sprintf("%s/%s", repoIdentifierBase, repoConfig.RepoName)
 				workingDirectory := ""
 
 				// Only set the working directory if config_path is not the root of the repo

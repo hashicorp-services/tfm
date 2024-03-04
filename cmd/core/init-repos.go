@@ -18,7 +18,7 @@ import (
 var InitReposCmd = &cobra.Command{
 	Use:   "init-repos",
 	Short: "Scan cloned repositories for Terraform configurations and build metadata",
-	Long: `Scans all cloned repositories based on the 'github_cloned_repos_path' from the configuration file,
+	Long: `Scans all cloned repositories based on the 'clone_repos_path' from the configuration file,
 identifies directories containing Terraform configurations, and builds a metadata file summarizing these findings.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return initRepos()
