@@ -1,6 +1,6 @@
 # tfm core cleanup
 
-`tfm core cleanup` deletes all of the cloned repositories from the `github_clone_repos_path`.
+`tfm core cleanup` deletes all of the cloned repositories from the `clone_repos_path`.
 
 # Flags
 

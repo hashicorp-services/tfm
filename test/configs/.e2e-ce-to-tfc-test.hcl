@@ -7,7 +7,7 @@ repos_to_clone =  [
 commit_message = "TFM CI Remove Terraform backend configuration"
 commit_author_name = "tfm"
 commit_author_email = "tfm@hashicorp.com"
-github_clone_repos_path = "./test"
+clone_repos_path = "./test"
 
 # github hashicorp services org OAuth ID
 vcs_provider_id = "ot-qmSw2nPbWaw7Y1Ji"

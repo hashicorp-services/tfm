@@ -4,7 +4,7 @@
 ## Requirements
 
 - The VCS provider must be configured in TFE/TFC and you must provide the VCS providers Oauth ID as the `vcs_provider_id` in the config file.
-- Configure the `github_clone_repos_path` in the config file.
+- Configure the `clone_repos_path` in the config file.
 - Authentication credentials for the cloned terraform configuration backends must be configured in the environment.
 - Terraform CLI must be installed in the environment and in the path.
 - Configure the following credentials in the tfm config file:

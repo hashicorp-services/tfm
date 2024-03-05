@@ -1,6 +1,6 @@
 # tfm core clone
 
-`tfm core clone` will clone VCS repositories to the local system into the `github_clone_repos_path` you have defined in the config file.
+`tfm core clone` will clone VCS repositories to the local system into the `clone_repos_path` you have defined in the config file.
 
 ## Supported VCS
 

@@ -47,7 +47,7 @@ dst_tfc_token="token with permissions to create workspaces"
 github_token = "token with read permissions to cloned repos"
 github_organization = "organization"
 github_username = "username"
-github_clone_repos_path = "/opt/tfm-migration/repos"
+clone_repos_path = "/opt/tfm-migration/repos"
 
 "repos_to_clone" = [
   "application-infra",
@@ -71,7 +71,7 @@ With the configuration file configured the migration team clones the repos to th
 
 `tfm core clone`
 
-tfm populates the `github_clone_repos_path` with the 4 repos defined in the config file above.
+tfm populates the `clone_repos_path` with the 4 repos defined in the config file above.
 
 
 ### Build the Metadata File
@@ -114,7 +114,7 @@ With the repos cloned locally and the metadata file built the migration team ret
 
 `tfm core getstate`
 
-tfm will use the `terraform_config_metadata.json` config file to  iterate through all of the cloned repositories in the `github_clone_repos_path` and metadata `config_paths` to download the state files from the backend. 
+tfm will use the `terraform_config_metadata.json` config file to  iterate through all of the cloned repositories in the `clone_repos_path` and metadata `config_paths` to download the state files from the backend. 
 
 tfm will use the locally installed terraform binary to perform `terraform init` and `terraform state pull > .terraform/pulled_terraform.tfstate` commands. 
 

@@ -4,7 +4,6 @@
 package core
 
 import (
-
 	"encoding/json"
 
 	"fmt"
@@ -22,8 +21,8 @@ var (
 	// `tfm core getstate` command
 	GetStateCmd = &cobra.Command{
 		Use:   "getstate",
-		Short: "Initialize and get state from terraform repos in the github_clone_repos_path.",
-		Long:  "Initialize and get state from terraform repos in the github_clone_repos_path.",
+		Short: "Initialize and get state from terraform repos in the clone_repos_path.",
+		Long:  "Initialize and get state from terraform repos in the clone_repos_path.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			return initializeRepos()
@@ -61,7 +60,6 @@ func pullTerraformState(dirPath, outputPath string) error {
 	}
 	return ioutil.WriteFile(outputPath, output, 0644)
 }
-
 
 func selectTerraformWorkspace(dirPath, ceWorkspaceName string) error {
 	cmd := exec.Command("terraform", "workspace", "select", ceWorkspaceName)
@@ -109,9 +107,9 @@ func initializeRepos() error {
 		return err
 	}
 
-	clonePath := viper.GetString("github_clone_repos_path")
+	clonePath := viper.GetString("clone_repos_path")
 	if clonePath == "" {
-		return fmt.Errorf("github_clone_repos_path is not configured")
+		return fmt.Errorf("clone_repos_path is not configured")
 	}
 
 	var initCount int

@@ -9,7 +9,7 @@
 
 ## Get State
 
-`tfm core getstate` will use the `terraform_config_metadata.json` config file to  iterate through all of the cloned repositories in the `github_clone_repos_path` and metadata `config_paths` to download the state files from the backend. 
+`tfm core getstate` will use the `terraform_config_metadata.json` config file to  iterate through all of the cloned repositories in the `clone_repos_path` and metadata `config_paths` to download the state files from the backend. 
 
 tfm will use the locally installed terraform binary to perform `terraform init` and `terraform state pull > .terraform/pulled_terraform.tfstate` commands. 
 

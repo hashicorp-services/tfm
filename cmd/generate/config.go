@@ -106,7 +106,7 @@ dst_tfc_token="Must have owner permissions"
 #github_token = "A github token used with the tfm core clone command. Must have read permissions to clone repos and write permissions to use the remove-backend command"
 #github_organization = "The github Organization to clone repos from"
 #github_username = "A github username"
-#github_clone_repos_path = "/path/on/local/host/to/clone/repos/to"
+#clone_repos_path = "/path/on/local/host/to/clone/repos/to"
 #vcs_provider_id = "An Oauth ID of a VCS provider connection configured in TFC/TFE"
 
 # A list of VCS repositories containing terraform code. TFM will clone each repo during the tfm core clone command for migrating opensource/commmunity edition terraform managed code to TFE/TFC.
