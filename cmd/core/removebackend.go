@@ -65,11 +65,21 @@ This command will perform the following actions in each cloned repository specif
 		}
 
 		// Step 2: Remove backend configurations
-		//err = removeBackendFromRepos(clonePath)
-		err = commentOutBackendInRepos(clonePath)
-		if err != nil {
-			return err
+		if commentFlag {
+			err = commentOutBackendInRepos(clonePath)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = removeBackendFromRepos(clonePath)
+			if err != nil {
+				return err
+			}
 		}
+		// err = commentOutBackendInRepos(clonePath)
+		// if err != nil {
+		// 	return err
+		// }
 
 		// Step 3: Commit changes in repos that had new branches created
 		// Only proceed to commit if there are repos with new branches
@@ -88,9 +98,12 @@ This command will perform the following actions in each cloned repository specif
 	},
 }
 
+var commentFlag bool
+
 func init() {
 	CoreCmd.AddCommand(RemoveBackendCmd)
 	RemoveBackendCmd.Flags().BoolVar(&autoApprove, "autoapprove", false, "Automatically approve the operation without a confirmation prompt")
+	RemoveBackendCmd.Flags().BoolVar(&commentFlag, "comment", false, "Comment out the backend configuration instead of removing it")
 }
 
 // Loads the metadata file information for use
@@ -214,46 +227,46 @@ func createBranchIfNeeded(clonePath, branchName string) ([]string, error) {
 	return reposWithNewBranches, nil
 }
 
-// func removeBackendFromRepos(clonePath string) error {
-// 	metadata, err := loadMetadataRemoveBackend("terraform_config_metadata.json")
-// 	if err != nil {
-// 		return fmt.Errorf("error loading metadata: %v. Run tfm core init-repos first", err)
-// 	}
+func removeBackendFromRepos(clonePath string) error {
+	metadata, err := loadMetadataRemoveBackend("terraform_config_metadata.json")
+	if err != nil {
+		return fmt.Errorf("error loading metadata: %v. Run tfm core init-repos first", err)
+	}
 
-// 	backendRegexp := regexp.MustCompile(`(?s)backend\s+"[^"]+"\s+\{.*?\}`)
+	backendRegexp := regexp.MustCompile(`(?s)backend\s+"[^"]+"\s+\{.*?\}`)
 
-// 	for _, repoConfig := range metadata {
-// 		for _, configPath := range repoConfig.ConfigPaths {
-// 			fullPath := constructFullPath(clonePath, repoConfig, configPath)
+	for _, repoConfig := range metadata {
+		for _, configPath := range repoConfig.ConfigPaths {
+			fullPath := constructFullPath(clonePath, repoConfig, configPath)
 
-// 			err := filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
-// 				if err != nil {
-// 					return err
-// 				}
-// 				if !info.IsDir() && strings.HasSuffix(info.Name(), ".tf") {
-// 					content, readErr := ioutil.ReadFile(path)
-// 					if readErr != nil {
-// 						return readErr
-// 					}
-// 					modifiedContent := backendRegexp.ReplaceAll(content, []byte(""))
-// 					if len(modifiedContent) != len(content) {
-// 						writeErr := ioutil.WriteFile(path, modifiedContent, info.Mode())
-// 						if writeErr != nil {
-// 							return writeErr
-// 						}
-// 						fmt.Printf("Removed backend configuration from: %s\n", path)
-// 					}
-// 				}
-// 				return nil
-// 			})
-// 			if err != nil {
-// 				fmt.Printf("Error processing files in %s: %v\n", fullPath, err)
-// 			}
-// 		}
-// 	}
+			err := filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if !info.IsDir() && strings.HasSuffix(info.Name(), ".tf") {
+					content, readErr := ioutil.ReadFile(path)
+					if readErr != nil {
+						return readErr
+					}
+					modifiedContent := backendRegexp.ReplaceAll(content, []byte(""))
+					if len(modifiedContent) != len(content) {
+						writeErr := ioutil.WriteFile(path, modifiedContent, info.Mode())
+						if writeErr != nil {
+							return writeErr
+						}
+						fmt.Printf("Removed backend configuration from: %s\n", path)
+					}
+				}
+				return nil
+			})
+			if err != nil {
+				fmt.Printf("Error processing files in %s: %v\n", fullPath, err)
+			}
+		}
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
 func constructFullPath(clonePath string, repoConfig RepoConfig, configPath ConfigPathInfo) string {
 	// Check if configPath.Path is equivalent to the root of the repository
