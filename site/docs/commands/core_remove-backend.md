@@ -32,6 +32,7 @@ commit_author_email = "email"
 ## Flags 
 
 `--autoapprove` Automatically approve the operation without a confirmation prompt.
+`--comment` Will comment out the backend configuration instead of removing it.
 
 ## Cleanup
 
