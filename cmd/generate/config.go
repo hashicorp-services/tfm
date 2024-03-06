@@ -84,7 +84,7 @@ dst_tfc_token="Must have owner permissions"
 #  "apool-DgzkahoomwHsBHc3=apool-vbrJZKLnPy6aLVx4",
 #]
 
-# An agent Pool ID to assign to all workspaces in the destination. Conflicts with 'workspaces-map'
+# An agent Pool ID to assign to all workspaces in the destination. Conflicts with 'agents-map'
 #agent-assignment-id="apool-h896pi2MeP4JJvsB"
 
 # A list of source=destination variable set names. TFM will look at each source variable set and recreate the variable set with the specified destination name.
@@ -103,10 +103,15 @@ dst_tfc_token="Must have owner permissions"
 #commit_message = "A commit message the tfm core remove-backend command uses when removing backend blocks from .tf files and commiting the changes back"
 #commit_author_name = "the name that will appear as the commit author"
 #commit_author_email = "the email that will appear for the commit author"
+#vcs_type = "github"
+#gitlab_token = "A gitlab token."
+#gitlab_group = "gitlab group ID (This is usually found in the url bar of gitlab)."
+#gitlab_username = "A gitlab username"
 #github_token = "A github token used with the tfm core clone command. Must have read permissions to clone repos and write permissions to use the remove-backend command"
 #github_organization = "The github Organization to clone repos from"
 #github_username = "A github username"
-#github_clone_repos_path = "/path/on/local/host/to/clone/repos/to"
+
+#clone_repos_path = "/path/on/local/host/to/clone/repos/to"
 #vcs_provider_id = "An Oauth ID of a VCS provider connection configured in TFC/TFE"
 
 # A list of VCS repositories containing terraform code. TFM will clone each repo during the tfm core clone command for migrating opensource/commmunity edition terraform managed code to TFE/TFC.

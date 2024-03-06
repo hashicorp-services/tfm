@@ -26,13 +26,13 @@ import (
 var RemoveBackendCmd = &cobra.Command{
 
 	Use:   "remove-backend",
-	Short: "Create a branch, remove Terraform backend configurations from cloned repos in github_clone_repos_path, commit the changes, and push to the origin.",
+	Short: "Create a branch, remove Terraform backend configurations from cloned repos in clone_repos_path, commit the changes, and push to the origin.",
 	Long:  `Searches through .tf files in the root of cloned repositories to remove backend configurations and commit them back on a new branch.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Check for auto-approval
 		if !autoApprove {
 			promptMessage := `
-This command will perform the following actions in each cloned repository specified in the 'github_clone_repos_path':
+This command will perform the following actions in each cloned repository specified in the 'clone_repos_path':
 	1. Create a new branch named 'update-backend-<today's date>'.
 	2. Search for and remove the 'backend {}' block within the 'terraform {}' block in all .tf files.
 	3. Commit the changes with a message indicating the removal of the backend configuration.
@@ -55,7 +55,7 @@ This command will perform the following actions in each cloned repository specif
 
 		_ = metadata
 
-		clonePath := viper.GetString("github_clone_repos_path")
+		clonePath := viper.GetString("clone_repos_path")
 		branchName := "update-backend-" + time.Now().Format("20060102")
 
 		// Step 1: Create branches as needed
@@ -65,9 +65,16 @@ This command will perform the following actions in each cloned repository specif
 		}
 
 		// Step 2: Remove backend configurations
-		err = removeBackendFromRepos(clonePath)
-		if err != nil {
-			return err
+		if commentFlag {
+			err = commentOutBackendInRepos(clonePath)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = removeBackendFromRepos(clonePath)
+			if err != nil {
+				return err
+			}
 		}
 
 		// Step 3: Commit changes in repos that had new branches created
@@ -87,9 +94,12 @@ This command will perform the following actions in each cloned repository specif
 	},
 }
 
+var commentFlag bool
+
 func init() {
 	CoreCmd.AddCommand(RemoveBackendCmd)
 	RemoveBackendCmd.Flags().BoolVar(&autoApprove, "autoapprove", false, "Automatically approve the operation without a confirmation prompt")
+	RemoveBackendCmd.Flags().BoolVar(&commentFlag, "comment", false, "Comment out the backend configuration instead of removing it")
 }
 
 // Loads the metadata file information for use
@@ -224,14 +234,6 @@ func removeBackendFromRepos(clonePath string) error {
 	for _, repoConfig := range metadata {
 		for _, configPath := range repoConfig.ConfigPaths {
 			fullPath := constructFullPath(clonePath, repoConfig, configPath)
-			// fullPath := ""
-			// if strings.HasPrefix(configPath.Path, repoConfig.RepoName+"/") {
-			// 	// If configPath already includes the repoName, use it directly
-			// 	fullPath = filepath.Join(clonePath, configPath.Path)
-			// } else {
-			// 	// If not, concatenate repoName with configPath
-			// 	fullPath = filepath.Join(clonePath, repoConfig.RepoName, configPath.Path)
-			// }
 
 			err := filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
@@ -277,62 +279,6 @@ func constructFullPath(clonePath string, repoConfig RepoConfig, configPath Confi
 		}
 	}
 }
-
-// func removeBackendFromRepos(clonePath string) error {
-// 	dirs, err := os.ReadDir(clonePath)
-// 	if err != nil {
-// 		return fmt.Errorf("error reading clone path directories: %v", err)
-// 	}
-
-// 	backendRegexp := regexp.MustCompile(`(?s)backend\s+"[^"]+"\s+\{.*?\}`)
-
-// 	for _, dir := range dirs {
-// 		if !dir.IsDir() {
-// 			continue
-// 		}
-
-// 		repoPath := filepath.Join(clonePath, dir.Name())
-// 		files, err := ioutil.ReadDir(repoPath)
-// 		if err != nil {
-// 			fmt.Printf("Error reading repo directory: %v\n", err)
-// 			continue
-// 		}
-
-// 		repoModified := false
-
-// 		for _, file := range files {
-// 			if filepath.Ext(file.Name()) != ".tf" {
-// 				continue
-// 			}
-
-// 			filePath := filepath.Join(repoPath, file.Name())
-// 			content, err := ioutil.ReadFile(filePath)
-// 			if err != nil {
-// 				fmt.Printf("Error reading .tf file: %v\n", err)
-// 				continue
-// 			}
-
-// 			modifiedContent := backendRegexp.ReplaceAll(content, []byte(""))
-
-// 			if len(modifiedContent) != len(content) {
-// 				err = ioutil.WriteFile(filePath, modifiedContent, file.Mode())
-// 				if err != nil {
-// 					fmt.Printf("Error writing modified .tf file: %v\n", err)
-// 					continue
-// 				}
-// 				fmt.Printf("Removed backend configuration from: %s\n", filePath)
-// 				repoModified = true
-// 			}
-// 		}
-
-// 		if !repoModified {
-// 			fmt.Printf("No backend blocks found in: %s\n", repoPath)
-// 		}
-// 	}
-
-// 	return nil
-// }
-
 
 func commitChanges(repoPath, branchName string) error {
 	commitMessage := viper.GetString("commit_message")
@@ -422,6 +368,55 @@ func pushBranches(ctx *githubclient.ClientContext, reposWithNewBranches []string
 		}
 
 		fmt.Printf("Branch '%s' in repo at %s pushed successfully to remote '%s'\n", branchName, repoPath, remoteName)
+	}
+
+	return nil
+}
+
+func commentOutBackendInRepos(clonePath string) error {
+	metadata, err := loadMetadataRemoveBackend("terraform_config_metadata.json")
+	if err != nil {
+		return fmt.Errorf("error loading metadata: %v. Run tfm core init-repos first", err)
+	}
+
+	backendRegexp := regexp.MustCompile(`(?s)(backend\s+"[^"]+"\s+\{.*?\})`)
+
+	for _, repoConfig := range metadata {
+		for _, configPath := range repoConfig.ConfigPaths {
+			fullPath := constructFullPath(clonePath, repoConfig, configPath)
+
+			err := filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if !info.IsDir() && strings.HasSuffix(info.Name(), ".tf") {
+					content, readErr := ioutil.ReadFile(path)
+					if readErr != nil {
+						return readErr
+					}
+					modifiedContent := backendRegexp.ReplaceAllStringFunc(string(content), func(match string) string {
+						// Split the match into lines and prepend each line with '#'
+						lines := strings.Split(match, "\n")
+						for i, line := range lines {
+							lines[i] = "#" + line
+						}
+						// Re-join the commented lines
+						return strings.Join(lines, "\n")
+					})
+					if modifiedContent != string(content) {
+						writeErr := ioutil.WriteFile(path, []byte(modifiedContent), info.Mode())
+						if writeErr != nil {
+							return writeErr
+						}
+						fmt.Printf("Commented out backend configuration in: %s\n", path)
+					}
+				}
+				return nil
+			})
+			if err != nil {
+				fmt.Printf("Error processing files in %s: %v\n", fullPath, err)
+			}
+		}
 	}
 
 	return nil

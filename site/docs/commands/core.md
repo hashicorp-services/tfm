@@ -12,15 +12,15 @@ Usage:
   tfm core [command]
 
 Available Commands:
-  cleanup           Removes up all cloned repositories from the github_repos_clone_path.
+  cleanup           Removes up all cloned repositories from the clone_repos_path.
   clone             Clone VCS repositories containing terraform code.
-  create-workspaces Create TFE/TFC workspaces for each cloned repo in the github_clone_repos_path that contains a pulled_terraform.tfstate file.
-  getstate          Initialize and get state from terraform repos in the github_clone_repos_path.
+  create-workspaces Create TFE/TFC workspaces for each cloned repo in the clone_repos_path that contains a pulled_terraform.tfstate file.
+  getstate          Initialize and get state from terraform repos in the clone_repos_path.
   init-repos        Scan cloned repositories for Terraform configurations and build metadata
-  link-vcs          Link repos in the github_clone_repos_path to their corresponding workspaces in TFE/TFC.
+  link-vcs          Link repos in the clone_repos_path to their corresponding workspaces in TFE/TFC.
   migrate           Migrates opensource/community edition Terraform code and state to TFE/TFC in 1 continuous workflow.
-  remove-backend    Create a branch, remove Terraform backend configurations from cloned repos in github_clone_repos_path, commit the changes, and push to the origin.
-  upload-state      Upload .terraform/pulled_terraform.tfstate files from repos cloned into the github_clone_repos_path to TFE/TFC workspaces.
+  remove-backend    Create a branch, remove Terraform backend configurations from cloned repos in clone_repos_path, commit the changes, and push to the origin.
+  upload-state      Upload .terraform/pulled_terraform.tfstate files from repos cloned into the clone_repos_path to TFE/TFC workspaces.
 
 Flags:
   -h, --help   help for core

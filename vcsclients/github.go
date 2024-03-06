@@ -1,4 +1,4 @@
-package githubclient
+package vcsclients
 
 import (
 	"context"

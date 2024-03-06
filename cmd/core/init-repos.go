@@ -18,7 +18,7 @@ import (
 var InitReposCmd = &cobra.Command{
 	Use:   "init-repos",
 	Short: "Scan cloned repositories for Terraform configurations and build metadata",
-	Long: `Scans all cloned repositories based on the 'github_cloned_repos_path' from the configuration file,
+	Long: `Scans all cloned repositories based on the 'clone_repos_path' from the configuration file,
 identifies directories containing Terraform configurations, and builds a metadata file summarizing these findings.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return initRepos()
@@ -45,9 +45,9 @@ type RepoConfig struct {
 }
 
 func initRepos() error {
-	clonedReposPath := viper.GetString("github_clone_repos_path")
+	clonedReposPath := viper.GetString("clone_repos_path")
 	if clonedReposPath == "" {
-		return fmt.Errorf("github_clone_repos_path is not configured")
+		return fmt.Errorf("clone_repos_path is not configured")
 	}
 
 	var repoConfigs []RepoConfig
@@ -110,7 +110,7 @@ func fileContainsBackendBlock(filePath string) (bool, error) {
 }
 
 func addRepoConfig(repoConfigs *[]RepoConfig, repoName, configPath string) {
-	fullConfigDir := filepath.Join(viper.GetString("github_clone_repos_path"), configPath)
+	fullConfigDir := filepath.Join(viper.GetString("clone_repos_path"), configPath)
 
 	workspaceInfo := checkTerraformWorkspaces(fullConfigDir)
 

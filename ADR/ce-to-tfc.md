@@ -1,9 +1,11 @@
 # Open Source / Community Edition to TFC/TFE Feature(s)
 
 ## Phases
+
 This feature will be implemented in phases
 
 ### Phase 1
+
 - GitHub only support
 - Only migration of VCS repositories with terraform configurations in the ROOT of the repository will be supported
 - No support for 3rd party (terragrunt) managed workspaces
@@ -11,6 +13,7 @@ This feature will be implemented in phases
 - No support for configurations using the terraform workspace feature to use 1 backend for multiple stat files
 
 ### Phase 2
+
 - Support for monorepos with multiple directories containing different terraform configurations and backend blocks.
 
 Ideas:
@@ -119,6 +122,7 @@ func linkVCSWorkspaces() error {
 ```
 
 ### Phase 3
+
 - Support for terraform configurations using the terraform workspaces command'
 
 Ideas:
@@ -139,9 +143,11 @@ To effectively use TFC workspaces with a VCS-linked repository, consider organiz
 This might mean restructuring your repository so that each major environment or set of configurations has its own directory, which can then be directly mapped to a TFC workspace with a corresponding working directory.
 
 ### Phase 4
+
 - Support for additional VCSs.
   - Targetting GitLab
 - Support to allow workspace renaming during migration
 
 ### Phase 5
+
 - Continued development
