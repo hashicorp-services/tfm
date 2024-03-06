@@ -5,7 +5,7 @@
 Customer has terraform configurations managed by terraform community edition and would like to start managing these configurations with Terraform Cloud or Terraform Enterprise Workspaces.
 
 ### VCS
-They are using a tfm supported Version Control System (VCS) to manage their terraform configurations. Only GitHub is supported at the time of this release. That VCS has been connceted to TFC/TFE and the code owners are ready to start creating workspaces to link to the VCS repositories.
+They are using a tfm [supported](../migration/supported-vcs.md) Version Control System (VCS) to manage their terraform configurations. That VCS has been connceted to TFC/TFE and the code owners are ready to start creating workspaces to link to the VCS repositories.
 
 ### State Files
 The state files for the VCS stored terraform configurations are stored in a supported terraform backend such as S3 and a backend{} block is configured within the terraform configurations. Code owners want to have the state managed by a TFE/TFC workspace.
@@ -44,6 +44,7 @@ The following is what a `~/.tfm.hcl` file will look like for `tfm core` commands
 dst_tfc_hostname="app.terraform.io"
 dst_tfc_org="organization"
 dst_tfc_token="token with permissions to create workspaces"
+vcs_type = "github"
 github_token = "token with read permissions to cloned repos"
 github_organization = "organization"
 github_username = "username"
@@ -193,7 +194,7 @@ The migration team has verified that everything is working and can begin the cle
 
 The team wants to remove the stale backend{} configurations from all of the repos.
 
-`tfm core remove-backend` iterates through all of the cloned repos and looks at all files ending in a `.tf` extension for a `backend{}` configuration. tfm creates a branch, removes the backend, commits the change, and pushes the branch. 
+`tfm core remove-backend` iterates through all of the cloned repos and looks at all files ending in a `.tf` extension for a `backend{}` configuration. tfm creates a branch, comments out the backend, commits the change, and pushes the branch. 
 
 tfm DOES NOT create a PR. That is the responsibility of the code owners.
 

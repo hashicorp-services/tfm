@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- Using this feature requires the GitHub token defined in the configuration file to have write permissions to the contents of the repository.
-- Add the following the configuration file:
+- Using this feature requires the VCS token defined in the configuration file to have write permissions to the contents of the repository.
+- Add the following example to your confiuration file, modifying the github values based on your [supported VCS type](../migration/supported-vcs.md):
 
 ```
 github_token = "api token"

@@ -12,7 +12,7 @@ Usage:
   tfm core [command]
 
 Available Commands:
-  cleanup           Removes up all cloned repositories from the github_repos_clone_path.
+  cleanup           Removes up all cloned repositories from the clone_repos_path.
   clone             Clone VCS repositories containing terraform code.
   create-workspaces Create TFE/TFC workspaces for each cloned repo in the clone_repos_path that contains a pulled_terraform.tfstate file.
   getstate          Initialize and get state from terraform repos in the clone_repos_path.

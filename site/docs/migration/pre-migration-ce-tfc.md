@@ -12,7 +12,7 @@ Migrating from Terraform Community Edition to Terraform Cloud or Terraform Enter
 ### Terraform Cloud or Terraform Enterprise
 - TFE Version?  (If applicable)
 - Number of TFE/TFC Organizations that you wish to split terraform configurations amongst if more than 1.
-- Which VCS? Only GitHub is supported at this time.
+- Which VCS? Only [supported vcs types](../migration/supported-vcs.md) at this time.
 - Is the VCS routable from the internet and serving a publicly trusted certificate?
 - Once configurations are migrated, will TFE/TFC have network connectivity to manage the inrastructure and download the required providers and modules defined in your code?
 
@@ -47,8 +47,8 @@ The migration propject has 6 key phases:
 
 #### Planning
 - Gather the requied credentials for migrating with tfm
-    - GitHub token with read permissions for each repo of interest
-    - (Optional) GitHub token with write permissions for each repo of interest. This is only needed if you intend to use the remove-backend command to assist in removing backend configurations post migraion.
+    - VCS token with read permissions for each repo of interest
+    - (Optional) VCS token with write permissions for each repo of interest. This is only needed if you intend to use the remove-backend command to assist in commenting out backend configurations post migraion.
     - Terraform Cloud or Enterprise token with permissiosn to create workspaces.
 - Determine if TFE/TFC workspaces will have the ability to manage the resources after migration. Will TFE/TFC have network access and authentication capabilities to manage the migrated resources?
 - Establish nigration Timeline and Priority
@@ -56,7 +56,7 @@ The migration propject has 6 key phases:
 - Establish Validation process as agreed upon with the Customer.
     - Running a plan and apply after the migration to verify no changes are expected.
     - How to assign credentials to all of the workspaces after migration.
-- Establish a control plane to run tfm from to perform migration tasks. Requires access to the Terraform Enterprise/Terraform Cloud destination org and the VCS GitHub org at the same time. Requires credentials to authenticate to the terraform backends.
+- Establish a control plane to run tfm from to perform migration tasks. Requires access to the Terraform Enterprise/Terraform Cloud destination org and the VCS at the same time. Requires credentials to authenticate to the terraform backends.
 
 
 #### Configuration
@@ -74,7 +74,7 @@ The migration propject has 6 key phases:
 
 #### Migrate
 - Perform migration of terraform configurations in the priority order identified in planning.
-    - ( Optional) Run tfm core migrate to migrate an entire GitHub org at once.
+    - ( Optional) Run tfm core migrate to migrate an entire GitHub org or Gitlab Project at once.
     - ( Recommended ) Run tfm core commands in the order defined:
         - tfm core clone
         - tfm core init-repos
