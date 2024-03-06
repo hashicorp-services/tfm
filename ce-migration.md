@@ -5,13 +5,14 @@
 The following prerequisites are used when migrating from terraform community edition (also known as open source) to TFC/TFE managed workspaces.
 
 - Terraform - Must be installed in the execution environment and available in the path
-- A configuration file
+- A [configuration file](./site/docs/configuration_file/config_file.md)
+- Terraform backend authentication credentials must be configured in the execution environment.
 - A terraform cloud or enterprise token with the permissions to create workspaces in an organization
-- A Github token with the permissions to read repositories containing terraform code to be migrated
+- A [supported VCS](./site/docs/migration/supported-vcs.md) token with the permissions to read repositories containing terraform code to be migrated
 
 ## Config File
 
-`tfm` utilizes a config file OR environment variables. An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
+`tfm` utilizes [a config file](./site/docs/configuration_file/config_file.md) OR environment variables. An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
 
 > [!NOTE]
 > Use the `tfm generate config` command to generate a sample configuration for quick editing.
@@ -20,9 +21,13 @@ The following prerequisites are used when migrating from terraform community edi
 dst_tfc_hostname="app.terraform.io for TFC or the hostname of your TFE application"
 dst_tfc_org="A TFE/TFC organization to create workspaces in"
 dst_tfc_token="A TFC/TFE Token with the permissions to create workspaces in the TFC/TFE organization"
+vcs_type = " A [supported vcs_type](./site/docs/migration/supported-vcs.md) "
 github_token = "A Github token with the permissions to read terraform code repositories you wish to migrate"
 github_organization = "The github organization containing terraform code repositories"
 github_username = "A github username"
+gitlab_username = "A gitlab username"
+gitlab_token = "A gitlab token"
+gitlab_group = "A gitlab group"
 clone_repos_path = "/path/on/local/system/to/clone/repos/to"
 ```
 
@@ -56,4 +61,8 @@ export github_token="A Github token with the permissions to read terraform code 
 export github_organization="The github organization containing terraform code repositories"
 export github_username="A github username"
 export clone_repos_path="/path/on/local/system/to/clone/repos/to"
+export vcs_type="A [supported VCS](./site/docs/migration/supported-vcs.md)"
+export gitlab_username="A gitlab username"
+export gitlab_token="A gitlab token"
+export gitlab_group="A gitlab group"
 ```

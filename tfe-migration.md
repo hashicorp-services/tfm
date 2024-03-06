@@ -4,13 +4,13 @@
 
 The following prerequisites are used when migrating from or to TFE or TFC from TFE or TFC.
 
-- A tfm config file
+- A [tfm config file](./site/docs/configuration_file/config_file.md)
 - A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating from
 - A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating to
 
 ## Config File
 
-`tfm` utilizes a config file OR environment variables. An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
+`tfm` utilizes a [config file](./site/docs/configuration_file/config_file.md) OR environment variables. An HCL file with the following is the minimum located at `/home/user/.tfm.hcl` or specified by `--config /path/to/config_file`. Multiple config files can be created to assist with large migrations.
 
 > [!NOTE]
 > Use the `tfm generate config` command to generate a sample configuration for quick editing.
