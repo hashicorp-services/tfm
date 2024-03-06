@@ -76,10 +76,6 @@ This command will perform the following actions in each cloned repository specif
 				return err
 			}
 		}
-		// err = commentOutBackendInRepos(clonePath)
-		// if err != nil {
-		// 	return err
-		// }
 
 		// Step 3: Commit changes in repos that had new branches created
 		// Only proceed to commit if there are repos with new branches
