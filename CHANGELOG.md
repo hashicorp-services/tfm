@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.9.0](https://github.com/hashicorp-services/tfm/compare/v0.8.0...v0.9.0) (2024-03-07)
+
+### Features
+
+* **Terraform CE to TFC/TFE Migration** Support for GitLab VCS.
+* **Terraform CE to TFC/TFE Migration** New required configuration file setting `vcs_type` introduced for defining a supported vcs type
+* **Terraform CE to TFC/TFE Migration** `tfm core remove-backend --comment` new `--comment` flag added to optionally comment out `backend {}` configurations instead of deleting them.
+
 ## [0.8.0](https://github.com/hashicorp-services/tfm/compare/v0.7.0...v0.8.0) (2024-03-01)
 
 ### Features
