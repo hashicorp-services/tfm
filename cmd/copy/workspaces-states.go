@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -321,7 +322,7 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 						return err
 					}
 
-					newSerialConversion, err :=  strconv.ParseInt(serialMatch[1], 10, 64)
+					newSerialConversion, err := strconv.ParseInt(serialMatch[1], 10, 64)
 					if err != nil {
 						fmt.Printf("The source state wasn't a int64")
 					}
@@ -391,10 +392,10 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 					// // --- end rate limiting testing code ------------------------------------------
 					// // ------------------------------------------------------------------------------
 					srcstate, err := c.DestinationClient.StateVersions.Create(c.DestinationContext, destWorkspaceId, tfe.StateVersionCreateOptions{
-						Type:             "",
-						Lineage:          &lineage,
-						MD5:              tfe.String(md5String),
-						Serial:           &newSerialConversion,
+						Type:    "",
+						Lineage: &lineage,
+						MD5:     tfe.String(md5String),
+						Serial:  &newSerialConversion,
 						//Serial:           &newSerial,
 						State:            tfe.String(stringState),
 						Force:            new(bool),
@@ -407,8 +408,11 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 						// Get the current timestamp and format it as a string
 						timestamp := time.Now().Format(time.RFC850)
 
+						// Replace colons with a different character to make the filename Windows-compatible
+						safeTimestamp := strings.ReplaceAll(timestamp, ":", "-")
+
 						// Create a file to store workspace names with errors
-						errorLogFileName := fmt.Sprintf("workspace_error_log_%s.txt", timestamp)
+						errorLogFileName := fmt.Sprintf("workspace_error_log_%s.txt", safeTimestamp)
 						errorLogFile, err := os.Create(errorLogFileName)
 						if err != nil {
 							fmt.Printf("Failed to create error log file: %v\n", err)
