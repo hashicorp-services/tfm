@@ -98,25 +98,39 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				projectName = prjN
 			}
 
-			workspaceInfo := map[string]string{
-				"name":             i.Name,
-				"id":               i.ID,
-				"repo":             ws_repo,
-				"projectName":      projectName,
-				"projectId":        i.Project.ID,
-				//"agentPool":        i.AgentPool.ID,
-				"terraformVersion": i.TerraformVersion,
-				"executionMode":    i.ExecutionMode,
-			}
+			if i.Project == nil {
+				workspaceInfo := map[string]string{
+					"name":             i.Name,
+					"id":               i.ID,
+					"repo":             ws_repo,
+					"terraformVersion": i.TerraformVersion,
+					"executionMode":    i.ExecutionMode,
+				}
 
-			if jsonOut {
-				workspaceData = append(workspaceData, workspaceInfo) // Store workspace name in the slice
-			}
+				if jsonOut {
+					workspaceData = append(workspaceData, workspaceInfo) // Store workspace name in the slice
+				}
 
-			if jsonOut == false {
-				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+				if jsonOut == false {
+					o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, "none", "none", i.Locked, i.TerraformVersion)
+				}
+			} else {
+				workspaceInfo := map[string]string{
+					"name":             i.Name,
+					"id":               i.ID,
+					"repo":             ws_repo,
+					"projectName":      projectName,
+					"projectId":        i.Project.ID,
+					"terraformVersion": i.TerraformVersion,
+					"executionMode":    i.ExecutionMode,
+				}
+				if jsonOut {
+					workspaceData = append(workspaceData, workspaceInfo) // Store workspace name in the slice
+				}
+				if jsonOut == false {
+					o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+				}
 			}
-
 		}
 		if jsonOut {
 			workspaceJSON["workspaces"] = workspaceData // Assign workspace names to the "workspaces" key
@@ -181,23 +195,38 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 				projectName = prjN
 			}
 
-			workspaceInfo := map[string]string{
-				"name":             i.Name,
-				"id":               i.ID,
-				"repo":             ws_repo,
-				"projectName":      projectName,
-				"projectId":        i.Project.ID,
-				//"agentPool":        i.AgentPool.ID,
-				"terraformVersion": i.TerraformVersion,
-				"executionMode":    i.ExecutionMode,
-			}
+			if i.Project == nil {
+				workspaceInfo := map[string]string{
+					"name":             i.Name,
+					"id":               i.ID,
+					"repo":             ws_repo,
+					"terraformVersion": i.TerraformVersion,
+					"executionMode":    i.ExecutionMode,
+				}
 
-			if jsonOut {
-				workspaceData = append(workspaceData, workspaceInfo) // Store workspace data in the slice
-			}
+				if jsonOut {
+					workspaceData = append(workspaceData, workspaceInfo) // Store workspace name in the slice
+				}
 
-			if jsonOut == false {
-				o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+				if jsonOut == false {
+					o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, "none", "none", i.Locked, i.TerraformVersion)
+				}
+			} else {
+				workspaceInfo := map[string]string{
+					"name":             i.Name,
+					"id":               i.ID,
+					"repo":             ws_repo,
+					"projectName":      projectName,
+					"projectId":        i.Project.ID,
+					"terraformVersion": i.TerraformVersion,
+					"executionMode":    i.ExecutionMode,
+				}
+				if jsonOut {
+					workspaceData = append(workspaceData, workspaceInfo) // Store workspace name in the slice
+				}
+				if jsonOut == false {
+					o.AddTableRows(i.Name, i.Description, i.ExecutionMode, ws_repo, projectID, projectName, i.Locked, i.TerraformVersion)
+				}
 			}
 		}
 		if jsonOut {
