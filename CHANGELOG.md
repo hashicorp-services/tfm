@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3](https://github.com/hashicorp-services/tfm/compare/v0.9.2...v0.9.3) (2024-03-27)
+
+### Bug Fixes
+
+* **TFE 202303-1 and earlier Support** Fix list workspaces command for TFE deployments prior to the introduction of projects.
+
 ## [0.9.2](https://github.com/hashicorp-services/tfm/compare/v0.9.1...v0.9.2) (2024-03-27)
 
 ### Bug Fixes
