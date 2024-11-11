@@ -13,7 +13,7 @@ import (
 )
 
 // Copys variables from a source workspace to a destination workspace
-func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinationWorkspaceID string) error {
+func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinationWorkspaceID string, skipSensitive bool) error {
 
 	variableListOpts := tfe.VariableListOptions{
 		ListOptions: tfe.ListOptions{
@@ -40,7 +40,7 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 	for _, workspaceVar := range srcWsVars.Items {
 		destVarName := workspaceVar.Key
 
-		//gather variables properties from source workspace. Variables marked as sensitive will be set to "" in the destination
+		//gather variables properties from source workspace. Variables marked as sensitive will be set to "" in the destination unless skipped
 		variableOpts := tfe.VariableCreateOptions{
 			Type:        "",
 			Key:         &workspaceVar.Key,
@@ -58,8 +58,20 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 		if exists {
 			o.AddMessageUserProvided("Exists in destination will not migrate", destVarName)
 
+		} else if skipSensitive {
+			//Create the variable in the destination workspace but skip any sensitive ones
+			if workspaceVar.Sensitive {
+				o.AddMessageUserProvided(destVarName, "is sensitive and will not be copied")
 		} else {
-
+			//Create the variable in the destination workspace
+			o.AddMessageUserProvided("Copying", destVarName)
+			_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
+			if err != nil {
+				fmt.Println("Could not create Workspace variable.\n\n Error:", err.Error())
+				return err
+			}
+		} 
+	} else {
 			//Create the variable in the destination workspace
 			o.AddMessageUserProvided("Copying", destVarName)
 			_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
@@ -84,7 +96,7 @@ func doesVarExist(workspaceName string, v *tfe.VariableList) bool {
 }
 
 // Main function used for --vars flag
-func copyVariables(c tfclient.ClientContexts) error {
+func copyVariables(c tfclient.ClientContexts, skipSecure bool) error {
 
 	// Get the source workspaces from the config file or ALL workspaces if non provided in the config file
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
@@ -126,7 +138,7 @@ func copyVariables(c tfclient.ClientContexts) error {
 			fmt.Printf("Source ws %v has a matching ws %v in destination with ID %v. Comparing and copying existing variables...\n", srcworkspace.Name, destWorkSpaceName, destWorkspaceId)
 
 			// Copy Variables from Source to Destination Workspace
-			variableCopy(c, srcworkspace.ID, destWorkspaceId)
+			variableCopy(c, srcworkspace.ID, destWorkspaceId, skipSensitive)
 
 			// Unlock the workspace
 			unlockWorkspace(tfclient.GetClientContexts(), destWorkspaceId)

@@ -17,15 +17,16 @@ import (
 )
 
 var (
-	state      bool
-	vars       bool
-	teamaccess bool
-	agents     bool
-	vcs        bool
-	ssh        bool
-	last       int
-	lock       bool
-	unlock     bool
+	state         bool
+	vars          bool
+	skipSensitive bool
+	teamaccess    bool
+	agents        bool
+	vcs           bool
+	ssh           bool
+	last          int
+	lock          bool
+	unlock        bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -50,7 +51,7 @@ var (
 			case state:
 				return copyStates(tfclient.GetClientContexts(), last)
 			case vars:
-				return copyVariables(tfclient.GetClientContexts())
+				return copyVariables(tfclient.GetClientContexts(), skipSensitive)
 			case teamaccess:
 				return copyWsTeamAccess(tfclient.GetClientContexts())
 
@@ -117,6 +118,7 @@ func init() {
 	// `tfemigrate copy workspaces --workspace-id [WORKSPACEID]`
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
+	workspacesCopyCmd.Flags().BoolVarP(&skipSensitive, "skip-sensitive-vars", "", false, "Skip copying sensitive variables. Must be used with --vars flag")
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().IntVarP(&last, "last", "l", last, "Copy the last X number of state files only.")
 	// SetInterspersed prevents cobra from parsing arguments that appear after flags
