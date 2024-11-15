@@ -1,72 +1,31 @@
-name: Release tfm
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'tfm version number'
-        required: true
-        default: ''
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  goreleaser:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Install Go
-        uses: actions/setup-go@v3
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.19.5
-
-      - name: Install gox
-        run: |
-          go get github.com/mitchellh/gox 
-          go install github.com/mitchellh/gox 
-
-      - name: Install zip
-        run: |
-          sudo apt-get update -q
-          sudo apt-get install zip -q
-
-      - name: Cross compile
-        run: |
-          gox \
-            -os="linux darwin windows" \
-            -ldflags="-X 'github.com/hashicorp-services/tfm/version.Version=${{ github.event.inputs.version }}' -X 'github.com/hashicorp-services/tfm/version.Build=${{ github.sha }}' -X 'github.com/hashicorp-services/tfm/version.Date=$(date)' -X 'github.com/hashicorp-services/tfm/version.BuiltBy=github'" \
-            -arch="amd64 arm64" \
-            -output "./pkg/tfm-{{.OS}}-{{.Arch}}" \
-            .
-
-      - name: Print version
-        run: ./pkg/tfm-linux-amd64 --version
-
-      - uses: actions/upload-artifact@v4
+          go-version-file: 'go.mod'
+          cache: true
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          name: tfm-artifacts
-          path: ./pkg/*     
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Update Changelog
-      #   uses: cycjimmy/semantic-release-action@v3
-      #   with:
-      #     semantic_version: 18.0.0
-      #     extra_plugins: |
-      #       @semantic-release/changelog@6.0.0
-      #       conventional-changelog-conventionalcommits@4.6.3
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.event.inputs.version }}
-          files: |
-            ./pkg/tfm-darwin-amd64
-            ./pkg/tfm-darwin-arm64
-            ./pkg/tfm-linux-amd64
-            ./pkg/tfm-windows-amd64.exe

@@ -12,7 +12,8 @@ terraform_config_metadata.json
 # API Payload
 **/test/cleanup/create_state_payload.json
 
-
-
 # Vscode
 .vscode
+
+# Goreleaser build dir
+dist/
