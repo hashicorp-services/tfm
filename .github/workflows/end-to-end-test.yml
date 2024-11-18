@@ -17,9 +17,9 @@
         run:
           working-directory: .github/terraform/tfe
       steps:
-        - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        - uses: actions/checkout@v4
   
-        - uses: hashicorp/setup-terraform@v1
+        - uses: hashicorp/setup-terraform@v3
           id: terraform-setup
           with:
             cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
@@ -712,9 +712,9 @@
       needs: tfm-copy-workspaces-list-destination-agent
   
       steps:
-        - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        - uses: actions/checkout@v4
   
-        - uses: hashicorp/setup-terraform@v1
+        - uses: hashicorp/setup-terraform@v3
           id: terraform-setup
           with:
             cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
