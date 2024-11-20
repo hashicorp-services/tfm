@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
-- Add flag to senstive variables from being copied [[#235](https://github.com/hashicorp-services/tfm/issues/235)]
+- Add flag to sensitive variables from being copied [[#235](https://github.com/hashicorp-services/tfm/issues/235)]
 
 ### Chore
 
