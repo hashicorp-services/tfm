@@ -2,13 +2,13 @@
 
 ## Directory Structure
 
-- actions contains different tests to be run using the tfm tool. Each test should have its own directory with the naming convention `test-<thing to test>`. Within that directoy an `action.yml` should exist containing the test actions. These are referenced by the `e2e.workflow.yml` workflow.
+- actions contains different tests to be run using the tfm tool. Each test should have its own directory with the naming convention `test-<thing to test>`. Within that directoy an `action.yml` should exist containing the test actions. These are referenced by the `end-to-end-test.yml` workflow.
 - terraform contains different terraform configurations for creating workspaces, teams, variables, etc within the `tfm-testing-source` workspace.
 - workflows contains the different workflows related to TFM.
 
-## End to End Testing ( e2e.workflow.yml )
+## End to End Testing ( end-to-end-test.yml )
 
-`e2e.workflow.yml` is the entry point for end-to-end testing of TFM. It is scheduled to run daily.
+`end-to-end-test.yml` is the entry point for end-to-end testing of TFM. It is scheduled to run daily.
 
 ### Setup
 

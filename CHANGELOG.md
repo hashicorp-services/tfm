@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0](https://github.com/hashicorp-services/tfm/compare/v0.9.3...v0.10.0) (2024-11-20)
+
+### Features
+
+- Add flag to sensitive variables from being copied [[#235](https://github.com/hashicorp-services/tfm/issues/235)]
+
+### Chore
+
+- Updated Dependencies
+- Replaces gox for tfm builds
+- Updated GitHub Actions
+
 ## [0.9.3](https://github.com/hashicorp-services/tfm/compare/v0.9.2...v0.9.3) (2024-03-27)
 
 ### Bug Fixes
