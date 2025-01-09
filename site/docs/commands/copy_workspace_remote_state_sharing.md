@@ -1,4 +1,4 @@
-# tfm copy workspaces ----remote-state-sharing
+# tfm copy workspaces --remote-state-sharing
 
 `tfm copy workspaces --remote-state-sharing` is used to set the remote state sharing setting on a workspace.
 
@@ -13,7 +13,7 @@ There is a limitation as of now, that the workspaces can't be changing names bet
 For example:
 Workspace "networking" is shared with workspaces "app-1", "app-2", "app-3" in the source organization. When this flag is used, the tfm will lookup the workspace names that are shared, "app-1", "app-2", "app-3" and lookup all workspaces in the destination "app-1", "new-app-2", "app-3", "app-4", etc, and filter that list of all workspaces in the destination with the names "app-1", "app-2", "app-3" that it found in the source. tfm will then add "app-1", and "app-3" on the destination workspace sharing, as it wasn't able to find "app-2" which was renamed. If this is a blocker for your migration, please open an issue.
 
-# tfm copy workspaces ----remote-state-sharing --consolidate-global
+# tfm copy workspaces --remote-state-sharing --consolidate-global
 
 There is one additional flag that can be used with `--remote-state-sharing` which is `--consolidate-global`
 
