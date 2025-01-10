@@ -219,7 +219,7 @@
           run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
         
         - name: Migrate Remote State Sharing Consolidation
-          run: ./tfm copy workspaces --remote-state-sharing --org-consolidation --config test/configs/.e2e-all-workspaces-test.hcl
+          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-all-workspaces-test.hcl
         
         - name: List workspaces in destination
           run: ./tfm list workspaces --side destination
@@ -309,7 +309,7 @@
           run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-workspaces-list-test.hcl
         
         - name: Migrate Remote State Sharing Consolidation
-          run: ./tfm copy workspaces --remote-state-sharing --org-consolidation --config test/configs/.e2e-workspaces-list-test.hcl
+          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-workspaces-list-test.hcl
   
         - name: Lock workspaces source
           run: ./tfm lock workspaces --config test/configs/.e2e-workspaces-list-test.hcl
@@ -408,7 +408,7 @@
           run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-workspace-map-test.hcl
         
         - name: Migrate Remote State Sharing Consolidation
-          run: ./tfm copy workspaces --remote-state-sharing --org-consolidation --config test/configs/.e2e-workspace-map-test.hcl
+          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-workspace-map-test.hcl
           
         - name: Lock workspaces source
           run: ./tfm lock workspaces --config test/configs/.e2e-workspace-map-test.hcl
@@ -507,7 +507,7 @@
           run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
         
         - name: Migrate Remote State Sharing Consolidation
-          run: ./tfm copy workspaces --remote-state-sharing --org-consolidation --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
+          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
   
         - name: Lock workspaces source
           run: ./tfm lock workspaces --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
