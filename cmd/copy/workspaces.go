@@ -17,16 +17,18 @@ import (
 )
 
 var (
-	state         bool
-	vars          bool
-	skipSensitive bool
-	teamaccess    bool
-	agents        bool
-	vcs           bool
-	ssh           bool
-	last          int
-	lock          bool
-	unlock        bool
+	state              bool
+	vars               bool
+	skipSensitive      bool
+	teamaccess         bool
+	agents             bool
+	vcs                bool
+	ssh                bool
+	remoteStateSharing bool
+	consolidateGlobal  bool
+	last               int
+	lock               bool
+	unlock             bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -102,6 +104,9 @@ var (
 				} else {
 					return createSSHConfiguration(tfclient.GetClientContexts(), sshIDs)
 				}
+
+			case remoteStateSharing:
+				return copyRemoteStateSharing(tfclient.GetClientContexts(), consolidateGlobal)
 			}
 
 			return copyWorkspaces(
@@ -137,6 +142,8 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&ssh, "ssh", "", false, "Mapping of source ssh id to destination ssh id in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&lock, "lock", "", false, "Lock all source workspaces")
 	workspacesCopyCmd.Flags().BoolVarP(&unlock, "unlock", "", false, "Unlock all source workspaces")
+	workspacesCopyCmd.Flags().BoolVarP(&remoteStateSharing, "remote-state-sharing", "", false, "Copy remote state sharing settings")
+	workspacesCopyCmd.Flags().BoolVarP(&consolidateGlobal, "consolidate-global", "", false, "Consolidate global remote state sharing settings. Must be used with --remote-state-sharing flag")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
