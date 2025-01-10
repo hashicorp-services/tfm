@@ -177,7 +177,13 @@
   
         - name: Migrate Workspaces
           run: ./tfm copy workspaces --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
-  
+
+        - name: Migrate Remote State Sharing
+          run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+        
+        - name: Migrate Remote State Sharing Consolidation
+          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-all-workspaces-test.hcl
+        
         - name: Migrate Workspaces ssh
           run: ./tfm copy workspaces --ssh --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
   
@@ -215,11 +221,11 @@
         # - name: Unlock workspaces destination
         #   run: ./tfm unlock workspaces --side destination --config test/configs/.e2e-all-workspaces-test.hcl
   
-        - name: Migrate Remote State Sharing
-          run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
+        # - name: Migrate Remote State Sharing
+        #   run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
         
-        - name: Migrate Remote State Sharing Consolidation
-          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-all-workspaces-test.hcl
+        # - name: Migrate Remote State Sharing Consolidation
+        #   run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-all-workspaces-test.hcl
         
         - name: List workspaces in destination
           run: ./tfm list workspaces --side destination
