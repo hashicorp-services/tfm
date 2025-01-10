@@ -182,7 +182,7 @@
           run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
         
         - name: Migrate Remote State Sharing Consolidation
-          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-all-workspaces-test.hcl
+          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
         
         - name: Migrate Workspaces ssh
           run: ./tfm copy workspaces --ssh --autoapprove=true --config test/configs/.e2e-all-workspaces-test.hcl
@@ -315,7 +315,7 @@
           run: ./tfm copy workspaces --remote-state-sharing --autoapprove=true --config test/configs/.e2e-workspaces-list-test.hcl
         
         - name: Migrate Remote State Sharing Consolidation
-          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --config test/configs/.e2e-workspaces-list-test.hcl
+          run: ./tfm copy workspaces --remote-state-sharing --consolidate-global --autoapprove=true --config test/configs/.e2e-workspaces-list-test.hcl
   
         - name: Lock workspaces source
           run: ./tfm lock workspaces --config test/configs/.e2e-workspaces-list-test.hcl
@@ -491,7 +491,7 @@
         - name: Migrate Workspaces state
           run: ./tfm copy workspaces --state --autoapprove=true --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
         
-        - name: Migrate Workspaces teamaccess
+        - name: Migrate  Workspaces teamaccess
           run: ./tfm copy workspaces --teamaccess --autoapprove=true --config test/configs/.e2e-workspaces-list-destination-agent-test.hcl
   
         - name: Migrate Workspaces vars
