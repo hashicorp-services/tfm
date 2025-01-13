@@ -2,7 +2,7 @@
 
 `tfm copy workspaces` or `tfm copy ws` creates a workspaces from source to destination org.
 
-After the workspaces are created at the destination, the next step is to copy the rest of the workspaces settings such as [state](copy_workspace_state.md), [variables](copy_workspace_variables.md), [team access](copy_workspace_teamaccess.md) etc using `tfm copy workspace` flags.  
+After the workspaces are created at the destination, the next step is to copy the rest of the workspaces settings such as [state](copy_workspace_state.md), [variables](copy_workspace_variables.md), [team access](copy_workspace_teamaccess.md), [remote state sharing](copy_workspace_remote_state_sharing.md) etc using `tfm copy workspace` flags.  
 
 
 `tfm copy workspaces -h`
@@ -17,14 +17,20 @@ Aliases:
   workspaces, ws
 
 Flags:
-      --agents                Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file
-  -h, --help                  help for workspaces
-      --ssh                   Mapping of source ssh id to destination ssh id in config file
-      --state                 Copy workspace states
-      --teamaccess            Copy workspace Team Access
-      --vars                  Copy workspace variables
-      --vcs                   Mapping of source vcs Oauth ID to destination vcs Oath in config file
-      --workspace-id string   Specify one single workspace ID to copy to destination
+      --agents                 Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file
+      --consolidate-global     Consolidate global remote state sharing settings. Must be  used with --remote-state-sharing flag
+  -h, --help                   help for workspaces
+  -l, --last int               Copy the last X number of state files only.
+      --lock                   Lock all source workspaces
+      --remote-state-sharing   Copy remote state sharing settings
+      --skip-sensitive-vars    Skip copying sensitive variables. Must be used with --vars flag
+      --ssh                    Mapping of source ssh id to destination ssh id in config file
+      --state                  Copy workspace states
+      --teamaccess             Copy workspace Team Access
+      --unlock                 Unlock all source workspaces
+      --vars                   Copy workspace variables
+      --vcs                    Mapping of source vcs Oauth ID to destination vcs Oath in config file
+      --workspace-id string    Specify one single workspace ID to copy to destination
 
 Global Flags:
       --config string   Config file, can be used to store common flags, (default is ./.tfm.hcl).
