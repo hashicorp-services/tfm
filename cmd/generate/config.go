@@ -48,9 +48,10 @@ dst_tfc_org=""
 dst_tfc_token="Must have owner permissions"
 #dst_tfc_project_id=""
 
-# A list of source=destination VCS oauth IDs. TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID.
+# A list of source=destination VCS IDs. TFM will look at each workspace in the source for the source VCS ID and assign the matching workspace in the destination with the destination VCS ID.
 #vcs-map=[
 #  "ot-wF6KZMna4desiPRc=ot-JSQTcnWxqVL5zQ1w",
+#  "ghain-sc8a3b12S212gy45=ghain-B3asgvX3oF541aDo"
 #]
 
 
