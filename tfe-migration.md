@@ -92,13 +92,14 @@ varsets-map = [
 
 ## Assign VCS
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-vcs-oauth-ID=destination-vcs-oauth-id-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --vcs` to look at all workspaces in the source host with the assigned source VCS oauth ID and assign the matching named workspace in the destination with the mapped destination VCS oauth ID.
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of vcs mappings of either `source-vcs-oauth-id=destination-vcs-oauth-id` or `source-vcs-github-app-id=destination-vcs-github-app-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --vcs` to look at all workspaces in the source host with the assigned source VCS ID and assign the matching named workspace in the destination with the mapped destination VCS ID. `tfm` only supports like for like vcs migration, so if the source is a GitHub App VCS connection the destination must use a GitHub App VCS connection.
 
 ```hcl
-# A list of source=destination VCS oauth IDs. TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID.
+# A list of source=destination VCS IDs. TFM will look at each workspace in the source for the source VCS ID and assign the matching workspace in the destination with the destination VCS ID.
 vcs-map=[
   "ot-5uwu2Kq8mEyLFPzP=ot-coPDFTEr66YZ9X9n",
   "ot-gkj2An452kn2flfw=ot-8ALKBaqnvj232GB4",
+  "ghain-sc8a3b12S212gy45=ghain-B3asgvX3oF541aDo"
 ]
 ```
 
