@@ -138,12 +138,17 @@ func vcsListAll(c tfclient.ClientContexts) error {
 	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
 	for _, i := range allVcsList {
 
-		vcsName := ""
+		vcsName := "No Name"
 		if i.Name != nil {
 			vcsName = *i.Name
 		}
 
-		o.AddTableRows(i.Organization.Name, vcsName, i.OAuthTokens[0].ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
+		OAuthTokenID := "No OAuthToken"
+		if i.OAuthTokens != nil {
+			OAuthTokenID = i.OAuthTokens[0].ID
+		}
+
+		o.AddTableRows(i.Organization.Name, vcsName, OAuthTokenID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
 	}
 
 	return nil
@@ -172,12 +177,17 @@ func vcsList(c tfclient.ClientContexts) error {
 	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
 	for _, i := range orgVcsList {
 
-		vcsName := ""
+		vcsName := "No Name"
 		if i.Name != nil {
 			vcsName = *i.Name
 		}
 
-		o.AddTableRows(i.Organization.Name, vcsName, i.OAuthTokens[0].ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
+		OAuthTokenID := "No OAuthToken"
+		if i.OAuthTokens != nil {
+			OAuthTokenID = i.OAuthTokens[0].ID
+		}
+
+		o.AddTableRows(i.Organization.Name, vcsName, OAuthTokenID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
 	}
 
 	return nil
