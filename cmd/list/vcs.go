@@ -38,18 +38,11 @@ func init() {
 }
 
 // helper functions
-func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tfe.OAuthClient, []*tfe.GHAInstallation, error) {
+func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tfe.OAuthClient, error) {
 	var allItems []*tfe.OAuthClient
-	var allGHAItems []*tfe.GHAInstallation
-
-	optsGHA := tfe.GHAInstallationListOptions{
-		ListOptions: tfe.ListOptions{PageNumber: 1, PageSize: 100},
-	}
-
 	opts := tfe.OAuthClientListOptions{
 		ListOptions: tfe.ListOptions{PageNumber: 1, PageSize: 100},
 	}
-
 	for {
 		var items *tfe.OAuthClientList
 		var err error
@@ -62,7 +55,7 @@ func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tf
 			items, err = c.DestinationClient.OAuthClients.List(c.DestinationContext, orgName, &opts)
 		}
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		allItems = append(allItems, items.Items...)
@@ -73,31 +66,7 @@ func vcsListAllForOrganization(c tfclient.ClientContexts, orgName string) ([]*tf
 		opts.PageNumber = items.NextPage
 	}
 
-	for {
-		var ghaItems *tfe.GHAInstallationList
-		var err error
-
-		if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
-			ghaItems, err = c.SourceClient.GHAInstallations.List(c.SourceContext, &optsGHA)
-		}
-
-		if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
-			ghaItems, err = c.DestinationClient.GHAInstallations.List(c.DestinationContext, &optsGHA)
-		}
-		if err != nil {
-			return nil, nil, err
-		}
-
-		allGHAItems = append(allGHAItems, ghaItems.Items...)
-
-		if ghaItems.CurrentPage >= ghaItems.TotalPages {
-			break
-		}
-		opts.PageNumber = ghaItems.NextPage
-
-	}
-
-	return allItems, allGHAItems, nil
+	return allItems, nil
 }
 
 func organizationListAll(c tfclient.ClientContexts) ([]*tfe.Organization, error) {
@@ -154,65 +123,20 @@ func vcsListAll(c tfclient.ClientContexts) error {
 	}
 
 	var allVcsList []*tfe.OAuthClient
-	var allGhaList []*tfe.GHAInstallation
 
 	for _, v := range allOrgs {
-		vcsList, ghaList, err := vcsListAllForOrganization(c, v.Name)
+		vcsList, err := vcsListAllForOrganization(c, v.Name)
 		if err != nil {
 			helper.LogError(err, "failed to list vcs for organization")
 		}
 
 		allVcsList = append(allVcsList, vcsList...)
-		allGhaList = append(allGhaList, ghaList...)
 	}
 
-	o.AddFormattedMessageCalculated("Found %d OAuth vcs connections", len(allVcsList))
-	o.AddFormattedMessageCalculated("Found %d GHA vcs connections", len(allVcsList))
+	o.AddFormattedMessageCalculated("Found %d vcs", len(allVcsList))
 
-	o.AddTableHeaders("Organization", "Name", "Id",  "Service Provider", "Service Provider Name", "Created At", "URL")
+	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
 	for _, i := range allVcsList {
-
-		vcsName := ""
-		if i.Name != nil {
-			vcsName = *i.Name
-		}
-
-		o.AddTableRows(i.Organization.Name, vcsName, i.OAuthTokens[0].ID ,i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
-	}
-
-
-	for _, i := range allGhaList {
-		o.AddTableRows("", *i.Name, *i.ID, "github", "GitHub App", "", "")
-	}
-
-	return nil
-}
-
-func vcsList(c tfclient.ClientContexts) error {
-	o.AddMessageUserProvided("List vcs for configured Organizations", "")
-
-	var orgVcsList []*tfe.OAuthClient
-	var orgGhaList []*tfe.GHAInstallation
-	var err error
-
-	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
-		orgVcsList, orgGhaList, err = vcsListAllForOrganization(c, c.SourceOrganizationName)
-	}
-
-	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
-		orgVcsList, orgGhaList, err = vcsListAllForOrganization(c, c.DestinationOrganizationName)
-	}
-
-	if err != nil {
-		helper.LogError(err, "failed to list vcs for organization")
-	}
-
-	
-	o.AddFormattedMessageCalculated("Found %d OAuth vcs connections", len(orgVcsList))
-	o.AddFormattedMessageCalculated("Found %d GHA vcs connections", len(orgGhaList))
-
-	o.AddTableHeaders("Organization", "Name", "Id",  "Service Provider", "Service Provider Name", "Created At", "URL")
-	for _, i := range orgVcsList {
 
 		vcsName := ""
 		if i.Name != nil {
@@ -222,8 +146,38 @@ func vcsList(c tfclient.ClientContexts) error {
 		o.AddTableRows(i.Organization.Name, vcsName, i.OAuthTokens[0].ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
 	}
 
-	for _, i := range orgGhaList {
-		o.AddTableRows("", *i.Name, *i.ID, "github", "GitHub App", "", "")
+	return nil
+}
+
+func vcsList(c tfclient.ClientContexts) error {
+	o.AddMessageUserProvided("List vcs for configured Organizations", "")
+
+	var orgVcsList []*tfe.OAuthClient
+	var err error
+
+	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
+		orgVcsList, err = vcsListAllForOrganization(c, c.SourceOrganizationName)
+	}
+
+	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+		orgVcsList, err = vcsListAllForOrganization(c, c.DestinationOrganizationName)
+	}
+
+	if err != nil {
+		helper.LogError(err, "failed to list vcs for organization")
+	}
+
+	o.AddFormattedMessageCalculated("Found %d vcs", len(orgVcsList))
+
+	o.AddTableHeaders("Organization", "Name", "Id", "Service Provider", "Service Provider Name", "Created At", "URL")
+	for _, i := range orgVcsList {
+
+		vcsName := ""
+		if i.Name != nil {
+			vcsName = *i.Name
+		}
+
+		o.AddTableRows(i.Organization.Name, vcsName, i.OAuthTokens[0].ID, i.ServiceProvider, i.ServiceProviderName, i.CreatedAt, i.HTTPURL)
 	}
 
 	return nil
