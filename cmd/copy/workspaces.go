@@ -29,6 +29,7 @@ var (
 	last               int
 	lock               bool
 	unlock             bool
+	runTriggers        bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -107,6 +108,9 @@ var (
 
 			case remoteStateSharing:
 				return copyRemoteStateSharing(tfclient.GetClientContexts(), consolidateGlobal)
+
+			case runTriggers:
+				return copyRunTriggers(tfclient.GetClientContexts())
 			}
 
 			return copyWorkspaces(
@@ -144,6 +148,7 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&unlock, "unlock", "", false, "Unlock all source workspaces")
 	workspacesCopyCmd.Flags().BoolVarP(&remoteStateSharing, "remote-state-sharing", "", false, "Copy remote state sharing settings")
 	workspacesCopyCmd.Flags().BoolVarP(&consolidateGlobal, "consolidate-global", "", false, "Consolidate global remote state sharing settings. Must be used with --remote-state-sharing flag")
+	workspacesCopyCmd.Flags().BoolVarP(&runTriggers, "run-triggers", "", false, "Copy workspace run triggers")
 
 	// Add commands
 	CopyCmd.AddCommand(workspacesCopyCmd)
