@@ -5,7 +5,7 @@
 - Using this feature requires the VCS token defined in the configuration file to have write permissions to the contents of the repository.
 - Add the following example to your confiuration file, modifying the github values based on your [supported VCS type](../migration/supported-vcs.md):
 
-```
+```hcl
 github_token = "api token"
 github_organization = "org"
 github_username = "username"
@@ -28,8 +28,7 @@ commit_author_name = "name"
 commit_author_email = "email"
 ```
 
-
-## Flags 
+## Flags
 
 `--autoapprove` Automatically approve the operation without a confirmation prompt.
 `--comment` Will comment out the backend configuration instead of removing it.
@@ -37,4 +36,3 @@ commit_author_email = "email"
 ## Cleanup
 
 `tfm core cleanup` can be used to remove all cloned repos from the `clone_repos_path`
-

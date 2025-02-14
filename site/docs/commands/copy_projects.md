@@ -10,7 +10,7 @@
 
 Users will be required to confirm all projects is the desired operation if no `projects` list or `projects-map` map is not found in tfm config file (eg `~/.tfm.hcl`).
 
-To automate the confirmation, the flag `--autoapprove=true` can be provided during a `tfm` run. 
+To automate the confirmation, the flag `--autoapprove=true` can be provided during a `tfm` run.
 
 ## Copy a list of projects
 
@@ -29,8 +29,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of projects from 
 
 ## Rename projects in destination during a copy
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-project-name=destination-project-name` can be provided. `tfm` will use this list when running `tfm copy project` to look at all projects in the source host and rename the destination project name. 
-
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-project-name=destination-project-name` can be provided. `tfm` will use this list when running `tfm copy project` to look at all projects in the source host and rename the destination project name.
 
 !!! note ""
     *NOTE: Using the 'projects-map' configuration in your HCL config file will take precedence over the other 'projects' list feature which only lists source project names.*

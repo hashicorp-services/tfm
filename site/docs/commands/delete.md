@@ -1,7 +1,6 @@
 # Delete
 
-
-delete sub commands will delete  certain objects from an organization. 
+delete sub commands will delete  certain objects from an organization.
 
 !!! warning ""
     DANGER this will delete things!
@@ -32,12 +31,10 @@ Use "tfm delete [command] --help" for more information about a command.
 
 - [`tfm delete workspace`](delete_workspace.md)
 
-
-
 ## Possible Future list command enhancements
 
 - `tfm delete projects`
 - `tfm delete teams`
 - `tfm delete variable`
 
-Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 
+Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)!
