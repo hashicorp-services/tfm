@@ -15,5 +15,8 @@ workspaces-map=[
   "tfm-ci-test-vcs-1=tfm-ci-test-vcs-1",
   "tfm-ci-test-vcs-agent=tfm-ci-test-vcs-agent",
   "tfm-ci-test-vcs-4=new-tfm-ci-test-vcs-4",
-  "tfm-ci-test-vcs-3=new-tfm-ci-test-vcs-3"
+  "tfm-ci-test-vcs-3=new-tfm-ci-test-vcs-3".
+  "run-trigger-child-auto=new-run-trigger-child-auto",
+  "run-trigger-child=new-run-trigger-child",
+  "run-trigger-source=new-run-trigger-source"
 ]

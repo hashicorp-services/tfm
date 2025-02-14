@@ -12,13 +12,15 @@ HashiCorp Implementation Services (IS) has identified a need to develop a purpos
 
 > [!Warning]
 > This CLI does not have official support, but the code owners will work with partners and interested parties to provide assitance when possible.
-> Check out our [case studies](https://hashicorp-services.github.io/tfm/migration/case-studies/). 
+> Check out our [case studies](https://hashicorp-services.github.io/tfm/migration/case-studies/).
 
 ## Overview
 
 This tool has been develop to assist HashiCorp Implementation Services, Partners and Customers with their migrations to HashiCorp services. Having a tool allows us the ability to offer a standardized offering to our customers.
 
 Check out the full documentation at [https://hashicorp-services.github.io/tfm/](https://hashicorp-services.github.io/tfm/)
+
+Note: The Terraform Community Edition migration as part of `tfm` has been deprecated in favor of [tf-migrate](https://developer.hashicorp.com/terraform/cloud-docs/migrate/tf-migrate). The CE migration feature has not been removed from `tfm` however it will not be receiving further developments.
 
 ## Installation
 
@@ -65,14 +67,9 @@ go run . -v
 
 To create a new release of TFM
 
-- Use GitHub Action `Release tfm`
-- Specify a version number. Please follow semantic versioning for the release.
-
-This action will do the following steps
-
-- Compile TFM for Linux, Mac, Windows with amd64 and arm64 versions
-- Upload the artifacts
-- Create a new release + tag on the repo at the current main
+- Locally Create a new Tag
+- Push tag to Origin
+- GitHub workflow `release.yml` will create a build and make the release in GitHub
 
 ## Reporting Issues
 

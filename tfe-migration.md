@@ -121,7 +121,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 By default, a workspace will be copied over to the Default Project in the destination (eg TFC).
 Users can specify the project ID for the desired project to place all workspaces in the `tfm copy workspace` run.
 
-Utilise `tfm list projects --side destination` to determine the `project id`.
+Utilize `tfm list projects --side destination` to determine the `project id`.
 
 Set either the environment variable:
 

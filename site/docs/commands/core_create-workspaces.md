@@ -1,6 +1,5 @@
 # tfm core create-workspaces
 
-
 ## Requirements
 
 - A `terraform_config_metadata.json` must exist in the tfm working directory. Run `tfm core init-repos` to generate one.
@@ -14,7 +13,7 @@ dst_tfc_token="A token with permissions to create TFC/TFE workspaces"
 
 ## Create Workspaces
 
-`tfm core create-workspaces` will use the `terraform_config_metadata.json` config file to create a TFC/TFE workspace in the `dst_tfc_org` defined in the config file for each repository. 
+`tfm core create-workspaces` will use the `terraform_config_metadata.json` config file to create a TFC/TFE workspace in the `dst_tfc_org` defined in the config file for each repository.
 
 Workspace names are generated using the metadata file in the following format:
 
@@ -58,4 +57,4 @@ You can create workspaces using the terraform tfe provider instead of tfm. As lo
 
 ## Future Updates
 
-Future updates are planned to also allow a variable set containing credentials to be assigned to the workspace the the time of creation. This will allow a plan to be run post migration to verify no changes are expected. 
+Future updates are planned to also allow a variable set containing credentials to be assigned to the workspace the the time of creation. This will allow a plan to be run post migration to verify no changes are expected.

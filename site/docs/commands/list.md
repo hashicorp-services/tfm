@@ -1,9 +1,8 @@
 # List
 
+list sub commands will list out certain resources from the source organization or destination organization.
 
-list sub commands will list out certain resources from the source organization or destination organization. 
-
-```
+```sh
 # tfm list -h
 
 List objects in an org
@@ -39,12 +38,8 @@ Use "tfm list [command] --help" for more information about a command.
 - [`tfm list projects`](list_projects.md)
 - [`tfm list workspaces`](list_workspaces.md)
 
-
-
-
-
 ## Possible Future list command enhancements
 
 - `tfm list agents`
 
-Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)! 
+Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=)!

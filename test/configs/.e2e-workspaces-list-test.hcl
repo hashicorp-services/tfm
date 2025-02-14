@@ -14,5 +14,8 @@ ssh-map=[
   "tfm-ci-test-vcs-0",
   "tfm-ci-test-vcs-1",
   "tfm-ci-test-cli-nostate",
-  "tfm-ci-test-vcs-agent"
+  "tfm-ci-test-vcs-agent",
+  "run-trigger-child-auto",
+  "run-trigger-child",
+  "run-trigger-source"
 ]

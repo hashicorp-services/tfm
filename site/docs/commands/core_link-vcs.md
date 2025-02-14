@@ -1,6 +1,5 @@
 # tfm core link-vcs
 
-
 ## Requirements
 
 - A `terraform_config_metadata.json` must exist in the tfm working directory. Run `tfm core init-repos` to generate one.
@@ -25,4 +24,3 @@ You can create workspaces using the terraform tfe provider instead of tfm. As lo
 ## Cleaning Up
 
 If something goes wrong and you wish to cleanup the workspaces and start the process over you can run the command `tfm nuke workspaces` to delete any workspaces created with tfm commands.
-

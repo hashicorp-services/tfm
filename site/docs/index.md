@@ -3,16 +3,13 @@
 ![TFM](./images/TFM-black.png)
 
 !!! warning ""
-    Note: This CLI currently does not have official support! 
+    Note: This CLI currently does not have official support!
 
     TFM is currently being developed and tested by interested parties.
     
     The following is a [summary of a real example use case from a real TFE customer](https://docs.google.com/presentation/d/e/2PACX-1vSFN9osZARMitvG8HcbnR37nSbVXnK2GMlMvXOz7GsNceFDYp4-98Ko4xZ89-Rtvkf1_YqBmx338er3/pub?start=true&loop=true&delayms=3000). 
     
     Please reach out to one of our listed [contact methods](#contacts).
-
-
-   
 
 _tfm_ is a standalone CLI for Terraform Community Edition, Terraform Cloud, Terraform Enterprise migrations.
 
@@ -23,40 +20,44 @@ HashiCorp Implementation Services (IS) has identified a need to develop a purpos
 - TFC to TFE
 - 1 TFC Organization to another TFC Organization
 
-
+Note: The Terraform Community Edition migration as part of `tfm` has been deprecated in favor of [tf-migrate](https://developer.hashicorp.com/terraform/cloud-docs/migrate/tf-migrate). The CE migration feature has not been removed from `tfm` however it will not be receiving further developments.
 
 ## Installation
 
 Binaries are created as part of a release, check out the [Release Page](https://github.com/hashicorp-services/tfm/releases) for the latest version.
 
-**MacOs Installation amd64**
+### MacOs Installation amd64
+
 ```sh
 version="x.x.x"
-curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-darwin-amd64"
+curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm_darwin_x86_64"
 chmod +x tfm
 ```
 
-**MacOs Installation arm64**
+### MacOs Installation arm64
+
 ```sh
 version="x.x.x"
-curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-darwin-arm64"
+curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm_darwin_arm64"
 chmod +x tfm
 ```
 
 !!! note ""
-    Note: `tfm` CLI is currently not developer-signed or notorised and you will run into an initial issue where `tfm` is not allowed to run. Please follow "[safely open apps on your mac](https://support.apple.com/en-au/HT202491#:~:text=View%20the%20app%20security%20settings%20on%20your%20Mac&text=In%20System%20Preferences%2C%20click%20Security,%E2%80%9CAllow%20apps%20downloaded%20from.%E2%80%9D)" to allow `tfm` to run
+    Note: `tfm` CLI is currently not developer-signed or notarized and you will run into an initial issue where `tfm` is not allowed to run. Please follow "[safely open apps on your mac](https://support.apple.com/en-au/HT202491#:~:text=View%20the%20app%20security%20settings%20on%20your%20Mac&text=In%20System%20Preferences%2C%20click%20Security,%E2%80%9CAllow%20apps%20downloaded%20from.%E2%80%9D)" to allow `tfm` to run
 
-**Linux Installation**
+### Linux Installation
+
 ```sh
-version="x.x.x"
-curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-linux-amd64"
-chmod +x tfm
+  version="x.x.x"
+  curl -L -o tfm "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm_linux_x86_64"
+  chmod +x tfm
 ```
 
-**Windows Installation**
+### Windows Installation
+
 ```sh
-version="x.x.x"
-curl -L -o tfm.exe "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm-windows-amd64"
+  version="x.x.x"
+  curl -L -o tfm.exe "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm_windows_x86_64.exe"
 ```
 
 ## Usage
@@ -97,20 +98,22 @@ Use "tfm [command] --help" for more information about a command.
 The following prerequisites are used when migrating from or to TFE or TFC from TFE or TFC.
 
 - A tfm config file
-- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating from. Must have owner permissions.
-- A TFC/TFE Owner token with for the source TFE/TFC Organization that you are migrating to. Must have owner permissions.
+- A TFC/TFE token with for the source TFE/TFC Organization that you are migrating from.
+- A TFC/TFE token with for the source TFE/TFC Organization that you are migrating to.
 
-### Environment Variables 
+For which token type to use, we recommend either Team or Personal token. We do not recommend Organization token due to the limited permissions Org tokens have. Please refer to [Access Levels](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/api-tokens#access-levels) for the different Token types and their permissions.
+
+### Environment Variables
 
 The following environment variables can be set or used to override existing config file values.
 
 ```bash
 export SRC_TFE_HOSTNAME="tf.local.com"
 export SRC_TFE_ORG="companyxyz"
-export SRC_TFE_TOKEN="<user token from source TFE/TFC with owner permissions>"
+export SRC_TFE_TOKEN="<user token from source TFE/TFC with permissions>"
 export DST_TFC_HOSTNAME="app.terraform.io"
 export DST_TFC_ORG="companyxyz"
-export DST_TFC_TOKEN="<user token from source TFE/TFC with owner permissions>"
+export DST_TFC_TOKEN="<user token from source TFE/TFC with permissions>"
 export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
@@ -136,7 +139,7 @@ dst_tfc_project_id="Destination Project ID for workspaces being migrated by tfm.
 By default, a workspace will be copied over to the Default Project in the destination (eg TFC).
 Users can specify the project ID for the desired project to place all workspaces in the `tfm copy workspace` run.
 
-Utilise `tfm list projects --side destination` to determine the `project id`.
+Utilize `tfm list projects --side destination` to determine the `project id`.
 
 Set either the environment variable:
 
@@ -146,7 +149,7 @@ export DST_TFC_PROJECT_ID=prj-XXXX
 
 or specify the following in your `~/.tfm.hcl` configuration file.
 
-```terraform
+```hcl
 dst_tfc_project_id=prj-xxx 
 ```
 
@@ -154,7 +157,7 @@ dst_tfc_project_id=prj-xxx
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target.
 
-```terraform
+```hcl
 #List of Workspaces to create/check are migrated across to new TFC
 "workspaces" = [
   "appAFrontEnd",
@@ -169,7 +172,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces fro
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-agent-pool-ID=destination-agent-pool-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --agents` to look at all workspaces in the source host with the assigned source agent pool ID and assign the matching named workspace in the destination with the mapped destination agent pool ID.
 
-```terraform
+```hcl
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID.
 agents-map = [
   "apool-DgzkahoomwHsBHcJ=apool-vbrJZKLnPy6aLVxE",
@@ -188,7 +191,7 @@ To copy only desired variable sets, provide an HCL list in the `.tfm.hcl` config
 
 Example configuration file:
 
-```terraform
+```hcl
 varsets-map = [
   "Azure-creds=New-Azure-Creds",
   "aws-creds2=New-AWS-Creds",
@@ -200,7 +203,7 @@ varsets-map = [
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-vcs-oauth-ID=destination-vcs-oauth-id-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --vcs` to look at all workspaces in the source host with the assigned source VCS oauth ID and assign the matching named workspace in the destination with the mapped destination VCS oauth ID.
 
-```terraform
+```hcl
 # A list of source=destination VCS oauth IDs. TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID.
 vcs-map=[
   "ot-5uwu2Kq8mEyLFPzP=ot-coPDFTEr66YZ9X9n",
@@ -211,10 +214,10 @@ vcs-map=[
 
 ## Rename Workspaces in destination during a copy
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name. 
-*NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names.*
+As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name.
+_NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names._
 
-```terraform
+```hcl
 # A list of source=destination workspace names. TFM will look at each source workspace and recreate the workspace with the specified destination name.
 "workspaces-map" = [
    "tf-demo-workflow=dst-demo-workflow",
@@ -226,22 +229,12 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-worksp
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
 
-```terraform
+```hcl
 # A list of source=destination SSH IDs. TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID.
 ssh-map=[
   "sshkey-sPLAKMcqnWtHPSgx=sshkey-CRLmPJpoHwsNFAoN",
 ]
 ```
-
-
-## TFM Demo
-
-
-<iframe width="940" height="480" src="https://www.youtube.com/embed/kbFN_NGP2rs" title="Terraform Enterprise Migration CLI Tool (TFM) - pre-alpha" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
-
-[Click here to watch the demo video](https://www.youtube.com/embed/kbFN_NGP2rs) (if the above embeded video is not loading). 
-
 
 ## Contacts
 
@@ -249,4 +242,3 @@ ssh-map=[
 - Google Group TFM Dev Team: [svc-github-team-tfm@hashicorp.com](svc-github-team-tfm@hashicorp.com
 )
 - Got an idea for a feature to `tfm`? Submit a [feature request](https://github.com/hashicorp-services/tfm/issues/new?assignees=&labels=&template=feature_request.md&title=) or provide us some [feedback](./feedback.md).
-

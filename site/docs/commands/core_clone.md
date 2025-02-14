@@ -36,6 +36,7 @@ gitlab_token = "api token"
 gitlab_group = "group102109"
 gitlab_username = "username"
 ```
+
 ## Clone a List of Repositories
 
 Provide a `repos_to_clone` list in the config file of repositories that you would like to clone for migration.
@@ -50,6 +51,4 @@ repos_to_clone =  [
 
 ## Clone All Repositories
 
-
 Not providing a `repos_to_clone` list will result in tfm attempting to clone every repository in the GitHub org or GitLab group.
-

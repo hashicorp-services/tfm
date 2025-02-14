@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0](https://github.com/hashicorp-services/tfm/compare/v0.11.3...v0.12.0) (2025-02-14)
+
+### Features
+
+- Add Run Trigger support to copy a workspaces Run Trigger setting [[#281](https://github.com/hashicorp-services/tfm/issues/281)]
+
+### Chore
+
+- Update documentation
+- Update e2e tests
+
 ## [0.11.3](https://github.com/hashicorp-services/tfm/compare/v0.11.2...v0.11.3) (2025-01-29)
 
 ### Bug Fixes
@@ -45,45 +56,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
-* **TFE 202303-1 and earlier Support** Fix list workspaces command for TFE deployments prior to the introduction of projects.
+- **TFE 202303-1 and earlier Support** Fix list workspaces command for TFE deployments prior to the introduction of projects.
 
 ## [0.9.2](https://github.com/hashicorp-services/tfm/compare/v0.9.1...v0.9.2) (2024-03-27)
 
 ### Bug Fixes
 
-* **TFE 202401-2 Support** Upgrade go-tfe to 1.48 to support TFE 202401-2 and later versions of TFE.
-
+- **TFE 202401-2 Support** Upgrade go-tfe to 1.48 to support TFE 202401-2 and later versions of TFE.
 
 ## [0.9.1](https://github.com/hashicorp-services/tfm/compare/v0.9.0...v0.9.1) (2024-03-11)
 
 ### Bug Fixes
 
-* **State Copy Workspace Erorr Log** Fix error log name to support Windows
+- **State Copy Workspace Erorr Log** Fix error log name to support Windows
 
-  
 ## [0.9.0](https://github.com/hashicorp-services/tfm/compare/v0.8.0...v0.9.0) (2024-03-07)
 
 ### Features
 
-* **Terraform CE to TFC/TFE Migration** Support for GitLab VCS.
-* **Terraform CE to TFC/TFE Migration** New required configuration file setting `vcs_type` introduced for defining a supported vcs type
-* **Terraform CE to TFC/TFE Migration** `tfm core remove-backend --comment` new `--comment` flag added to optionally comment out `backend {}` configurations instead of deleting them.
+- **Terraform CE to TFC/TFE Migration** Support for GitLab VCS.
+- **Terraform CE to TFC/TFE Migration** New required configuration file setting `vcs_type` introduced for defining a supported vcs type
+- **Terraform CE to TFC/TFE Migration** `tfm core remove-backend --comment` new `--comment` flag added to optionally comment out `backend {}` configurations instead of deleting them.
 
 ## [0.8.0](https://github.com/hashicorp-services/tfm/compare/v0.7.0...v0.8.0) (2024-03-01)
 
 ### Features
 
-* **Terraform CE to TFC/TFE Migration** TFM now supports discovery and migration of VCS repos configured as monorepos ( repos with more than 1 terraform configuration ) and terraform community edition workspaces. See docs and `tfm core -h` for more info.
-* **Terraform CE to TFC/TFE Migration:** `tfm core init-repos` command added to assist in migrations. Builds a metadata file in the tfm working directory with information about how each VCS repo is configured.
-* **tfm core migrate:** `tfm core migrate` command now executes the `tfm core init-repos` command.
+- **Terraform CE to TFC/TFE Migration** TFM now supports discovery and migration of VCS repos configured as monorepos ( repos with more than 1 terraform configuration ) and terraform community edition workspaces. See docs and `tfm core -h` for more info.
+- **Terraform CE to TFC/TFE Migration:** `tfm core init-repos` command added to assist in migrations. Builds a metadata file in the tfm working directory with information about how each VCS repo is configured.
+- **tfm core migrate:** `tfm core migrate` command now executes the `tfm core init-repos` command.
 
 ## [0.7.0](https://github.com/hashicorp-services/tfm/compare/v0.6.0...v0.7.0) (2024-02-21)
 
 ### Features
 
-* **Terraform CE to TFC/TFE Migration** Support for assisting with terraform community edition migrations to TFC/TFE managed workspaces. See docs and `tfm core -h` for more info.
-* **Copy Projects:** `tfm copy projects` feature added
-
+- **Terraform CE to TFC/TFE Migration** Support for assisting with terraform community edition migrations to TFC/TFE managed workspaces. See docs and `tfm core -h` for more info.
+- **Copy Projects:** `tfm copy projects` feature added
 
 ## [0.6.0] (November 08, 2023)
 
@@ -114,13 +122,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.2] (September 18, 2023)
 
-- TFM now retries connections in the event network issues or API rate limiting prevents an operation from taking place. __issue__ #143
-- BUG FIX: An earlier introduction of the `tfm copy workspaces --state --last x` command prevented pagination when copying state files. Implemented a fix. TFM will now copy more than 20 state files per worksapce. __issue__ #144
+- TFM now retries connections in the event network issues or API rate limiting prevents an operation from taking place. **issue** #143
+- BUG FIX: An earlier introduction of the `tfm copy workspaces --state --last x` command prevented pagination when copying state files. Implemented a fix. TFM will now copy more than 20 state files per worksapce. **issue** #144
 - TFM will now handle errors encountered when migrating a state file for a given workspace. In the event an error is encountered TFM will stop migrating states for the given workspace and proceed to the next workspace. It will output a `workspace_error_log.txt` file in the working directory.
 
 ## [0.4.1] (September 14, 2023)
 
-- BUG FIX: Applies after state migration would not upload the generated state file and output a 409 conflict error. TFM was not applying lineage to the workspace, but was copying the state file that contained a lineage. TFM now sets the lineage for the state files at the workspace level to match the one in the migrated state files.  __issue__ #139
+- BUG FIX: Applies after state migration would not upload the generated state file and output a 409 conflict error. TFM was not applying lineage to the workspace, but was copying the state file that contained a lineage. TFM now sets the lineage for the state files at the workspace level to match the one in the migrated state files.  **issue** #139
 
 ## [0.1.0] (June 8, 2023)
 
