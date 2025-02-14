@@ -139,7 +139,7 @@ dst_tfc_project_id="Destination Project ID for workspaces being migrated by tfm.
 By default, a workspace will be copied over to the Default Project in the destination (eg TFC).
 Users can specify the project ID for the desired project to place all workspaces in the `tfm copy workspace` run.
 
-utilize `tfm list projects --side destination` to determine the `project id`.
+Utilize `tfm list projects --side destination` to determine the `project id`.
 
 Set either the environment variable:
 
