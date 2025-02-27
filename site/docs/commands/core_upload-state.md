@@ -15,7 +15,7 @@ Running this command multiple times will result in the same state file being upl
 
 You can create workspaces using the terraform tfe provider instead of tfm. As long as the workspace names match the constructed workspace name that tfm is looking for then the state will still be uploaded. See the documentation for the `tfm create-workspaces` command for more information regarding workspace name creation.
 
-## Cleaning Up
+<!-- ## Cleaning Up
 
 If something goes wrong and you wish to cleanup the workspaces and start the process over you can run the command `tfm nuke workspaces` to delete any workspaces created with tfm commands.
-
+ -->

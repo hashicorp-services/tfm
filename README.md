@@ -40,7 +40,6 @@ There are differences between Terraform OSS / CE / Core migrations and Terraform
   - `copy workspaces --state --last`
   - `delete workspace`
   - `delete workspaces-vcs`
-  - `nuke`
 
 ## Architectural Decisions Record (ADR)
 

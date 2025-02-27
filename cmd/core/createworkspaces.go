@@ -133,13 +133,9 @@ func createWorkspace(c tfclient.DestinationContexts, workspaceName string) error
 	var tag []*tfe.Tag
 	tag = append(tag, &tfe.Tag{Name: "tfm"})
 
-	// This is an invisible attribute that the tfm nuke workspaces command uses to identify workspaces created by tfm for easy destruction later
-	workspaceSource := "tfm"
-
 	_, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 		Name:       &workspaceName,
 		Tags:       tag,
-		SourceName: &workspaceSource,
 	})
 	return err
 }
