@@ -29,11 +29,10 @@ tfm will run the following commands in the following order when the migrate comm
 `tfm core upload-state`
 `tfm core link-vcs`
 
-
 ## Flags
 
 `--include remove-backend` will add the `tfm core remove-backend` command to be run last as part of the `tfm core migrate` command. This requires a VCS API token with write permissions to the VCS repositories.
 
-## Cleaning Up
+<!-- ## Cleaning Up
 
-If something goes wrong and you wish to cleanup the workspaces and start the process over you can run the command `tfm nuke workspaces` to delete any workspaces created with tfm commands.
+If something goes wrong and you wish to cleanup the workspaces and start the process over you can run the command `tfm nuke workspaces` to delete any workspaces created with tfm commands. -->

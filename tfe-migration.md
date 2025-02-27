@@ -164,9 +164,9 @@ Note: This command will ask for confirmation, however this is a destructive oper
 This command will look at the `.tfm` configuration for the workspaces on the source that should have their VCS connection removed. This would be utilized after a migration can been completed, and the existing VCS connections on the source should be removed from the workspaces, so runs are no longer triggered by VCS
 Note: This command will ask for confirmation. The source workspaces will not be deleted, only their VCS connection, which can be added back manually if needed.
 
-### Nuke
+<!-- ### Nuke
 
-If workspaces that have been created in the destination organization need to be destroyed, `tfm nuke workspace` can be used to remove all workspaces that tfm created. This is done by listing all workspaces in the destination organization and checking if the `SourceName` is set to `tfm`. This command will prompt for confirmation. If Confirmed tfm will delete the workspaces. This is a destructive operation and the workspaces can not be recovered.
+If workspaces that have been created in the destination organization need to be destroyed, `tfm nuke workspace` can be used to remove all workspaces that tfm created. This is done by listing all workspaces in the destination organization and checking if the `SourceName` is set to `tfm`. This command will prompt for confirmation. If Confirmed tfm will delete the workspaces. This is a destructive operation and the workspaces can not be recovered. -->
 
 ### Lock & Unlock
 

@@ -47,9 +47,9 @@ As an example, the below metadata would create 2 TFC/TFE workspaces with the nam
 
 If a workspace already exists with the name of the repository tfm will return an error and continue on to the next workspace creation attempt.
 
-## Cleaning Up
+<!-- ## Cleaning Up
 
-If something goes wrong and you wish to cleanup the workspaces and start the process over you can run the command `tfm nuke workspaces` to delete any workspaces created with tfm commands.
+If something goes wrong and you wish to cleanup the workspaces and start the process over you can run the command `tfm nuke workspaces` to delete any workspaces created with tfm commands. -->
 
 ## Out of Band Workspace Creation
 
