@@ -444,7 +444,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 
 		// Copy tags over
 		var tag []*tfe.Tag
-		workspaceSource := "tfm"
+		// workspaceSource := "tfm"
 
 		for _, t := range srcworkspace.TagNames {
 			tag = append(tag, &tfe.Tag{Name: t})
@@ -475,8 +475,6 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 				Name:               &destWorkSpaceName,
 				QueueAllRuns:       &srcworkspace.QueueAllRuns,
 				SpeculativeEnabled: &srcworkspace.SpeculativeEnabled,
-				SourceName:         &workspaceSource, // beta may remove
-				// SourceURL:                  &srcworkspace.SourceURL, // beta
 				StructuredRunOutputEnabled: &srcworkspace.StructuredRunOutputEnabled,
 				TerraformVersion:           &srcworkspace.TerraformVersion,
 				TriggerPrefixes:            srcworkspace.TriggerPrefixes,
