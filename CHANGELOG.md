@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1](https://github.com/hashicorp-services/tfm/compare/v0.12.0...v0.12.1) (2025-02-27)
+
+### Bug Fixes
+
+- Fixes issue [#283](https://github.com/hashicorp-services/tfm/issues/283)
+- Remove the nuke command due to the above issue
+
 ## [0.12.0](https://github.com/hashicorp-services/tfm/compare/v0.11.3...v0.12.0) (2025-02-14)
 
 ### Features
