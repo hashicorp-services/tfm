@@ -35,6 +35,8 @@ var (
 	srcType string
 	dstID   string
 	dstType string
+	suffix  string
+	prefix  string
 
 	// `tfm compare workspace` command
 	wsCmpCmd = &cobra.Command{
@@ -61,6 +63,8 @@ func init() {
 	wsCmpCmd.MarkFlagRequired("dst-id")
 	wsCmpCmd.PersistentFlags().StringVar(&dstType, "dst-type", "project", "specify the destination type (organization or project)")
 	wsCmpCmd.MarkFlagRequired("dst-type")
+	wsCmpCmd.PersistentFlags().StringVar(&suffix, "suffix-filter", "", "(optional) only for destination workspaces, if they were copied over with a common suffix, it will remove them for the comparison")
+	wsCmpCmd.PersistentFlags().StringVar(&prefix, "prefix-filter", "", "(optional) only for destination workspaces, if they were copied over with a common prefix, it will remove them for the comparison")
 	wsCmpCmd.PersistentFlags().Args()
 }
 
@@ -139,6 +143,23 @@ func wsCmp(c tfclient.ClientContexts) error {
 	}
 	for _, ws := range dstWS.Items {
 		dstUnique[ws.Name] = true
+	}
+
+	// Remove suffix and prefix from destination workspace names if specified
+	if suffix != "" || prefix != "" {
+		for name := range dstUnique {
+			originalName := name
+			if suffix != "" && len(name) > len(suffix)+1 && name[len(name)-len(suffix)-1:] == "-"+suffix {
+				name = name[:len(name)-len(suffix)-1]
+			}
+			if prefix != "" && len(name) > len(prefix)+1 && name[:len(prefix)+1] == prefix+"-" {
+				name = name[len(prefix)+1:]
+			}
+			if name != originalName {
+				delete(dstUnique, originalName)
+				dstUnique[name] = true
+			}
+		}
 	}
 
 	// Remove identical workspace names from both maps
