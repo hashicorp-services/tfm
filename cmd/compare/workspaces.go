@@ -53,36 +53,81 @@ var (
 
 func init() {
 	CmpCmd.AddCommand(wsCmpCmd)
-	wsCmpCmd.PersistentFlags().StringVar(&srcID, "src-id", "", "partial workspace name used to filter the results")
+	wsCmpCmd.PersistentFlags().StringVar(&srcID, "src-id", "Default Project", "partial workspace name used to filter the results")
 	wsCmpCmd.MarkFlagRequired("src-id")
-	wsCmpCmd.PersistentFlags().StringVar(&srcType, "src-type", "", "comma-separated tag names used to filter the results")
+	wsCmpCmd.PersistentFlags().StringVar(&srcType, "src-type", "project", "specify the source type (organization or project)")
 	wsCmpCmd.MarkFlagRequired("src-type")
-	wsCmpCmd.PersistentFlags().StringVar(&dstID, "dst-id", "", "comma-separated tag names to exclude")
+	wsCmpCmd.PersistentFlags().StringVar(&dstID, "dst-id", "Default Project", "comma-separated tag names to exclude")
 	wsCmpCmd.MarkFlagRequired("dst-id")
-	wsCmpCmd.PersistentFlags().StringVar(&dstType, "dst-type", "", "workspace name to match with a wildcard")
+	wsCmpCmd.PersistentFlags().StringVar(&dstType, "dst-type", "project", "specify the destination type (organization or project)")
 	wsCmpCmd.MarkFlagRequired("dst-type")
+	wsCmpCmd.PersistentFlags().Args()
 }
 
 func wsCmp(c tfclient.ClientContexts) error {
 
-	wsListOptions := tfe.WorkspaceListOptions{
-		ListOptions: tfe.ListOptions{
-			PageNumber: 1,
-			PageSize:   100,
-		},
-		ProjectID: srcID,
+	// Validate the source and destination types
+	// They must be either "organization" or "project"
+	if srcType != "organization" && srcType != "project" {
+		fmt.Println("Invalid source type. Must be 'organization' or 'project'.")
+		return nil
+	}
+	if dstType != "organization" && dstType != "project" {
+		fmt.Println("Invalid destination type. Must be 'organization' or 'project'.")
+		return nil
 	}
 
-	srcWS, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &wsListOptions)
+	// Checks if source and destionation types are the project
+	// and if the IDs are valid
+	// Project IDs must start with "prj-"
+	if srcType == "project" && len(srcID) >= 4 && srcID[:4] != "prj-" {
+		fmt.Println("Invalid source ID for project. Project IDs must start with 'prj-'.")
+		return nil
+	}
+
+	if dstType == "project" && len(dstID) >= 4 && dstID[:4] != "prj-" {
+		fmt.Println("Invalid destination ID for project. Project IDs must start with 'prj-'.")
+		return nil
+	}
+
+	var wsSRCListOptions tfe.WorkspaceListOptions
+	var wsDSTListOptions tfe.WorkspaceListOptions
+
+	// Using a helper function to create WorkspaceListOptions
+	createWorkspaceListOptions := func(id, typ string) tfe.WorkspaceListOptions {
+		options := tfe.WorkspaceListOptions{
+			ListOptions: tfe.ListOptions{
+				PageNumber: 1,
+				PageSize:   100,
+			},
+		}
+		if typ == "project" {
+			options.ProjectID = id
+		}
+		return options
+	}
+
+	// Initialize options for source and destination
+	wsSRCListOptions = createWorkspaceListOptions(srcID, srcType)
+	wsDSTListOptions = createWorkspaceListOptions(dstID, dstType)
+
+	// This was for debugging purposes, you can uncomment it if needed.
+	// fmt.Printf("WorkspaceListOptions: %+v\n", wsSRCListOptions)
+	// fmt.Printf("WorkspaceListOptions: %+v\n", wsDSTListOptions)
+
+	srcWS, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &wsSRCListOptions)
 
 	if err != nil {
 		fmt.Printf("Error With retrieving Workspaces from %s : Error %s\n", c.SourceHostname, err)
 	}
 
-	dstWS, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &wsListOptions)
+	dstWS, err := c.DestinationClient.Workspaces.List(c.DestinationContext, c.DestinationOrganizationName, &wsDSTListOptions)
+
 	if err != nil {
 		fmt.Printf("Error With retrieving Workspaces from %s : Error %s\n", c.DestinationHostname, err)
 	}
+
+	// List of all workspaces
 
 	// Create maps to track unique workspace names
 	srcUnique := make(map[string]bool)
@@ -119,6 +164,9 @@ func wsCmp(c tfclient.ClientContexts) error {
 		fmt.Println("\nMatched all workspaces names between source and destination.")
 		return nil
 	}
+
+	o.AddMessageUserProvided("Source Workspace Count:", len(srcWS.Items))
+	o.AddMessageUserProvided("Destination Workspaces Count:", len(dstWS.Items))
 
 	// Create a single table with headers for source and destination workspaces
 	o.AddTableHeaders("Source Workspaces", "Destination Workspaces")
