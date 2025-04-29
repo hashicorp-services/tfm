@@ -431,7 +431,8 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		return errors.Wrap(err, "Failed to list workspaces from destination target")
 	}
 
-	var project *tfe.Project
+	var project tfe.Project
+	projectDescription := "Generated during tfm copy"
 
 	// Check if Project ID is set
 	if viper.GetString("dst_tfc_project_id") != "" {
@@ -444,13 +445,31 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		projectName := c.SourceOrganizationName
 		o.AddMessageUserProvided("Creating new project in destination: ", projectName)
 
-		project, err = c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
-			Name: projectName,
-		})
+		// Check if the project name is already in use
+
+		existingPrjID, err := checkDstProjectExists(c, projectName)
+
 		if err != nil {
-			return errors.Wrap(err, "Failed to create project in destination")
+			return errors.Wrap(err, "Failed to check if project exists in destination")
 		}
-		o.AddMessageUserProvided("Created new project in destination: ", project.Name)
+		if existingPrjID != "" {
+			o.AddMessageUserProvided("Project already exists in destination: ", projectName)
+			project.ID = existingPrjID
+		} else {
+
+			projectPtr, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
+				Name:        projectName,
+				Description: &projectDescription,
+			})
+
+			if err != nil {
+				return errors.Wrap(err, "Failed to create project in destination")
+			}
+
+			o.AddMessageUserProvided("Created new project in destination: ", project.Name)
+			project = *projectPtr
+		}
+
 		o.AddMessageUserProvided("Project ID: ", project.ID)
 
 	} else {
@@ -544,7 +563,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 				//VCSRepo: &tfe.VCSRepoOptions{}, covered with `configureVCSsettings` function`
 				WorkingDirectory: &srcworkspace.WorkingDirectory,
 				Tags:             tag,
-				Project:          project,
+				Project:          &project,
 			})
 			if err != nil {
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
@@ -583,6 +602,40 @@ func getDstDefaultProjectID(c tfclient.ClientContexts) (string, error) {
 	for _, i := range dstProjects {
 
 		if i.Name == "Default Project" {
+			return i.ID, nil
+		}
+	}
+
+	return "", nil
+}
+
+func checkDstProjectExists(c tfclient.ClientContexts, dstProjectName string) (string, error) {
+
+	dstProjects := []*tfe.Project{}
+
+	opts := tfe.ProjectListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+
+	for {
+		items, err := c.DestinationClient.Projects.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
+		if err != nil {
+			return "", err
+		}
+		dstProjects = append(dstProjects, items.Items...)
+
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+
+	}
+
+	for _, i := range dstProjects {
+
+		if i.Name == dstProjectName {
 			return i.ID, nil
 		}
 	}
