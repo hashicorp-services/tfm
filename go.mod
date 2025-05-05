@@ -32,9 +32,9 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
-	github.com/hashicorp/go-slug v0.16.1 // indirect
+	github.com/hashicorp/go-slug v0.16.4 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
-	github.com/hashicorp/jsonapi v1.3.1 // indirect
+	github.com/hashicorp/jsonapi v1.4.3-0.20250220162346-81a76b606f3e // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -54,8 +54,8 @@ require (
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
 	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/time v0.8.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/time v0.10.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
 
@@ -63,7 +63,7 @@ require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/hashicorp/go-tfe v1.70.0
+	github.com/hashicorp/go-tfe v1.78.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -74,7 +74,7 @@ require (
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	golang.org/x/oauth2 v0.24.0
-	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
