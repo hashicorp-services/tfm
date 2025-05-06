@@ -5,7 +5,6 @@ package copy
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -67,29 +66,50 @@ func createVCSConfiguration(c tfclient.ClientContexts, vcsConfig map[string]stri
 				o.AddMessageUserProvided("No VCS ID Assigned to source Workspace: ", ws.Name)
 			} else {
 
-				if ws.VCSRepo.OAuthTokenID == srcvcs || ws.VCSRepo.GHAInstallationID == srcvcs {
-					o.AddFormattedMessageUserProvided2("Updating destination Workspace %v VCS Settings %v", destWorkSpaceName, destvcs)
+				if ws.VCSRepo.OAuthTokenID != "" {
 
-					vcsConfig := tfe.VCSRepoOptions{
-						Branch:            &ws.VCSRepo.Branch,
-						Identifier:        &ws.VCSRepo.Identifier,
-						IngressSubmodules: &ws.VCSRepo.IngressSubmodules,
-						TagsRegex:         &ws.VCSRepo.TagsRegex,
-					}
+					// If the source Workspace assigned VCS does not match the one provided by the user on the left side of the `vcs-map`, do nothing and inform the user
+					if ws.VCSRepo.OAuthTokenID != srcvcs {
+						o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
 
-					if strings.HasPrefix(destvcs, "ot-") {
-						vcsConfig.OAuthTokenID = &destvcs
-					} else if strings.HasPrefix(destvcs, "ghain-") {
-						vcsConfig.GHAInstallationID = &destvcs
+						// If the source Workspace assigned VCS matches the one provided by the user on the left side of the `vcs-map`, update the destination Workspace
+						// with the VCS provided by the user on the right side of the `vcs-map`
 					} else {
-						o.AddFormattedMessageUserProvided2("Invalid destination VCS ID %v for Workspace %v. Skipping.", destvcs, destWorkSpaceName)
-						continue
-					}
-					
-					configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, destWorkSpaceName)
-				} else {
+						o.AddFormattedMessageUserProvided2("Updating destination Workspace %v VCS Settings %v", destWorkSpaceName, destvcs)
 
-					o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
+						vcsConfig := tfe.VCSRepoOptions{
+							Branch:            &ws.VCSRepo.Branch,
+							Identifier:        &ws.VCSRepo.Identifier,
+							IngressSubmodules: &ws.VCSRepo.IngressSubmodules,
+							OAuthTokenID:      &destvcs,
+							TagsRegex:         &ws.VCSRepo.TagsRegex,
+						}
+
+						configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, destWorkSpaceName)
+					}
+				}
+
+				if ws.VCSRepo.GHAInstallationID != "" {
+
+					// If the source Workspace assigned VCS does not match the one provided by the user on the left side of the `vcs-map`, do nothing and inform the user
+					if ws.VCSRepo.GHAInstallationID != srcvcs {
+						o.AddFormattedMessageUserProvided2("Workspace %v configured VCS ID does not match provided source ID %v. Skipping.", ws.Name, srcvcs)
+
+						// If the source Workspace assigned VCS matches the one provided by the user on the left side of the `vcs-map`, update the destination Workspace
+						// with the VCS provided by the user on the right side of the `vcs-map`
+					} else {
+						o.AddFormattedMessageUserProvided2("Updating destination Workspace %v VCS Settings %v", destWorkSpaceName, destvcs)
+
+						vcsConfig := tfe.VCSRepoOptions{
+							Branch:            &ws.VCSRepo.Branch,
+							Identifier:        &ws.VCSRepo.Identifier,
+							IngressSubmodules: &ws.VCSRepo.IngressSubmodules,
+							GHAInstallationID: &destvcs,
+							TagsRegex:         &ws.VCSRepo.TagsRegex,
+						}
+
+						configureVCSsettings(c, c.DestinationOrganizationName, vcsConfig, destWorkSpaceName)
+					}
 				}
 			}
 		}
