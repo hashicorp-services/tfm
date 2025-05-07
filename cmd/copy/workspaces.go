@@ -27,8 +27,6 @@ var (
 	remoteStateSharing bool
 	consolidateGlobal  bool
 	last               int
-	lock               bool
-	unlock             bool
 	runTriggers        bool
 
 	// `tfemigrate copy workspaces` command
@@ -144,8 +142,6 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&vcs, "vcs", "", false, "Mapping of source vcs Oauth ID or GitHub App ID to destination vcs Oauth or GitHub App ID in config file")
 	workspacesCopyCmd.Flags().BoolVarP(&ssh, "ssh", "", false, "Mapping of source ssh id to destination ssh id in config file")
-	workspacesCopyCmd.Flags().BoolVarP(&lock, "lock", "", false, "Lock all source workspaces")
-	workspacesCopyCmd.Flags().BoolVarP(&unlock, "unlock", "", false, "Unlock all source workspaces")
 	workspacesCopyCmd.Flags().BoolVarP(&remoteStateSharing, "remote-state-sharing", "", false, "Copy remote state sharing settings")
 	workspacesCopyCmd.Flags().BoolVarP(&consolidateGlobal, "consolidate-global", "", false, "Consolidate global remote state sharing settings. Must be used with --remote-state-sharing flag")
 	workspacesCopyCmd.Flags().BoolVarP(&runTriggers, "run-triggers", "", false, "Copy workspace run triggers")
@@ -260,7 +256,6 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	}
 
 	return srcWorkspaces, nil
-
 }
 
 func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.Workspace, error) {
@@ -464,25 +459,22 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
 				// AgentPoolID:        new(string), covered with `assignAgentPool` function
-				AllowDestroyPlan:   &srcworkspace.AllowDestroyPlan,
-				AssessmentsEnabled: &srcworkspace.AssessmentsEnabled,
-				AutoApply:          &srcworkspace.AutoApply,
-				Description:        &srcworkspace.Description,
-				//ExecutionMode:       &srcworkspace.ExecutionMode,
-				FileTriggersEnabled: &srcworkspace.FileTriggersEnabled,
-				GlobalRemoteState:   &srcworkspace.GlobalRemoteState,
-				// MigrationEnvironment:       new(string), legacy usage only will not add
-				Name:               &destWorkSpaceName,
-				QueueAllRuns:       &srcworkspace.QueueAllRuns,
-				SpeculativeEnabled: &srcworkspace.SpeculativeEnabled,
+				AllowDestroyPlan:           &srcworkspace.AllowDestroyPlan,
+				AssessmentsEnabled:         &srcworkspace.AssessmentsEnabled,
+				AutoApply:                  &srcworkspace.AutoApply,
+				Description:                &srcworkspace.Description,
+				FileTriggersEnabled:        &srcworkspace.FileTriggersEnabled,
+				GlobalRemoteState:          &srcworkspace.GlobalRemoteState,
+				Name:                       &destWorkSpaceName,
+				QueueAllRuns:               &srcworkspace.QueueAllRuns,
+				SpeculativeEnabled:         &srcworkspace.SpeculativeEnabled,
 				StructuredRunOutputEnabled: &srcworkspace.StructuredRunOutputEnabled,
 				TerraformVersion:           &srcworkspace.TerraformVersion,
 				TriggerPrefixes:            srcworkspace.TriggerPrefixes,
 				TriggerPatterns:            srcworkspace.TriggerPatterns,
-				//VCSRepo: &tfe.VCSRepoOptions{}, covered with `configureVCSsettings` function`
-				WorkingDirectory: &srcworkspace.WorkingDirectory,
-				Tags:             tag,
-				Project:          &project,
+				WorkingDirectory:           &srcworkspace.WorkingDirectory,
+				Tags:                       tag,
+				Project:                    &project,
 			})
 			if err != nil {
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
