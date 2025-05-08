@@ -98,7 +98,7 @@ func wsCmp(c tfclient.ClientContexts) error {
 	var wsDSTListOptions tfe.WorkspaceListOptions
 
 	// Using a helper function to create WorkspaceListOptions
-	createWorkspaceListOptions := func(id, typ string) tfe.WorkspaceListOptions {
+	wsListOptions := func(id, typ string) tfe.WorkspaceListOptions {
 		options := tfe.WorkspaceListOptions{
 			ListOptions: tfe.ListOptions{
 				PageNumber: 1,
@@ -112,8 +112,8 @@ func wsCmp(c tfclient.ClientContexts) error {
 	}
 
 	// Initialize options for source and destination
-	wsSRCListOptions = createWorkspaceListOptions(srcID, srcType)
-	wsDSTListOptions = createWorkspaceListOptions(dstID, dstType)
+	wsSRCListOptions = wsListOptions(srcID, srcType)
+	wsDSTListOptions = wsListOptions(dstID, dstType)
 
 	// This was for debugging purposes, you can uncomment it if needed.
 	// fmt.Printf("WorkspaceListOptions: %+v\n", wsSRCListOptions)
