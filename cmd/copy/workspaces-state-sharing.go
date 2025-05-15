@@ -94,21 +94,40 @@ func copyRemoteStateSharing(c tfclient.ClientContexts, consolidateGlobal bool) e
 					// Get the list of workspaces in the destination
 					destinationWorkspaceList, err := lookupWorkspaces(c, "destination")
 
-					// Compare the workspaces in the source and destination and return a slice of matching workspaces
-					workspaceMapping := CompareWorkspacesByName(consumers.Items, destinationWorkspaceList)
+					if wsMapCfg == nil {
 
-					o.AddFormattedMessageUserProvided2("Adding %v remote state consumers to destination workspace %v.", len(workspaceMapping), srcWorkspace.Name)
+						// Compare the workspaces in the source and destination and return a slice of matching workspaces
+						workspaceMapping := CompareWorkspacesByName(consumers.Items, destinationWorkspaceList)
 
-					addRemoteStateConsumerOpts := tfe.WorkspaceAddRemoteStateConsumersOptions{
-						Workspaces: workspaceMapping,
+						o.AddFormattedMessageUserProvided2("Adding %v remote state consumers to destination workspace %v.", len(workspaceMapping), destWorkSpaceName)
+
+						addRemoteStateConsumerOpts := tfe.WorkspaceAddRemoteStateConsumersOptions{
+							Workspaces: workspaceMapping,
+						}
+
+						err = c.DestinationClient.Workspaces.AddRemoteStateConsumers(c.DestinationContext, destWorkSpaceID, addRemoteStateConsumerOpts)
+						if err != nil {
+							return errors.Wrap(err, "failed to add remote state consumers")
+						}
+
+					} else if len(wsMapCfg) > 0 {
+
+						workspaceMapping := CompareWorkspacesByNameMap(consumers.Items, destinationWorkspaceList, wsMapCfg)
+
+						o.AddFormattedMessageUserProvided2("Adding %v remote state consumers to destination workspace %v.", len(workspaceMapping), destWorkSpaceName)
+
+						addRemoteStateConsumerOpts := tfe.WorkspaceAddRemoteStateConsumersOptions{
+							Workspaces: workspaceMapping,
+						}
+
+						err = c.DestinationClient.Workspaces.AddRemoteStateConsumers(c.DestinationContext, destWorkSpaceID, addRemoteStateConsumerOpts)
+						if err != nil {
+							return errors.Wrap(err, "failed to add remote state consumers")
+						}
 					}
 
-					err = c.DestinationClient.Workspaces.AddRemoteStateConsumers(c.DestinationContext, destWorkSpaceID, addRemoteStateConsumerOpts)
-					if err != nil {
-						return errors.Wrap(err, "failed to add remote state consumers")
-					}
 				} else {
-					o.AddFormattedMessageCalculated("No remote state consumers to add to destination workspace %v.", srcWorkspace.Name)
+					o.AddFormattedMessageCalculated("No remote state consumers to add to destination workspace %v.", destWorkSpaceName)
 				}
 			}
 
@@ -128,31 +147,53 @@ func copyRemoteStateSharing(c tfclient.ClientContexts, consolidateGlobal bool) e
 				remoteStateOpts := tfe.RemoteStateConsumersListOptions{}
 				consumers, err := c.SourceClient.Workspaces.ListRemoteStateConsumers(c.SourceContext, srcWorkspace.ID, &remoteStateOpts)
 				if len(consumers.Items) > 0 {
+
 					if err != nil {
 						return errors.Wrap(err, "failed to list remote state consumers")
 					}
 
 					// Get the list of workspaces in the destination
 					destinationWorkspaceList, err := lookupWorkspaces(c, "destination")
-
-					// Compare the workspaces in the source and destination and return a slice of matching workspaces
-					workspaceMapping := CompareWorkspacesByName(consumers.Items, destinationWorkspaceList)
-
-					o.AddFormattedMessageUserProvided2("Adding %v remote state consumers to destination workspace %v.", len(workspaceMapping), srcWorkspace.Name)
-
-					addRemoteStateConsumerOpts := tfe.WorkspaceAddRemoteStateConsumersOptions{
-						Workspaces: workspaceMapping,
+					
+					if err != nil {
+						return errors.Wrap(err, "failed to list Workspaces from destination")
 					}
 
-					err = c.DestinationClient.Workspaces.AddRemoteStateConsumers(c.DestinationContext, destWorkSpaceID, addRemoteStateConsumerOpts)
-					if err != nil {
-						return errors.Wrap(err, "failed to add remote state consumers")
+					if wsMapCfg == nil {
+
+						// Compare the workspaces in the source and destination and return a slice of matching workspaces
+						workspaceMapping := CompareWorkspacesByName(consumers.Items, destinationWorkspaceList)
+
+						o.AddFormattedMessageUserProvided2("Adding %v remote state consumers to destination workspace %v.", len(workspaceMapping), destWorkSpaceName)
+
+						addRemoteStateConsumerOpts := tfe.WorkspaceAddRemoteStateConsumersOptions{
+							Workspaces: workspaceMapping,
+						}
+
+						err = c.DestinationClient.Workspaces.AddRemoteStateConsumers(c.DestinationContext, destWorkSpaceID, addRemoteStateConsumerOpts)
+						if err != nil {
+							return errors.Wrap(err, "failed to add remote state consumers")
+						}
+					} else if len(wsMapCfg) > 0 {
+
+						// Compare the workspaces in the source and destination and return a slice of matching workspaces
+						workspaceMapping := CompareWorkspacesByNameMap(consumers.Items, destinationWorkspaceList, wsMapCfg)
+
+						o.AddFormattedMessageUserProvided2("Adding %v remote state consumers to destination workspace %v.", len(workspaceMapping), destWorkSpaceName)
+
+						addRemoteStateConsumerOpts := tfe.WorkspaceAddRemoteStateConsumersOptions{
+							Workspaces: workspaceMapping,
+						}
+
+						err = c.DestinationClient.Workspaces.AddRemoteStateConsumers(c.DestinationContext, destWorkSpaceID, addRemoteStateConsumerOpts)
+						if err != nil {
+							return errors.Wrap(err, "failed to add remote state consumers")
+						}
 					}
 				}
 			}
-
 		} else {
-			o.AddFormattedMessageCalculated("Source workspace named %v does not exist in destination. No Remote State sharing to configure\n", srcWorkspace.Name)
+			o.AddFormattedMessageCalculated("Source workspace named %v does not exist in destination. No Remote State sharing to configure\n", destWorkSpaceName)
 		}
 	}
 	return nil
@@ -205,15 +246,35 @@ func lookupWorkspaces(c tfclient.ClientContexts, side string) ([]*tfe.Workspace,
 }
 
 // CompareWorkspacesByName compares two slices of workspaces and returns a slice of workspaces with matching names.
-func CompareWorkspacesByName(slice1, slice2 []*tfe.Workspace) []*tfe.Workspace {
-	nameSet := make(map[string]*tfe.Workspace, len(slice1))
-	for _, workspace := range slice1 {
+func CompareWorkspacesByName(workspaceConsumers, destinationWorkspaces []*tfe.Workspace) []*tfe.Workspace {
+	nameSet := make(map[string]*tfe.Workspace, len(workspaceConsumers))
+	for _, workspace := range workspaceConsumers {
 		nameSet[workspace.Name] = workspace
 	}
 
 	var matchingWorkspaces []*tfe.Workspace
-	for _, workspace := range slice2 {
+	for _, workspace := range destinationWorkspaces {
 		if _, exists := nameSet[workspace.Name]; exists {
+			matchingWorkspaces = append(matchingWorkspaces, workspace)
+		}
+	}
+
+	return matchingWorkspaces
+}
+
+func CompareWorkspacesByNameMap(workspaceConsumers, destinationWorkspaces []*tfe.Workspace, wsMapCfg map[string]string) []*tfe.Workspace {
+
+	// Build a set of destination workspace names mapped from workspaceConsumers using wsMapCfg
+	mappedNames := make(map[string]struct{})
+	for _, consumer := range workspaceConsumers {
+		if newWorkspaceName, ok := wsMapCfg[consumer.Name]; ok {
+			mappedNames[newWorkspaceName] = struct{}{}
+		}
+	}
+
+	var matchingWorkspaces []*tfe.Workspace
+	for _, workspace := range destinationWorkspaces {
+		if _, exists := mappedNames[workspace.Name]; exists {
 			matchingWorkspaces = append(matchingWorkspaces, workspace)
 		}
 	}
