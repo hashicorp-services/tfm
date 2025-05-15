@@ -36,6 +36,8 @@ var (
 	runTriggers        bool
 	createDstProject   bool
 	planOnly           bool
+	wsNamePrefix       string
+	wsNameSuffix       string
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -132,10 +134,11 @@ func init() {
 
 	// `tfemigrate copy workspaces --workspace-id [WORKSPACEID]`
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
+	workspacesCopyCmd.PersistentFlags().StringVar(&wsNameSuffix, "add-suffix", "", "(optional) only for destination workspaces, if they were copied over with a common suffix, it will remove them for the comparison")
+	workspacesCopyCmd.PersistentFlags().StringVar(&wsNamePrefix, "add-prefix", "", "(optional) only for destination workspaces, if they were copied over with a common prefix, it will remove them for the comparison")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&skipSensitive, "skip-sensitive-vars", "", false, "Skip copying sensitive variables. Must be used with --vars flag")
 	workspacesCopyCmd.Flags().BoolVarP(&skipEmpty, "skip-empty", "", false, "Skip empty workspaces.")
-	workspacesCopyCmd.Flags().BoolVarP(&forceSkipEmpty, "force-skip-empty", "", false, "Skips an empty workspace, even if it could be referenced by remote state.")
 	workspacesCopyCmd.Flags().BoolVarP(&createDstProject, "create-dst-project", "", false, "Creates destination project, if not existing. Defaults to source organization name.")
 	workspacesCopyCmd.Flags().BoolVarP(&planOnly, "plan-only", "", false, "Only plan the copy operation without making changes")
 
@@ -150,9 +153,6 @@ func init() {
 			return errors.New("--last flag is only valid after the --state flag is set")
 		}
 
-		if !skipEmpty && forceSkipEmpty {
-			return errors.New("use --skip-empty flag with --force-skip-empty to skip empty workspaces with remote state enabled globally or with consumers")
-		}
 		return nil
 
 	}
@@ -469,9 +469,9 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		o.AddMessageUserProvided("Destination Project ID is Set: ", project.ID)
 
 	} else if createDstProject {
-		// Create a new project in the destination
+		// Create a new project in the destination using the source organization name
+
 		projectName := c.SourceOrganizationName
-		o.AddMessageUserProvided("Creating new project in destination: ", projectName)
 
 		// Check if the project name is already in use
 
@@ -485,20 +485,23 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 			project.ID = existingPrjID
 		} else {
 
-			projectPtr, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
-				Name:        projectName,
-				Description: &projectDescription,
-			})
+			if !planOnly {
+				projectPtr, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
+					Name:        projectName,
+					Description: &projectDescription,
+				})
 
-			if err != nil {
-				return errors.Wrap(err, "Failed to create project in destination")
+				if err != nil {
+					return errors.Wrap(err, "Failed to create project in destination")
+				}
+
+				o.AddMessageUserProvided("Created new project in destination: ", project.Name)
+				project = *projectPtr
+				o.AddMessageUserProvided("Project ID: ", project.ID)
+			} else {
+				o.AddMessageUserProvided("Project will be created in destination: ", projectName)
 			}
-
-			o.AddMessageUserProvided("Created new project in destination: ", project.Name)
-			project = *projectPtr
 		}
-
-		o.AddMessageUserProvided("Project ID: ", project.ID)
 
 	} else {
 
@@ -511,8 +514,14 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		}
 	}
 
+	// Check if the workspace name prefix and suffix are set
+	if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+		// Standardize the naming convention for the workspaces
+		srcWorkspaces = standardizeNamingConvention(srcWorkspaces, wsNamePrefix, wsNameSuffix)
+	}
+
 	if planOnly {
-		fmt.Println("\n\n**** Plan Only Run **** ")
+		fmt.Println("\n**** Plan Only Run ****\n ")
 	}
 
 	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
@@ -544,12 +553,15 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		if exists {
 			// Check if the destination workspace name differs from the source name
 			// Added info to clarify Destination workspace
+
 			o.AddMessageUserProvided2(destWorkSpaceName, "exists in destination will not migrate", srcworkspace.Name)
 
 		} else if planOnly {
-			o.AddMessageUserProvided("Following workspaces will be migrated: ", destWorkSpaceName)
-			continue
+
+			o.AddMessageUserProvided("Following workspace will be migrated: ", destWorkSpaceName)
+
 		} else {
+
 			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
 				// AgentPoolID:        new(string), covered with `assignAgentPool` function
@@ -682,42 +694,35 @@ func confirm() bool {
 	return false
 }
 
-// func preflightChecks(c tfclient.ClientContexts) error {
+func standardizeNamingConvention(workspaceList []*tfe.Workspace, prefix string, suffix string) []*tfe.Workspace {
+	workspaceListUpdated := []*tfe.Workspace{}
 
-// 	// Get planned workspaces from source
+	fmt.Println("\n**** Standardizing workspace names with prefix and suffix ****\n")
 
-// 	return nil
-// }
+	for _, ws := range workspaceList {
 
-// func standardizeNamingConvention(workspaceName string) string {
-// 	var workspaceList []string
-// 	workspaceListUpdated := []string{}
+		if !strings.Contains(ws.Name, prefix) || !strings.Contains(ws.Name, suffix) {
+			o.AddMessageUserProvided("Renaming", ws.Name)
 
-// 	fmt.Println(strings.Join(workspaceList, ", "))
+			workspace := ws.Name
 
-// 	for _, ws := range workspaceList {
+			if !strings.Contains(ws.Name, prefix+"-") {
+				workspace = prefix + "-" + ws.Name
+			}
 
-// 		workspace := ws
+			if !strings.Contains(workspace, "-"+suffix) {
+				workspace = workspace + "-" + suffix
+			}
 
-// 		fmt.Println("Before: ", ws)
+			if strings.Contains(ws.Name, prefix) && strings.Contains(ws.Name, suffix) {
+				workspace = ws.Name
+			}
 
-// 		if !strings.Contains(ws, prefix) {
-// 			workspace = prefix + "-" + ws
-// 		}
+			workspaceListUpdated = append(workspaceListUpdated, &tfe.Workspace{Name: workspace})
+		} else {
+			workspaceListUpdated = append(workspaceListUpdated, &tfe.Workspace{Name: ws.Name})
+		}
 
-// 		if !strings.Contains(workspace, suffix) {
-// 			workspace = workspace + "-" + suffix
-// 		}
-
-// 		if strings.Contains(ws, prefix) && strings.Contains(ws, suffix) {
-// 			workspace = ws
-// 		}
-
-// 		workspaceListUpdated = append(workspaceListUpdated, workspace)
-
-// 		fmt.Println("After: ", workspace)
-
-// 	}
-
-// 	fmt.Println("Updated workspaces: ", strings.Join(workspaceListUpdated, ", "))
-// }
+	}
+	return workspaceListUpdated
+}
