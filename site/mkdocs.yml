@@ -82,7 +82,8 @@ nav:
         - Variables: commands/copy_workspace_variables.md
         - Agents: commands/copy_workspace_agents.md
         - VCS: commands/copy_workspace_vcs.md
-        - Team Access: commands/copy_workspace_teamaccess.md
+        - Remote State Sharing: commands/copy_workspace_remote_state_sharing.md
+        - Run Triggers: commands/copy_workspace_run_triggers.md
       - Teams: commands/copy_teams.md
       - Variable Sets: commands/copy_varsets.md
     - List: 
