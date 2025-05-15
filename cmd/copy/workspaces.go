@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"slices"
+
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
@@ -204,6 +206,8 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	// Get source Workspace list from config list `workspaces` if it exists
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
 
+	srcExcludeWorkspaces := viper.GetStringSlice("exclude-workspaces")
+
 	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 	if err != nil {
 		return srcWorkspaces, errors.New("Invalid input for workspaces-map")
@@ -214,8 +218,10 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	}
 
 	// If no workspaces found in config (list or map), default to just assume all workspaces from source will be chosen
-	if len(srcWorkspacesCfg) > 0 && len(wsMapCfg) > 0 {
-		o.AddErrorUserProvided("'workspaces' list and 'workpaces-map' cannot be defined at the same time.")
+	if ((len(srcExcludeWorkspaces)) > 0 && len(srcWorkspacesCfg) > 0) ||
+		((len(srcExcludeWorkspaces)) > 0 && len(wsMapCfg) > 0) ||
+		(len(srcWorkspacesCfg) > 0 && len(wsMapCfg) > 0) {
+		o.AddErrorUserProvided("In config: only one of 'exclude-workspaces', 'workspaces', or 'workspaces-map' can be defined at the same time.")
 		os.Exit(0)
 
 	} else if len(wsMapCfg) > 0 {
@@ -234,6 +240,24 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to list Workspaces in map from source")
 		}
+
+	} else if len(srcExcludeWorkspaces) > 0 {
+		o.AddMessageUserProvided("Excluding workspaces from config list:", srcExcludeWorkspaces)
+
+		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
+		}
+		for _, ws := range srcExcludeWorkspaces {
+			for i, w := range srcWorkspaces {
+				if ws == w.Name {
+					srcWorkspaces = slices.Delete(srcWorkspaces, i, i+1)
+					o.AddMessageUserProvided("Excluding Workspace:", ws)
+					break
+				}
+			}
+		}
+		return srcWorkspaces, nil
 
 	} else if len(srcWorkspacesCfg) > 0 {
 		// use config workspaces from list
@@ -373,7 +397,7 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 
 func discoverDestWorkspaces(c tfclient.ClientContexts, output bool) ([]*tfe.Workspace, error) {
 	// Updated the message to make it more clear in the output
-	o.AddMessageUserProvided("Discovering workspaces in destination: ", c.DestinationHostname)
+	o.AddMessageUserProvided("\nDiscovering workspaces in destination: ", c.DestinationHostname+"\n")
 	destWorkspaces := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -500,34 +524,6 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		if len(wsMapCfg) > 0 {
 			o.AddMessageUserProvided3("Source Workspace:", srcworkspace.Name, "\nDestination Workspace:", wsMapCfg[srcworkspace.Name])
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
-		}
-
-		// Not sure why I could not get this through my head as much.
-
-		if skipEmpty {
-			// Check if the source workspace is empty
-			resourceCount := srcworkspace.ResourceCount
-			globalRemoteStateEnabled := srcworkspace.GlobalRemoteState
-
-			// Fetch remote state consumers
-			remoteStateOpts := tfe.RemoteStateConsumersListOptions{}
-			wsConsumers, err := c.SourceClient.Workspaces.ListRemoteStateConsumers(c.SourceContext, srcworkspace.ID, &remoteStateOpts)
-			if err != nil {
-				return errors.Wrap(err, "Failed to validate if empty workspace has remote state enabled.")
-			}
-
-			// Skip the workspace if it is empty and has no remote state or consumers
-			if resourceCount == 0 && !globalRemoteStateEnabled && len(wsConsumers.Items) == 0 {
-				o.AddMessageUserProvided2("Empty (Skipped):", srcworkspace.Name, "")
-				continue // Skip this iteration and move to the next workspace
-			} else if forceSkipEmpty {
-				o.AddMessageUserProvided2("Empty (Force-Skipped):", srcworkspace.Name, "")
-				continue // Skip this iteration and move to the next workspace
-			} else if resourceCount > 0 {
-				o.AddMessageUserProvided("Utilized workspace (Migrating):", srcworkspace.Name)
-			} else {
-				o.AddMessageUserProvided2("Migrating Empty Workspace (Remote State Enabled):", srcworkspace.Name, "")
-			}
 		}
 
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
@@ -673,3 +669,43 @@ func confirm() bool {
 	}
 	return false
 }
+
+// func preflightChecks(c tfclient.ClientContexts) error {
+
+// 	// Get planned workspaces from source
+
+// 	return nil
+// }
+
+// func standardizeNamingConvention(workspaceName string) string {
+// 	var workspaceList []string
+// 	workspaceListUpdated := []string{}
+
+// 	fmt.Println(strings.Join(workspaceList, ", "))
+
+// 	for _, ws := range workspaceList {
+
+// 		workspace := ws
+
+// 		fmt.Println("Before: ", ws)
+
+// 		if !strings.Contains(ws, prefix) {
+// 			workspace = prefix + "-" + ws
+// 		}
+
+// 		if !strings.Contains(workspace, suffix) {
+// 			workspace = workspace + "-" + suffix
+// 		}
+
+// 		if strings.Contains(ws, prefix) && strings.Contains(ws, suffix) {
+// 			workspace = ws
+// 		}
+
+// 		workspaceListUpdated = append(workspaceListUpdated, workspace)
+
+// 		fmt.Println("After: ", workspace)
+
+// 	}
+
+// 	fmt.Println("Updated workspaces: ", strings.Join(workspaceListUpdated, ", "))
+// }
