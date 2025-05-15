@@ -55,13 +55,13 @@ var (
 
 func init() {
 	CmpCmd.AddCommand(wsCmpCmd)
-	wsCmpCmd.PersistentFlags().StringVar(&srcID, "src-id", "Default Project", "partial workspace name used to filter the results")
+	wsCmpCmd.PersistentFlags().StringVar(&srcID, "src-id", "", "partial workspace name used to filter the results")
 	wsCmpCmd.MarkFlagRequired("src-id")
-	wsCmpCmd.PersistentFlags().StringVar(&srcType, "src-type", "project", "specify the source type (organization or project)")
+	wsCmpCmd.PersistentFlags().StringVar(&srcType, "src-type", "", "specify the source type (organization or project)")
 	wsCmpCmd.MarkFlagRequired("src-type")
-	wsCmpCmd.PersistentFlags().StringVar(&dstID, "dst-id", "Default Project", "comma-separated tag names to exclude")
+	wsCmpCmd.PersistentFlags().StringVar(&dstID, "dst-id", "", "comma-separated tag names to exclude")
 	wsCmpCmd.MarkFlagRequired("dst-id")
-	wsCmpCmd.PersistentFlags().StringVar(&dstType, "dst-type", "project", "specify the destination type (organization or project)")
+	wsCmpCmd.PersistentFlags().StringVar(&dstType, "dst-type", "", "specify the destination type (organization or project)")
 	wsCmpCmd.MarkFlagRequired("dst-type")
 	wsCmpCmd.PersistentFlags().StringVar(&suffix, "suffix-filter", "", "(optional) only for destination workspaces, if they were copied over with a common suffix, it will remove them for the comparison")
 	wsCmpCmd.PersistentFlags().StringVar(&prefix, "prefix-filter", "", "(optional) only for destination workspaces, if they were copied over with a common prefix, it will remove them for the comparison")
@@ -69,6 +69,12 @@ func init() {
 }
 
 func wsCmp(c tfclient.ClientContexts) error {
+
+	// Check if the source and destination IDs are provided
+	if srcID == "" || dstID == "" {
+		fmt.Println("Both source and destination IDs must be provided.")
+		return nil
+	}
 
 	// Validate the source and destination types
 	// They must be either "organization" or "project"
@@ -84,14 +90,34 @@ func wsCmp(c tfclient.ClientContexts) error {
 	// Checks if source and destionation types are the project
 	// and if the IDs are valid
 	// Project IDs must start with "prj-"
-	if srcType == "project" && len(srcID) >= 4 && srcID[:4] != "prj-" {
+	if srcType == "project" && srcID[:4] != "prj-" {
 		fmt.Println("Invalid source ID for project. Project IDs must start with 'prj-'.")
 		return nil
 	}
 
-	if dstType == "project" && len(dstID) >= 4 && dstID[:4] != "prj-" {
+	if dstType == "project" && dstID[:4] != "prj-" {
 		fmt.Println("Invalid destination ID for project. Project IDs must start with 'prj-'.")
 		return nil
+	}
+
+	if srcType == "project" {
+		project, err := c.SourceClient.Projects.Read(c.SourceContext, srcID)
+
+		if err != nil {
+			fmt.Printf("Error retrieving project id: %s from %s : Error %s\n", srcID, c.SourceHostname, err)
+			return nil
+		}
+		_ = project
+	}
+
+	if dstType == "project" {
+		project, err := c.DestinationClient.Projects.Read(c.SourceContext, dstID)
+
+		if err != nil {
+			fmt.Printf("Error retrieving project id: %s from %s : Error %s\n", dstID, c.DestinationHostname, err)
+			return nil
+		}
+		_ = project
 	}
 
 	var wsSRCListOptions tfe.WorkspaceListOptions

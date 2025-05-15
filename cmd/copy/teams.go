@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	o output.Output
+	o            output.Output
+	orgToProject bool
 
 	// `tfemig copy teams` command
 	teamCopyCmd = &cobra.Command{
@@ -38,6 +39,7 @@ func init() {
 
 	// Add commands
 	CopyCmd.AddCommand(teamCopyCmd)
+	teamCopyCmd.Flags().BoolVarP(&orgToProject, "org-to-project", "o", false, "Migrate from organization to project access")
 
 }
 
@@ -139,32 +141,68 @@ func copyTeams(c tfclient.ClientContexts) error {
 		if exists {
 			fmt.Println("Exists in destination will not migrate", srcteam.Name)
 		} else {
-			fmt.Println("Migrating", srcteam.Name)
-			srcteam, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
-				Type:      "",
-				Name:      &srcteam.Name,
-				SSOTeamID: &srcteam.SSOTeamID,
-				OrganizationAccess: &tfe.OrganizationAccessOptions{
-					ManagePolicies:        &srcteam.OrganizationAccess.ManagePolicies,
-					ManagePolicyOverrides: &srcteam.OrganizationAccess.ManagePolicyOverrides,
-					ManageWorkspaces:      &srcteam.OrganizationAccess.ManageWorkspaces,
-					ManageVCSSettings:     &srcteam.OrganizationAccess.ManageVCSSettings,
-					ManageProviders:       &srcteam.OrganizationAccess.ManageProviders,
-					ManageModules:         &srcteam.OrganizationAccess.ManageModules,
-					ManageRunTasks:        &srcteam.OrganizationAccess.ManageRunTasks,
-					// release v202302-1
-					ManageProjects: &srcteam.OrganizationAccess.ManageProjects,
-					ReadWorkspaces: &srcteam.OrganizationAccess.ReadWorkspaces,
-					ReadProjects:   &srcteam.OrganizationAccess.ReadProjects,
-					// release 202303-1
-					ManageMembership: &srcteam.OrganizationAccess.ManageMembership,
-				},
-				Visibility: &srcteam.Visibility,
-			})
-			if err != nil {
-				return err
+			if orgToProject {
+				fmt.Println("Migrating from organization to project access", srcteam.Name)
+
+				// Take teams from source and create them in destination.
+				// if orgToProject is true, it will
+				team, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
+					Type:      "",
+					Name:      &srcteam.Name,
+					SSOTeamID: &srcteam.SSOTeamID,
+					OrganizationAccess: &tfe.OrganizationAccessOptions{
+						ManagePolicies:        tfe.Bool(false),
+						ManagePolicyOverrides: tfe.Bool(false),
+						ManageWorkspaces:      tfe.Bool(false),
+						ManageVCSSettings:     tfe.Bool(false),
+						ManageProviders:       tfe.Bool(false),
+						ManageModules:         tfe.Bool(false),
+						ManageRunTasks:        tfe.Bool(false),
+						// release v202302-1
+						ManageProjects: tfe.Bool(false),
+						ReadWorkspaces: tfe.Bool(false),
+						ReadProjects:   tfe.Bool(false),
+						// release 202303-1
+						ManageMembership: tfe.Bool(false),
+					},
+					Visibility: &srcteam.Visibility,
+				})
+
+				if err != nil {
+					return err
+				}
+
+				o.AddDeferredMessageRead("Created team in destination organization", team.Name)
+				o.AddDeferredMessageRead("New ID", team.ID)
+
+			} else {
+				fmt.Println("Migrating", srcteam.Name)
+				srcteam, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
+					Type:      "",
+					Name:      &srcteam.Name,
+					SSOTeamID: &srcteam.SSOTeamID,
+					OrganizationAccess: &tfe.OrganizationAccessOptions{
+						ManagePolicies:        &srcteam.OrganizationAccess.ManagePolicies,
+						ManagePolicyOverrides: &srcteam.OrganizationAccess.ManagePolicyOverrides,
+						ManageWorkspaces:      &srcteam.OrganizationAccess.ManageWorkspaces,
+						ManageVCSSettings:     &srcteam.OrganizationAccess.ManageVCSSettings,
+						ManageProviders:       &srcteam.OrganizationAccess.ManageProviders,
+						ManageModules:         &srcteam.OrganizationAccess.ManageModules,
+						ManageRunTasks:        &srcteam.OrganizationAccess.ManageRunTasks,
+						// release v202302-1
+						ManageProjects: &srcteam.OrganizationAccess.ManageProjects,
+						ReadWorkspaces: &srcteam.OrganizationAccess.ReadWorkspaces,
+						ReadProjects:   &srcteam.OrganizationAccess.ReadProjects,
+						// release 202303-1
+						ManageMembership: &srcteam.OrganizationAccess.ManageMembership,
+					},
+					Visibility: &srcteam.Visibility,
+				})
+				if err != nil {
+					return err
+				}
+				o.AddDeferredMessageRead("Migrated", srcteam.Name)
 			}
-			o.AddDeferredMessageRead("Migrated", srcteam.Name)
 		}
 	}
 	return nil
