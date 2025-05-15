@@ -35,6 +35,7 @@ var (
 	unlock             bool
 	runTriggers        bool
 	createDstProject   bool
+	planOnly           bool
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -136,6 +137,7 @@ func init() {
 	workspacesCopyCmd.Flags().BoolVarP(&skipEmpty, "skip-empty", "", false, "Skip empty workspaces.")
 	workspacesCopyCmd.Flags().BoolVarP(&forceSkipEmpty, "force-skip-empty", "", false, "Skips an empty workspace, even if it could be referenced by remote state.")
 	workspacesCopyCmd.Flags().BoolVarP(&createDstProject, "create-dst-project", "", false, "Creates destination project, if not existing. Defaults to source organization name.")
+	workspacesCopyCmd.Flags().BoolVarP(&planOnly, "plan-only", "", false, "Only plan the copy operation without making changes")
 
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().IntVarP(&last, "last", "l", last, "Copy the last X number of state files only.")
@@ -257,6 +259,8 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 				}
 			}
 		}
+
+		o.AddFormattedMessageCalculated("Will migrate %d total workspaces", len(srcWorkspaces))
 		return srcWorkspaces, nil
 
 	} else if len(srcWorkspacesCfg) > 0 {
@@ -507,6 +511,10 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		}
 	}
 
+	if planOnly {
+		fmt.Println("\n\n**** Plan Only Run **** ")
+	}
+
 	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
 	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
 	for _, srcworkspace := range srcWorkspaces {
@@ -537,6 +545,10 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 			// Check if the destination workspace name differs from the source name
 			// Added info to clarify Destination workspace
 			o.AddMessageUserProvided2(destWorkSpaceName, "exists in destination will not migrate", srcworkspace.Name)
+
+		} else if planOnly {
+			o.AddMessageUserProvided("Following workspaces will be migrated: ", destWorkSpaceName)
+			continue
 		} else {
 			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
