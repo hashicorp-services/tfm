@@ -522,6 +522,8 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 
 	if planOnly {
 		fmt.Println("\n**** Plan Only Run ****\n ")
+	} else {
+		fmt.Println("\n**** Performing Workspace Copy ****\n ")
 	}
 
 	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
