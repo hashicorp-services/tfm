@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
-- Implements [#305] (https://github.com/hashicorp-services/tfm/issues/305)
+- Implements [#305](https://github.com/hashicorp-services/tfm/issues/305)
 - When using the remote state copy command, support workspace names changing between source and destination.
 
 ### Chore
