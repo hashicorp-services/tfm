@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"slices"
 
@@ -495,8 +496,8 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 					return errors.Wrap(err, "Failed to create project in destination")
 				}
 
-				o.AddMessageUserProvided("Created new project in destination: ", project.Name)
 				project = *projectPtr
+				o.AddMessageUserProvided("Created new project in destination: ", project.Name)
 				o.AddMessageUserProvided("Project ID: ", project.ID)
 			} else {
 				o.AddMessageUserProvided("Project will be created in destination: ", projectName)
@@ -546,6 +547,11 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		}
 
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
+		length := len(srcworkspace.Name)
+
+		if length > 64 {
+			return errors.New("Workspace name is too long. Max length is 64 characters.")
+		}
 
 		c.SourceClient.Workspaces.Read(c.SourceContext, c.SourceOrganizationName, srcworkspace.Name)
 		if err != nil {
@@ -564,7 +570,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 
 		} else {
 
-			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
+			migratedWorkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
 				// AgentPoolID:        new(string), covered with `assignAgentPool` function
 				AllowDestroyPlan:   &srcworkspace.AllowDestroyPlan,
@@ -591,7 +597,42 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
 				return err
 			}
-			o.AddDeferredMessageRead("Migrated", srcworkspace.Name)
+			o.AddDeferredMessageRead("Migrated", migratedWorkspace.Name)
+
+			// Add tag to source workspace from migration.
+
+			date := time.Now().Format("2006-01-02")
+
+			// Validate required fields before calling AddTagBindings
+			if srcworkspace.ID == "" || c.SourceContext == nil {
+				return fmt.Errorf("invalid source workspace ID or context")
+			}
+
+			err = c.SourceClient.Workspaces.AddTags(c.SourceContext, srcworkspace.ID, tfe.WorkspaceAddTagsOptions{
+				Tags: []*tfe.Tag{
+					{Name: "migrated:" + "true"},
+					{Name: "migration-date:" + date},
+					{Name: "migrate-destination-workspace:" + destWorkSpaceName},
+					{Name: "migrate-destination-workspace-id:" + migratedWorkspace.ID},
+					{Name: "migrate-destination-hostname:" + c.DestinationHostname},
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("failed to add tags on source workspace: %w", err)
+			}
+
+			err = c.DestinationClient.Workspaces.AddTags(c.DestinationContext, migratedWorkspace.ID, tfe.WorkspaceAddTagsOptions{
+				Tags: []*tfe.Tag{
+					{Name: "migrated:" + "true"},
+					{Name: "migration-date:" + date},
+					{Name: "migrate-source-workspace:" + srcworkspace.Name},
+					{Name: "migrate-source-workspace-id:" + srcworkspace.ID},
+					{Name: "migrate-source-hostname:" + c.SourceHostname},
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("failed to add tags on destination workspace: %w", err)
+			}
 		}
 	}
 	return nil
@@ -697,34 +738,29 @@ func confirm() bool {
 }
 
 func standardizeNamingConvention(workspaceList []*tfe.Workspace, prefix string, suffix string) []*tfe.Workspace {
-	workspaceListUpdated := []*tfe.Workspace{}
+	workspaceListUpdated := workspaceList
 
-	fmt.Println("\n**** Standardizing workspace names with prefix and suffix ****\n")
+	fmt.Print("\n**** Standardizing workspace names with prefix and suffix ****\n\n")
 
 	for _, ws := range workspaceList {
 
 		if !strings.Contains(ws.Name, prefix) || !strings.Contains(ws.Name, suffix) {
-			o.AddMessageUserProvided("Renaming", ws.Name)
-
-			workspace := ws.Name
+			o.AddMessageUserProvided("Renaming with specified prefix/suffix: ", ws.Name)
 
 			if !strings.Contains(ws.Name, prefix+"-") {
-				workspace = prefix + "-" + ws.Name
+				ws.Name = prefix + "-" + ws.Name
 			}
 
-			if !strings.Contains(workspace, "-"+suffix) {
-				workspace = workspace + "-" + suffix
+			if !strings.Contains(ws.Name, "-"+suffix) {
+				ws.Name = ws.Name + "-" + suffix
 			}
 
 			if strings.Contains(ws.Name, prefix) && strings.Contains(ws.Name, suffix) {
-				workspace = ws.Name
+				continue
 			}
 
-			workspaceListUpdated = append(workspaceListUpdated, &tfe.Workspace{Name: workspace})
-		} else {
-			workspaceListUpdated = append(workspaceListUpdated, &tfe.Workspace{Name: ws.Name})
+			return workspaceListUpdated
 		}
-
 	}
 	return workspaceListUpdated
 }
