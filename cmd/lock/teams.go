@@ -13,10 +13,9 @@ import (
 var (
 	// `tfm lock teams` command
 	teamsLockCmd = &cobra.Command{
-		Use:     "teams",
-		Aliases: []string{"ws"},
-		Short:   "Lock Teams",
-		Long:    "Set teams - excluding owner - permissions to read in organization",
+		Use:   "teams",
+		Short: "Lock Teams",
+		Long:  "Set teams - excluding owner - permissions to read in organization",
 		Run: func(cmd *cobra.Command, args []string) {
 			lockTeams(tfclient.GetClientContexts())
 		},
