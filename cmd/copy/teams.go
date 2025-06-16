@@ -37,7 +37,7 @@ func init() {
 
 	// Add commands
 	CopyCmd.AddCommand(teamCopyCmd)
-	teamCopyCmd.Flags().BoolVarP(&orgToProject, "org-to-project", "o", false, "Migrate with organization access scaled back.")
+	teamCopyCmd.Flags().BoolVarP(&orgToProject, "org-to-project", "o", false, "Migrate with organization access set to read-only.")
 
 }
 
