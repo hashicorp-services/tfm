@@ -20,11 +20,10 @@ import (
 )
 
 var (
-	state              bool
-	vars               bool
-	skipSensitive      bool
-	skipEmpty          bool // Skip empty workspaces
-	forceSkipEmpty     bool
+	state         bool
+	vars          bool
+	skipSensitive bool
+	// skipEmpty          bool // Skip empty workspaces, may reimplement later.
 	teamaccess         bool
 	agents             bool
 	vcs                bool
@@ -139,7 +138,7 @@ func init() {
 	workspacesCopyCmd.PersistentFlags().StringVar(&wsNamePrefix, "add-prefix", "", "(optional) only for destination workspaces, if they were copied over with a common prefix, it will remove them for the comparison")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&skipSensitive, "skip-sensitive-vars", "", false, "Skip copying sensitive variables. Must be used with --vars flag")
-	workspacesCopyCmd.Flags().BoolVarP(&skipEmpty, "skip-empty", "", false, "Skip empty workspaces.")
+	// workspacesCopyCmd.Flags().BoolVarP(&skipEmpty, "skip-empty", "", false, "Skip empty workspaces.") // May reimplement later.
 	workspacesCopyCmd.Flags().BoolVarP(&createDstProject, "create-dst-project", "", false, "Creates destination project, if not existing. Defaults to source organization name.")
 	workspacesCopyCmd.Flags().BoolVarP(&planOnly, "plan-only", "", false, "Only plan the copy operation without making changes")
 
@@ -487,6 +486,8 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		} else {
 
 			if !planOnly {
+
+				fmt.Println("\n**** Creating Project ****\n ")
 				projectPtr, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
 					Name:        projectName,
 					Description: &projectDescription,
@@ -608,30 +609,33 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 				return fmt.Errorf("invalid source workspace ID or context")
 			}
 
-			err = c.SourceClient.Workspaces.AddTags(c.SourceContext, srcworkspace.ID, tfe.WorkspaceAddTagsOptions{
-				Tags: []*tfe.Tag{
-					{Name: "migrated:" + "true"},
-					{Name: "migration-date:" + date},
-					{Name: "migrate-destination-workspace:" + destWorkSpaceName},
-					{Name: "migrate-destination-workspace-id:" + migratedWorkspace.ID},
-					{Name: "migrate-destination-hostname:" + c.DestinationHostname},
-				},
-			})
-			if err != nil {
-				return fmt.Errorf("failed to add tags on source workspace: %w", err)
-			}
+			// Tag Bindings only work with v202502-1 and newer versions of API
+			if c.SourceClient.RemoteTFEVersion() >= "v202502-1" && c.DestinationClient.RemoteTFEVersion() >= "v202502-1" {
+				_, err = c.SourceClient.Workspaces.AddTagBindings(c.SourceContext, srcworkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
+					TagBindings: []*tfe.TagBinding{
+						{Key: "migrated:", Value: "true"},
+						{Key: "migration-date:", Value: date},
+						{Key: "migrate-destination-workspace:", Value: destWorkSpaceName},
+						{Key: "migrate-destination-workspace-id:", Value: migratedWorkspace.ID},
+						{Key: "migrate-destination-hostname:", Value: c.DestinationHostname},
+					},
+				})
+				if err != nil {
+					return fmt.Errorf("failed to add tags on source workspace: %w", err)
+				}
 
-			err = c.DestinationClient.Workspaces.AddTags(c.DestinationContext, migratedWorkspace.ID, tfe.WorkspaceAddTagsOptions{
-				Tags: []*tfe.Tag{
-					{Name: "migrated:" + "true"},
-					{Name: "migration-date:" + date},
-					{Name: "migrate-source-workspace:" + srcworkspace.Name},
-					{Name: "migrate-source-workspace-id:" + srcworkspace.ID},
-					{Name: "migrate-source-hostname:" + c.SourceHostname},
-				},
-			})
-			if err != nil {
-				return fmt.Errorf("failed to add tags on destination workspace: %w", err)
+				_, err = c.DestinationClient.Workspaces.AddTagBindings(c.DestinationContext, migratedWorkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
+					TagBindings: []*tfe.TagBinding{
+						{Key: "migrated:", Value: "true"},
+						{Key: "migration-date:", Value: date},
+						{Key: "migrate-source-workspace:", Value: srcworkspace.Name},
+						{Key: "migrate-source-workspace-id:", Value: srcworkspace.ID},
+						{Key: "migrate-source-hostname:", Value: c.SourceHostname},
+					},
+				})
+				if err != nil {
+					return fmt.Errorf("failed to add tags on destination workspace - : %w", err)
+				}
 			}
 		}
 	}

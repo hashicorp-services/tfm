@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp-services/tfm/cmd/compare"
 	"github.com/hashicorp-services/tfm/cmd/copy"
 	"github.com/hashicorp-services/tfm/cmd/core"
 	"github.com/hashicorp-services/tfm/cmd/delete"
@@ -98,7 +97,6 @@ func init() {
 	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
 	RootCmd.AddCommand(list.ListCmd)
-	RootCmd.AddCommand(compare.CmpCmd)
 	// RootCmd.AddCommand(nuke.NukeCmd)
 	RootCmd.AddCommand(delete.DeleteCmd)
 	RootCmd.AddCommand(generate.GenerateCmd)
