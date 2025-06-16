@@ -11,6 +11,7 @@
 | repos_to_clone | A list of VCS repository names | Used with the`tfm core clone` command to clone a set of VCS repositories. If not provided, all VCS repos will be cloned | `no` | 
 | vcs-map | A list of source=destination VCS oauth IDs | TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID | `yes` for `tfm copy workspaces --vcs` |
 | workspaces | A list of workspaces to migrate from TFE to TFC or TFC org to TFC org | Provide a list of source workspaces in the source TFC/TFE org to migrate. If not provided and no "workspaces-map" is detected, all workspaces will be migrated. | `no` |
+| exclude-workspaces | A list of workspaces to exclude when copying. | Conflicts with workspaces and workspaces-map. | `no` |
 | projects | A list of projects to migrate across from TFE to TFC or TFC org to TFC org | Provide a list of source projects in the source TFC/TFE org to migrate. If not "projects-map" if detected, all projects will be migrated | `no` | 
 | projects-map | A list of source=destination project names | TFM will look at each project in the source for the source project name and recreate the project in the destination with the new destination project name. Takes precedence over "projects" list. | `no` | 
 | workspaces-map | A list of source=destination workspace names | TFM will look at each source workspace and recreate the workspace with the specified destination name | `no` | 
