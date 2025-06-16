@@ -134,8 +134,8 @@ func init() {
 
 	// `tfemigrate copy workspaces --workspace-id [WORKSPACEID]`
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
-	workspacesCopyCmd.PersistentFlags().StringVar(&wsNameSuffix, "add-suffix", "", "(optional) only for destination workspaces, if they were copied over with a common suffix, it will remove them for the comparison")
-	workspacesCopyCmd.PersistentFlags().StringVar(&wsNamePrefix, "add-prefix", "", "(optional) only for destination workspaces, if they were copied over with a common prefix, it will remove them for the comparison")
+	workspacesCopyCmd.PersistentFlags().StringVar(&wsNameSuffix, "add-suffix", "", "(optional) Only performed on destination workspaces, adds a suffix, if missing.")
+	workspacesCopyCmd.PersistentFlags().StringVar(&wsNamePrefix, "add-prefix", "", "(optional) Only performed on destination workspaces, adds a prefix, if missing.")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&skipSensitive, "skip-sensitive-vars", "", false, "Skip copying sensitive variables. Must be used with --vars flag")
 	// workspacesCopyCmd.Flags().BoolVarP(&skipEmpty, "skip-empty", "", false, "Skip empty workspaces.") // May reimplement later.
