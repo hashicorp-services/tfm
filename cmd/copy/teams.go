@@ -4,8 +4,6 @@
 package copy
 
 import (
-	"fmt"
-
 	"strings"
 
 	"github.com/hashicorp-services/tfm/output"
@@ -39,7 +37,7 @@ func init() {
 
 	// Add commands
 	CopyCmd.AddCommand(teamCopyCmd)
-	teamCopyCmd.Flags().BoolVarP(&orgToProject, "org-to-project", "o", false, "Migrate from organization to project access")
+	teamCopyCmd.Flags().BoolVarP(&orgToProject, "org-to-project", "o", false, "Migrate with organization access set to read-only.")
 
 }
 
@@ -139,13 +137,13 @@ func copyTeams(c tfclient.ClientContexts) error {
 	for _, srcteam := range srcTeams {
 		exists := doesTeamExist(srcteam.Name, destTeams)
 		if exists {
-			fmt.Println("Exists in destination will not migrate", srcteam.Name)
+			o.AddMessageUserProvided("Exists in destination will not migrate", srcteam.Name)
 		} else {
 			if orgToProject {
-				fmt.Println("Migrating from organization to project access", srcteam.Name)
+				o.AddMessageUserProvided("Migrating with read-only access", srcteam.Name)
 
 				// Take teams from source and create them in destination.
-				// if orgToProject is true, it will
+				// if orgToProject is true, it will create teams in the destination with higher organization access removed.
 				team, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
 					Type:      "",
 					Name:      &srcteam.Name,
@@ -176,7 +174,7 @@ func copyTeams(c tfclient.ClientContexts) error {
 				o.AddDeferredMessageRead("New ID", team.ID)
 
 			} else {
-				fmt.Println("Migrating", srcteam.Name)
+				o.AddMessageUserProvided("Migrating", srcteam.Name)
 				srcteam, err := c.DestinationClient.Teams.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.TeamCreateOptions{
 					Type:      "",
 					Name:      &srcteam.Name,
