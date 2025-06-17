@@ -121,12 +121,14 @@ For example `tfm copy workspaces  --add-prefix alpha --add-suffix dev`
 
 - If the workspace was `frontend-dev`, it will only add the prefix `alpha-`. 
 
+Example output: 
+
 ```
 **** Standardizing workspace names with prefix and suffix ****
 
-Renaming with specified prefix/suffix:  bravo-dev
-Renaming with specified prefix/suffix:  charlie
-Renaming with specified prefix/suffix:  id-delta
+Renaming workspace:  bravo-dev -> id-bravo-dev
+Renaming workspace:  charlie -> id-charlie-dev
+Renaming workspace:  id-delta -> id-delta-dev
 ```
 
 
