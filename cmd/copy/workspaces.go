@@ -734,29 +734,23 @@ func confirm() bool {
 }
 
 func standardizeNamingConvention(workspaceList []*tfe.Workspace, prefix string, suffix string) []*tfe.Workspace {
-	workspaceListUpdated := workspaceList
-
 	fmt.Print("\n**** Standardizing workspace names with prefix and suffix ****\n\n")
 
 	for _, ws := range workspaceList {
+		originalName := ws.Name
 
-		if !strings.Contains(ws.Name, prefix) || !strings.Contains(ws.Name, suffix) {
-			o.AddMessageUserProvided("Renaming with specified prefix/suffix: ", ws.Name)
+		if !strings.HasPrefix(ws.Name, prefix+"-") {
+			ws.Name = prefix + "-" + ws.Name
+		}
 
-			if !strings.Contains(ws.Name, prefix+"-") {
-				ws.Name = prefix + "-" + ws.Name
-			}
+		if !strings.HasSuffix(ws.Name, "-"+suffix) {
+			ws.Name = ws.Name + "-" + suffix
+		}
 
-			if !strings.Contains(ws.Name, "-"+suffix) {
-				ws.Name = ws.Name + "-" + suffix
-			}
-
-			if strings.Contains(ws.Name, prefix) && strings.Contains(ws.Name, suffix) {
-				continue
-			}
-
-			return workspaceListUpdated
+		if originalName != ws.Name {
+			o.AddMessageUserProvided("Renaming workspace: ", originalName+" -> "+ws.Name)
 		}
 	}
-	return workspaceListUpdated
+
+	return workspaceList
 }
