@@ -61,7 +61,7 @@ func lockTeams(c tfclient.ClientContexts) error {
 	srcTeams, err := c.SourceClient.Teams.List(c.SourceContext, c.SourceOrganizationName, &optsList)
 
 	if err != nil {
-		return errors.Wrap(err, "failed to list Workspaces from source while checking lock status")
+		return errors.Wrap(err, "failed to list teams from source while checking lock status")
 	}
 
 	for _, team := range srcTeams.Items {
