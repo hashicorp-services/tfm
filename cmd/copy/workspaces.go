@@ -550,7 +550,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 			return errors.New("Workspace name is too long. Max length is less than or equal to 90 characters.")
 		}
 
-		c.SourceClient.Workspaces.Read(c.SourceContext, c.SourceOrganizationName, srcworkspace.Name)
+		_, err := c.SourceClient.Workspaces.Read(c.SourceContext, c.SourceOrganizationName, srcworkspace.Name)
 		if err != nil {
 			return errors.Wrap(err, "Failed to read workspace from source")
 		}
@@ -738,11 +738,11 @@ func standardizeNamingConvention(workspaceList []*tfe.Workspace, prefix string, 
 	for _, ws := range workspaceList {
 		originalName := ws.Name
 
-		if !strings.HasPrefix(ws.Name, prefix+"-") {
+		if prefix != "" && !strings.HasPrefix(ws.Name, prefix+"-") {
 			ws.Name = prefix + "-" + ws.Name
 		}
 
-		if !strings.HasSuffix(ws.Name, "-"+suffix) {
+		if suffix != "" && !strings.HasSuffix(ws.Name, "-"+suffix) {
 			ws.Name = ws.Name + "-" + suffix
 		}
 

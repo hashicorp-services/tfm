@@ -358,7 +358,7 @@ func createProject(c tfclient.ClientContexts, projectName string) (*tfe.Project,
 
 	// Check if project name is >=  3 characters and <= 40 characters
 	// Return error if not
-	if len(projectName) <= 3 || len(projectName) >= 40 {
+	if len(projectName) < 3 || len(projectName) > 40 {
 		return nil, errors.New("Project name must be between 3 and 40 characters")
 	}
 
