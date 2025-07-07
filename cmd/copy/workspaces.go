@@ -496,6 +496,7 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 				o.AddMessageUserProvided("Created new project in destination: ", project.Name)
 				o.AddMessageUserProvided("Project ID: ", project.ID)
 			} else {
+				fmt.Println("\n**** Plan Only Run ****\n ")
 				o.AddMessageUserProvided("Project will be created in destination: ", projectName)
 			}
 		}
@@ -545,8 +546,8 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 		length := len(srcworkspace.Name)
 
-		if length > 64 {
-			return errors.New("Workspace name is too long. Max length is 64 characters.")
+		if length >= 90 {
+			return errors.New("Workspace name is too long. Max length is less than or equal to 90 characters.")
 		}
 
 		c.SourceClient.Workspaces.Read(c.SourceContext, c.SourceOrganizationName, srcworkspace.Name)
@@ -602,32 +603,30 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 			}
 
 			// Tag Bindings only work with v202502-1 and newer versions of API
-			if c.SourceClient.RemoteTFEVersion() >= "v202502-1" && c.DestinationClient.RemoteTFEVersion() >= "v202502-1" {
-				_, err = c.SourceClient.Workspaces.AddTagBindings(c.SourceContext, srcworkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
-					TagBindings: []*tfe.TagBinding{
-						{Key: "migrated:", Value: "true"},
-						{Key: "migration-date:", Value: date},
-						{Key: "migrate-destination-workspace:", Value: destWorkSpaceName},
-						{Key: "migrate-destination-workspace-id:", Value: migratedWorkspace.ID},
-						{Key: "migrate-destination-hostname:", Value: c.DestinationHostname},
-					},
-				})
-				if err != nil {
-					return fmt.Errorf("failed to add tags on source workspace: %w", err)
-				}
+			_, err = c.SourceClient.Workspaces.AddTagBindings(c.SourceContext, srcworkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
+				TagBindings: []*tfe.TagBinding{
+					{Key: "migrated:", Value: "true"},
+					{Key: "migration-date:", Value: date},
+					{Key: "migrate-destination-workspace:", Value: destWorkSpaceName},
+					{Key: "migrate-destination-workspace-id:", Value: migratedWorkspace.ID},
+					{Key: "migrate-destination-hostname:", Value: c.DestinationHostname},
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("failed to add tags on source workspace: %w", err)
+			}
 
-				_, err = c.DestinationClient.Workspaces.AddTagBindings(c.DestinationContext, migratedWorkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
-					TagBindings: []*tfe.TagBinding{
-						{Key: "migrated:", Value: "true"},
-						{Key: "migration-date:", Value: date},
-						{Key: "migrate-source-workspace:", Value: srcworkspace.Name},
-						{Key: "migrate-source-workspace-id:", Value: srcworkspace.ID},
-						{Key: "migrate-source-hostname:", Value: c.SourceHostname},
-					},
-				})
-				if err != nil {
-					return fmt.Errorf("failed to add tags on destination workspace - : %w", err)
-				}
+			_, err = c.DestinationClient.Workspaces.AddTagBindings(c.DestinationContext, migratedWorkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
+				TagBindings: []*tfe.TagBinding{
+					{Key: "migrated:", Value: "true"},
+					{Key: "migration-date:", Value: date},
+					{Key: "migrate-source-workspace:", Value: srcworkspace.Name},
+					{Key: "migrate-source-workspace-id:", Value: srcworkspace.ID},
+					{Key: "migrate-source-hostname:", Value: c.SourceHostname},
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("failed to add tags on destination workspace - : %w", err)
 			}
 		}
 	}

@@ -356,6 +356,12 @@ func copyProjects(c tfclient.ClientContexts, projMapCfg map[string]string) error
 func createProject(c tfclient.ClientContexts, projectName string) (*tfe.Project, error) {
 	o.AddMessageUserProvided("Creating Project in destination: ", projectName)
 
+	// Check if project name is >=  3 characters and <= 40 characters
+	// Return error if not
+	if len(projectName) <= 3 || len(projectName) >= 40 {
+		return nil, errors.New("Project name must be between 3 and 40 characters")
+	}
+
 	// Create the project in the destination organization
 	project, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
 		Name:        projectName,
