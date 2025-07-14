@@ -1,0 +1,2581 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A standalone CLI for Terraform Cloud and Terraform Enterprise migrations.">
+      
+      
+        <meta name="author" content="HashiCorp Implementation Services">
+      
+      
+        <link rel="canonical" href="https://go.hashi.co/tfm/about/release_notes/">
+      
+      
+        <link rel="prev" href="../purpose/">
+      
+      
+        <link rel="next" href="../contributing/">
+      
+      <link rel="icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Release Notes - TFM</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+
+  <script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-H9KF63939N"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-H9KF63939N",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-H9KF63939N",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TFM" class="md-header__button md-logo" aria-label="TFM" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 19V7H4v12h16m0-16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16m-7 14v-2h5v2h-5m-3.42-4L5.57 9H8.4l3.3 3.3c.39.39.39 1.03 0 1.42L8.42 17H5.59l3.99-4Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TFM
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Release Notes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hashicorp-services/tfm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TFM" class="md-nav__button md-logo" aria-label="TFM" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 19V7H4v12h16m0-16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16m-7 14v-2h5v2h-5m-3.42-4L5.57 9H8.4l3.3 3.3c.39.39.39 1.03 0 1.42L8.42 17H5.59l3.99-4Z"/></svg>
+
+    </a>
+    TFM
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hashicorp-services/tfm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="false">
+          TFM Configuration File
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="TFM Configuration File" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          TFM Configuration File
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration_file/config_file/" class="md-nav__link">
+        Settings
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" tabindex="0" aria-expanded="false">
+          Migration Planning
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Migration Planning" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Migration Planning
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/journey-tfe-tfc/" class="md-nav__link">
+        Migration Journey TFE to TFC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/pre-requisites-tfe-tfc/" class="md-nav__link">
+        Pre-requisites TFE to TFC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/pre-requisites-ce-tfc/" class="md-nav__link">
+        Pre-requisites Community Edition to TFC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/example-scenario-tfe-tfc/" class="md-nav__link">
+        Example Scenario TFE to TFC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/example-scenario-ce-tfc/" class="md-nav__link">
+        Example Scenario Community Edition to TFC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/pre-migration-tfe-tfc/" class="md-nav__link">
+        Pre-Migration Questionaire TFE to TFC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/pre-migration-ce-tfc/" class="md-nav__link">
+        Pre-Migration Questionaire Community Edition to TFC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/case-studies/" class="md-nav__link">
+        Case Studies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/supported-vcs/" class="md-nav__link">
+        Supported VCS Types for CE to TFC Migration
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" tabindex="0" aria-expanded="false">
+          Commands
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Commands" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Commands
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_1" type="checkbox" id="__nav_4_1" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_1" tabindex="0" aria-expanded="false">
+          Core
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Core" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          Core
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_clone/" class="md-nav__link">
+        Clone
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_init-repos/" class="md-nav__link">
+        Init-repos
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_getstate/" class="md-nav__link">
+        Getstate
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_create-workspaces/" class="md-nav__link">
+        Create-worksapces
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_upload-state/" class="md-nav__link">
+        Upload-state
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_link-vcs/" class="md-nav__link">
+        Link-vcs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_remove-backend/" class="md-nav__link">
+        Remove-backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_cleanup/" class="md-nav__link">
+        Cleanup
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/core_migrate/" class="md-nav__link">
+        Migrate
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2" tabindex="0" aria-expanded="false">
+          Copy
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Copy" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Copy
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_2_2" type="checkbox" id="__nav_4_2_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2_2" tabindex="0" aria-expanded="false">
+          Projects
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Projects" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Projects
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_projects/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_2_3" type="checkbox" id="__nav_4_2_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2_3" tabindex="0" aria-expanded="false">
+          Workspaces
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Workspaces" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Workspaces
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspaces/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspace_state/" class="md-nav__link">
+        States
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspace_teamaccess/" class="md-nav__link">
+        Team Access
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspace_variables/" class="md-nav__link">
+        Variables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspace_agents/" class="md-nav__link">
+        Agents
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspace_vcs/" class="md-nav__link">
+        VCS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspace_remote_state_sharing/" class="md-nav__link">
+        Remote State Sharing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_workspace_run_triggers/" class="md-nav__link">
+        Run Triggers
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_teams/" class="md-nav__link">
+        Teams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/copy_varsets/" class="md-nav__link">
+        Variable Sets
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_3" tabindex="0" aria-expanded="false">
+          List
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="List" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          List
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/list/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/list_orgs/" class="md-nav__link">
+        Organization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/list_ssh/" class="md-nav__link">
+        SSH
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/list_teams/" class="md-nav__link">
+        Teams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/list_vcs/" class="md-nav__link">
+        VCS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/list_projects/" class="md-nav__link">
+        Projects
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/list_workspaces/" class="md-nav__link">
+        Workspaces
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_4" tabindex="0" aria-expanded="false">
+          Delete
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Delete" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Delete
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/delete/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/delete_workspace/" class="md-nav__link">
+        Workspace
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_5" tabindex="0" aria-expanded="false">
+          Generate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Generate" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          Generate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/generate_config/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" tabindex="0" aria-expanded="false">
+          Development
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Development" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Development
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/mvp/" class="md-nav__link">
+        MVP Details
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/project-details/" class="md-nav__link">
+        Project Details
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/adr/" class="md-nav__link">
+        Architectual Decision Records
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/future/" class="md-nav__link">
+        Future Work / Roadmap
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        FAQs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" tabindex="0" aria-expanded="true">
+          About
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="About" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          About
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../purpose/" class="md-nav__link">
+        Why TFM?
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Release Notes
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Release Notes
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0140-2025-05-16" class="md-nav__link">
+    0.14.0 (2025-05-16)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.14.0 (2025-05-16)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0130-2025-05-07" class="md-nav__link">
+    0.13.0 (2025-05-07)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.13.0 (2025-05-07)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore_1" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0121-2025-02-27" class="md-nav__link">
+    0.12.1 (2025-02-27)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.12.1 (2025-02-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_1" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0120-2025-02-14" class="md-nav__link">
+    0.12.0 (2025-02-14)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.12.0 (2025-02-14)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_2" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore_2" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0113-2025-01-29" class="md-nav__link">
+    0.11.3 (2025-01-29)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.3 (2025-01-29)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_2" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0112-2025-01-28" class="md-nav__link">
+    0.11.2 (2025-01-28)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.2 (2025-01-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_3" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0111-2025-01-24" class="md-nav__link">
+    0.11.1 (2025-01-24)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.1 (2025-01-24)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_3" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0110-2025-01-10" class="md-nav__link">
+    0.11.0 (2025-01-10)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.0 (2025-01-10)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_4" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0100-2024-11-20" class="md-nav__link">
+    0.10.0 (2024-11-20)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.10.0 (2024-11-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_5" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore_3" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#093-2024-03-27" class="md-nav__link">
+    0.9.3 (2024-03-27)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.3 (2024-03-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_4" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#092-2024-03-27" class="md-nav__link">
+    0.9.2 (2024-03-27)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.2 (2024-03-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_5" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#091-2024-03-11" class="md-nav__link">
+    0.9.1 (2024-03-11)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.1 (2024-03-11)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_6" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#090-2024-03-07" class="md-nav__link">
+    0.9.0 (2024-03-07)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.0 (2024-03-07)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_6" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#080-2024-03-01" class="md-nav__link">
+    0.8.0 (2024-03-01)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.8.0 (2024-03-01)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_7" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#070-2024-02-21" class="md-nav__link">
+    0.7.0 (2024-02-21)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.7.0 (2024-02-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_8" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#060-november-08-2023" class="md-nav__link">
+    [0.6.0] (November 08, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#050-october-09-2023" class="md-nav__link">
+    [0.5.0] (October 09, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#044-september-25-2023" class="md-nav__link">
+    [0.4.4] (September 25, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#043-september-19-2023" class="md-nav__link">
+    [0.4.3] (September 19, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#042-september-18-2023" class="md-nav__link">
+    [0.4.2] (September 18, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#041-september-14-2023" class="md-nav__link">
+    [0.4.1] (September 14, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-june-8-2023" class="md-nav__link">
+    [0.1.0] (June 8, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#005-pre-alpha-april-27-2023" class="md-nav__link">
+    [0.0.5-pre-alpha] (April 27, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#004-pre-alpha-april-14-2023" class="md-nav__link">
+    [0.0.4-pre-alpha] (April 14, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#003-pre-alpha-april-6-2023" class="md-nav__link">
+    [0.0.3-pre-alpha] (April 6, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#002-pre-alpha-march-3-2023" class="md-nav__link">
+    [0.0.2-pre-alpha] (March 3, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#001-pre-alpha-february-18-2023" class="md-nav__link">
+    [0.0.1-pre-alpha] (February 18, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased-november-24-2022" class="md-nav__link">
+    [Unreleased] (November 24, 2022)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../feedback/" class="md-nav__link">
+        Feedback
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0140-2025-05-16" class="md-nav__link">
+    0.14.0 (2025-05-16)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.14.0 (2025-05-16)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0130-2025-05-07" class="md-nav__link">
+    0.13.0 (2025-05-07)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.13.0 (2025-05-07)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore_1" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0121-2025-02-27" class="md-nav__link">
+    0.12.1 (2025-02-27)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.12.1 (2025-02-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_1" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0120-2025-02-14" class="md-nav__link">
+    0.12.0 (2025-02-14)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.12.0 (2025-02-14)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_2" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore_2" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0113-2025-01-29" class="md-nav__link">
+    0.11.3 (2025-01-29)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.3 (2025-01-29)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_2" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0112-2025-01-28" class="md-nav__link">
+    0.11.2 (2025-01-28)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.2 (2025-01-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_3" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0111-2025-01-24" class="md-nav__link">
+    0.11.1 (2025-01-24)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.1 (2025-01-24)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_3" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0110-2025-01-10" class="md-nav__link">
+    0.11.0 (2025-01-10)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.11.0 (2025-01-10)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_4" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0100-2024-11-20" class="md-nav__link">
+    0.10.0 (2024-11-20)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.10.0 (2024-11-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_5" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chore_3" class="md-nav__link">
+    Chore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#093-2024-03-27" class="md-nav__link">
+    0.9.3 (2024-03-27)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.3 (2024-03-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_4" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#092-2024-03-27" class="md-nav__link">
+    0.9.2 (2024-03-27)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.2 (2024-03-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_5" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#091-2024-03-11" class="md-nav__link">
+    0.9.1 (2024-03-11)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.1 (2024-03-11)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_6" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#090-2024-03-07" class="md-nav__link">
+    0.9.0 (2024-03-07)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.9.0 (2024-03-07)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_6" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#080-2024-03-01" class="md-nav__link">
+    0.8.0 (2024-03-01)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.8.0 (2024-03-01)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_7" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#070-2024-02-21" class="md-nav__link">
+    0.7.0 (2024-02-21)
+  </a>
+  
+    <nav class="md-nav" aria-label="0.7.0 (2024-02-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_8" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#060-november-08-2023" class="md-nav__link">
+    [0.6.0] (November 08, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#050-october-09-2023" class="md-nav__link">
+    [0.5.0] (October 09, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#044-september-25-2023" class="md-nav__link">
+    [0.4.4] (September 25, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#043-september-19-2023" class="md-nav__link">
+    [0.4.3] (September 19, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#042-september-18-2023" class="md-nav__link">
+    [0.4.2] (September 18, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#041-september-14-2023" class="md-nav__link">
+    [0.4.1] (September 14, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-june-8-2023" class="md-nav__link">
+    [0.1.0] (June 8, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#005-pre-alpha-april-27-2023" class="md-nav__link">
+    [0.0.5-pre-alpha] (April 27, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#004-pre-alpha-april-14-2023" class="md-nav__link">
+    [0.0.4-pre-alpha] (April 14, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#003-pre-alpha-april-6-2023" class="md-nav__link">
+    [0.0.3-pre-alpha] (April 6, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#002-pre-alpha-march-3-2023" class="md-nav__link">
+    [0.0.2-pre-alpha] (March 3, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#001-pre-alpha-february-18-2023" class="md-nav__link">
+    [0.0.1-pre-alpha] (February 18, 2023)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased-november-24-2022" class="md-nav__link">
+    [Unreleased] (November 24, 2022)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="changelog">Changelog</h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2 id="0140-2025-05-16"><a href="https://github.com/hashicorp-services/tfm/compare/v0.13.0...v0.14.0">0.14.0</a> (2025-05-16)</h2>
+<h3 id="features">Features</h3>
+<ul>
+<li>Implements <a href="https://github.com/hashicorp-services/tfm/issues/305">#305</a></li>
+<li>When using the remote state copy command, support workspace names changing between source and destination.</li>
+</ul>
+<h3 id="chore">Chore</h3>
+<ul>
+<li>Fix links on tfm docs site</li>
+</ul>
+<h2 id="0130-2025-05-07"><a href="https://github.com/hashicorp-services/tfm/compare/v0.12.1...v0.13.0">0.13.0</a> (2025-05-07)</h2>
+<h3 id="features_1">Features</h3>
+<ul>
+<li>Implements [#285] (https://github.com/hashicorp-services/tfm/issues/285)</li>
+<li>When migration workspace VCS connections, the source and destination VCS type don't need to match.</li>
+</ul>
+<h3 id="bug-fixes">Bug Fixes</h3>
+<ul>
+<li>Fixes issue [#286] (https://github.com/hashicorp-services/tfm/issues/286)</li>
+<li>Removes the unused flags from the copy workspaces command</li>
+</ul>
+<h3 id="chore_1">Chore</h3>
+<ul>
+<li>Update Codeowners: Thank you @carljavier &amp; @Josh-Tracy for all your <code>tfm</code> contributions!</li>
+<li>Remove pr-title action</li>
+<li>Update go-tfe version. Unable to update viper due to breaking change.</li>
+</ul>
+<h2 id="0121-2025-02-27"><a href="https://github.com/hashicorp-services/tfm/compare/v0.12.0...v0.12.1">0.12.1</a> (2025-02-27)</h2>
+<h3 id="bug-fixes_1">Bug Fixes</h3>
+<ul>
+<li>Fixes issue <a href="https://github.com/hashicorp-services/tfm/issues/283">#283</a></li>
+<li>Remove the nuke command due to the above issue</li>
+</ul>
+<h2 id="0120-2025-02-14"><a href="https://github.com/hashicorp-services/tfm/compare/v0.11.3...v0.12.0">0.12.0</a> (2025-02-14)</h2>
+<h3 id="features_2">Features</h3>
+<ul>
+<li>Add Run Trigger support to copy a workspaces Run Trigger setting [<a href="https://github.com/hashicorp-services/tfm/issues/281">#281</a>]</li>
+</ul>
+<h3 id="chore_2">Chore</h3>
+<ul>
+<li>Update documentation</li>
+<li>Update e2e tests</li>
+</ul>
+<h2 id="0113-2025-01-29"><a href="https://github.com/hashicorp-services/tfm/compare/v0.11.2...v0.11.3">0.11.3</a> (2025-01-29)</h2>
+<h3 id="bug-fixes_2">Bug Fixes</h3>
+<ul>
+<li>Checks if the OAuthID is nil before output. [<a href="https://github.com/hashicorp-services/tfm/issues/273">#273</a>]</li>
+</ul>
+<h2 id="0112-2025-01-28"><a href="https://github.com/hashicorp-services/tfm/compare/v0.11.1...v0.11.2">0.11.2</a> (2025-01-28)</h2>
+<h3 id="bug-fixes_3">Bug Fixes</h3>
+<ul>
+<li>Moves the GHA VCS list into it's own command due to token limitations. [<a href="https://github.com/hashicorp-services/tfm/issues/272">#272</a>]</li>
+</ul>
+<h2 id="0111-2025-01-24"><a href="https://github.com/hashicorp-services/tfm/compare/v0.11.0...v0.11.1">0.11.1</a> (2025-01-24)</h2>
+<h3 id="features_3">Features</h3>
+<ul>
+<li>Update the <code>list vcs</code> command and the <code>copy workspaces --vcs</code>  flag to support GitHub App connections instead  of only support OAuth VCS connections. [<a href="https://github.com/hashicorp-services/tfm/issues/268">#268</a>]</li>
+</ul>
+<h2 id="0110-2025-01-10"><a href="https://github.com/hashicorp-services/tfm/compare/v0.10.0...v0.11.0">0.11.0</a> (2025-01-10)</h2>
+<h3 id="features_4">Features</h3>
+<ul>
+<li>Add flag to copy the workspace state sharing settings [<a href="https://github.com/hashicorp-services/tfm/issues/254">#254</a>]</li>
+</ul>
+<h2 id="0100-2024-11-20"><a href="https://github.com/hashicorp-services/tfm/compare/v0.9.3...v0.10.0">0.10.0</a> (2024-11-20)</h2>
+<h3 id="features_5">Features</h3>
+<ul>
+<li>Add flag to sensitive variables from being copied [<a href="https://github.com/hashicorp-services/tfm/issues/235">#235</a>]</li>
+</ul>
+<h3 id="chore_3">Chore</h3>
+<ul>
+<li>Updated Dependencies</li>
+<li>Replaces gox for tfm builds</li>
+<li>Updated GitHub Actions</li>
+</ul>
+<h2 id="093-2024-03-27"><a href="https://github.com/hashicorp-services/tfm/compare/v0.9.2...v0.9.3">0.9.3</a> (2024-03-27)</h2>
+<h3 id="bug-fixes_4">Bug Fixes</h3>
+<ul>
+<li><strong>TFE 202303-1 and earlier Support</strong> Fix list workspaces command for TFE deployments prior to the introduction of projects.</li>
+</ul>
+<h2 id="092-2024-03-27"><a href="https://github.com/hashicorp-services/tfm/compare/v0.9.1...v0.9.2">0.9.2</a> (2024-03-27)</h2>
+<h3 id="bug-fixes_5">Bug Fixes</h3>
+<ul>
+<li><strong>TFE 202401-2 Support</strong> Upgrade go-tfe to 1.48 to support TFE 202401-2 and later versions of TFE.</li>
+</ul>
+<h2 id="091-2024-03-11"><a href="https://github.com/hashicorp-services/tfm/compare/v0.9.0...v0.9.1">0.9.1</a> (2024-03-11)</h2>
+<h3 id="bug-fixes_6">Bug Fixes</h3>
+<ul>
+<li><strong>State Copy Workspace Erorr Log</strong> Fix error log name to support Windows</li>
+</ul>
+<h2 id="090-2024-03-07"><a href="https://github.com/hashicorp-services/tfm/compare/v0.8.0...v0.9.0">0.9.0</a> (2024-03-07)</h2>
+<h3 id="features_6">Features</h3>
+<ul>
+<li><strong>Terraform CE to TFC/TFE Migration</strong> Support for GitLab VCS.</li>
+<li><strong>Terraform CE to TFC/TFE Migration</strong> New required configuration file setting <code>vcs_type</code> introduced for defining a supported vcs type</li>
+<li><strong>Terraform CE to TFC/TFE Migration</strong> <code>tfm core remove-backend --comment</code> new <code>--comment</code> flag added to optionally comment out <code>backend {}</code> configurations instead of deleting them.</li>
+</ul>
+<h2 id="080-2024-03-01"><a href="https://github.com/hashicorp-services/tfm/compare/v0.7.0...v0.8.0">0.8.0</a> (2024-03-01)</h2>
+<h3 id="features_7">Features</h3>
+<ul>
+<li><strong>Terraform CE to TFC/TFE Migration</strong> TFM now supports discovery and migration of VCS repos configured as monorepos ( repos with more than 1 terraform configuration ) and terraform community edition workspaces. See docs and <code>tfm core -h</code> for more info.</li>
+<li><strong>Terraform CE to TFC/TFE Migration:</strong> <code>tfm core init-repos</code> command added to assist in migrations. Builds a metadata file in the tfm working directory with information about how each VCS repo is configured.</li>
+<li><strong>tfm core migrate:</strong> <code>tfm core migrate</code> command now executes the <code>tfm core init-repos</code> command.</li>
+</ul>
+<h2 id="070-2024-02-21"><a href="https://github.com/hashicorp-services/tfm/compare/v0.6.0...v0.7.0">0.7.0</a> (2024-02-21)</h2>
+<h3 id="features_8">Features</h3>
+<ul>
+<li><strong>Terraform CE to TFC/TFE Migration</strong> Support for assisting with terraform community edition migrations to TFC/TFE managed workspaces. See docs and <code>tfm core -h</code> for more info.</li>
+<li><strong>Copy Projects:</strong> <code>tfm copy projects</code> feature added</li>
+</ul>
+<h2 id="060-november-08-2023">[0.6.0] (November 08, 2023)</h2>
+<ul>
+<li>Added command to lock and unlock workspaces. [<a href="https://github.com/hashicorp-services/tfm/issues/155">#155</a>]</li>
+<li>Updated Dependencies</li>
+<li><code>go-tfe</code> from 1.35.0 to 1.39.0</li>
+<li><code>cobra</code> from 1.7.0 to 1.8.0</li>
+<li><code>color</code> from 1.15.0 to 1.16.0</li>
+</ul>
+<h2 id="050-october-09-2023">[0.5.0] (October 09, 2023)</h2>
+<ul>
+<li>Added auto approve flag support to the <code>nuke</code> command</li>
+<li>doc updates</li>
+<li>Added more outputs to the workspaces <code>json</code> <a href="https://github.com/hashicorp-services/tfm/issues/150">#150</a></li>
+<li>Added starter Jira GitHub Action to open issues when a new GH issue is opened</li>
+<li>Add the ability to set all destination workspaces to use a agent pool even if the source doesn't <a href="https://github.com/hashicorp-services/tfm/issues/126">#126</a></li>
+<li>Updated dependencies</li>
+<li><code>go-tfe</code> from 1.32.1 to 1.35.0</li>
+<li><code>viper</code> from 1.16.0 to 1.17.0</li>
+</ul>
+<h2 id="044-september-25-2023">[0.4.4] (September 25, 2023)</h2>
+<ul>
+<li>When setting the new state serial in the destination state, read the source state file's serial instead of using a computed serial number.</li>
+</ul>
+<h2 id="043-september-19-2023">[0.4.3] (September 19, 2023)</h2>
+<ul>
+<li>Error logs created during state copy failures are now unique with a timestamp instead of being overwritten.</li>
+</ul>
+<h2 id="042-september-18-2023">[0.4.2] (September 18, 2023)</h2>
+<ul>
+<li>TFM now retries connections in the event network issues or API rate limiting prevents an operation from taking place. <strong>issue</strong> #143</li>
+<li>BUG FIX: An earlier introduction of the <code>tfm copy workspaces --state --last x</code> command prevented pagination when copying state files. Implemented a fix. TFM will now copy more than 20 state files per worksapce. <strong>issue</strong> #144</li>
+<li>TFM will now handle errors encountered when migrating a state file for a given workspace. In the event an error is encountered TFM will stop migrating states for the given workspace and proceed to the next workspace. It will output a <code>workspace_error_log.txt</code> file in the working directory.</li>
+</ul>
+<h2 id="041-september-14-2023">[0.4.1] (September 14, 2023)</h2>
+<ul>
+<li>BUG FIX: Applies after state migration would not upload the generated state file and output a 409 conflict error. TFM was not applying lineage to the workspace, but was copying the state file that contained a lineage. TFM now sets the lineage for the state files at the workspace level to match the one in the migrated state files.  <strong>issue</strong> #139</li>
+</ul>
+<h2 id="010-june-8-2023">[0.1.0] (June 8, 2023)</h2>
+<ul>
+<li>TFM is now in beta and Open Source! :fireworks:</li>
+<li>Added warning when no workspaces are configured</li>
+<li>Rename workspace-map to workspaces-map</li>
+<li>Fix VCS list function to use destination side when specified</li>
+<li>Added Delete cmd to delete a single workspace by it's name or unique ID</li>
+<li>Updated Repo per legal and compliance standards</li>
+<li>Added <code>CODEOWNERS</code></li>
+<li>Added delete vcs connection to remove a VCS connection from a workspace</li>
+<li>Added json output to selected commands</li>
+<li>Updated GO versions and SDKs</li>
+<li>Updated docs for beta release</li>
+</ul>
+<h2 id="005-pre-alpha-april-27-2023">[0.0.5-pre-alpha] (April 27, 2023)</h2>
+<ul>
+<li>Fixed migrated State lineage optional attribute</li>
+<li>Added tfm nuke workspaces (hidden command)</li>
+<li>Add tfm vcs list for configured org</li>
+</ul>
+<h2 id="004-pre-alpha-april-14-2023">[0.0.4-pre-alpha] (April 14, 2023)</h2>
+<ul>
+<li>Added tfm list workspaces</li>
+<li>Updated GitHub Pages for public viewing</li>
+</ul>
+<h2 id="003-pre-alpha-april-6-2023">[0.0.3-pre-alpha] (April 6, 2023)</h2>
+<ul>
+<li>Refactored Environment Variables/Config File</li>
+<li>Ability to specify a destination project ID for workspaces to be created in per tfm copy</li>
+<li>tfm list projects</li>
+<li>Updates to docs</li>
+</ul>
+<h2 id="002-pre-alpha-march-3-2023">[0.0.2-pre-alpha] (March 3, 2023)</h2>
+<ul>
+<li>Bug fix with state migration</li>
+</ul>
+<h2 id="001-pre-alpha-february-18-2023">[0.0.1-pre-alpha] (February 18, 2023)</h2>
+<ul>
+<li>Ready for Testing</li>
+<li>tfm copy workspaces</li>
+<li>tfm list</li>
+<li>Migration workflow</li>
+</ul>
+<h2 id="unreleased-november-24-2022">[Unreleased] (November 24, 2022)</h2>
+<p><strong>Added</strong></p>
+<ul>
+<li>initial repository layout/boiler plate created</li>
+<li>copy teams subcommand</li>
+<li>list orgs subcommand</li>
+<li>list teams subcommand</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>structure of <code>cmd</code> and its subcommands. Each sub command is now its in own directory and considered a package the <code>cmd</code> package imports in.</li>
+<li><code>tfclient</code> pkg created at top level, not related to <code>cmd</code> package</li>
+</ul>
+<p><strong>Removed</strong></p>
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      TFM is licensed under the <a href='https://github.com/hashicorp-services/tfm/blob/main/LICENSE'>Mozilla Public License 2.0</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
