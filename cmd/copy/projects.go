@@ -341,10 +341,7 @@ func copyProjects(c tfclient.ClientContexts, projMapCfg map[string]string) error
 			o.AddMessageUserProvided2(destProjectName, "exists in destination will not migrate", srcproject.Name)
 		} else {
 
-			srcproject, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
-				Type: "",
-				Name: destProjectName,
-			})
+			srcproject, err := createProject(c, destProjectName)
 
 			if err != nil {
 				fmt.Println("Could not create Project.\n\n Error:", err.Error())
@@ -354,4 +351,26 @@ func copyProjects(c tfclient.ClientContexts, projMapCfg map[string]string) error
 		}
 	}
 	return nil
+}
+
+func createProject(c tfclient.ClientContexts, projectName string) (*tfe.Project, error) {
+	o.AddMessageUserProvided("Creating Project in destination: ", projectName)
+
+	// Check if project name is >=  3 characters and <= 40 characters
+	// Return error if not
+	if len(projectName) <= 3 || len(projectName) >= 40 {
+		return nil, errors.New("Project name must be between 3 and 40 characters")
+	}
+
+	// Create the project in the destination organization
+	project, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
+		Name:        projectName,
+		Description: helper.ViperString("created by tfm"),
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create Project in destination")
+	}
+
+	return project, nil
 }

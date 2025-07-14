@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	"slices"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/tfclient"
@@ -17,9 +20,10 @@ import (
 )
 
 var (
-	state              bool
-	vars               bool
-	skipSensitive      bool
+	state         bool
+	vars          bool
+	skipSensitive bool
+	// skipEmpty          bool // Skip empty workspaces, may reimplement later.
 	teamaccess         bool
 	agents             bool
 	vcs                bool
@@ -28,6 +32,10 @@ var (
 	consolidateGlobal  bool
 	last               int
 	runTriggers        bool
+	createDstProject   bool
+	planOnly           bool
+	wsNamePrefix       string
+	wsNameSuffix       string
 
 	// `tfemigrate copy workspaces` command
 	workspacesCopyCmd = &cobra.Command{
@@ -124,8 +132,14 @@ func init() {
 
 	// `tfemigrate copy workspaces --workspace-id [WORKSPACEID]`
 	workspacesCopyCmd.Flags().String("workspace-id", "", "Specify one single workspace ID to copy to destination")
+	workspacesCopyCmd.PersistentFlags().StringVar(&wsNameSuffix, "add-suffix", "", "(optional) Only performed on destination workspaces, adds a suffix, if missing.")
+	workspacesCopyCmd.PersistentFlags().StringVar(&wsNamePrefix, "add-prefix", "", "(optional) Only performed on destination workspaces, adds a prefix, if missing.")
 	workspacesCopyCmd.Flags().BoolVarP(&vars, "vars", "", false, "Copy workspace variables")
 	workspacesCopyCmd.Flags().BoolVarP(&skipSensitive, "skip-sensitive-vars", "", false, "Skip copying sensitive variables. Must be used with --vars flag")
+	// workspacesCopyCmd.Flags().BoolVarP(&skipEmpty, "skip-empty", "", false, "Skip empty workspaces.") // May reimplement later.
+	workspacesCopyCmd.Flags().BoolVarP(&createDstProject, "create-dst-project", "", false, "Creates destination project, if not existing. Defaults to source organization name.")
+	workspacesCopyCmd.Flags().BoolVarP(&planOnly, "plan-only", "", false, "Only plan the copy operation without making changes")
+
 	workspacesCopyCmd.Flags().BoolVarP(&state, "state", "", false, "Copy workspace states")
 	workspacesCopyCmd.Flags().IntVarP(&last, "last", "l", last, "Copy the last X number of state files only.")
 	// SetInterspersed prevents cobra from parsing arguments that appear after flags
@@ -136,7 +150,9 @@ func init() {
 		if last > 0 && !state {
 			return errors.New("--last flag is only valid after the --state flag is set")
 		}
+
 		return nil
+
 	}
 	workspacesCopyCmd.Flags().BoolVarP(&teamaccess, "teamaccess", "", false, "Copy workspace Team Access")
 	workspacesCopyCmd.Flags().BoolVarP(&agents, "agents", "", false, "Mapping of source Agent Pool IDs to destination Agent Pool IDs in config file")
@@ -188,6 +204,8 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	// Get source Workspace list from config list `workspaces` if it exists
 	srcWorkspacesCfg := viper.GetStringSlice("workspaces")
 
+	srcExcludeWorkspaces := viper.GetStringSlice("exclude-workspaces")
+
 	wsMapCfg, err := helper.ViperStringSliceMap("workspaces-map")
 	if err != nil {
 		return srcWorkspaces, errors.New("Invalid input for workspaces-map")
@@ -198,8 +216,10 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 	}
 
 	// If no workspaces found in config (list or map), default to just assume all workspaces from source will be chosen
-	if len(srcWorkspacesCfg) > 0 && len(wsMapCfg) > 0 {
-		o.AddErrorUserProvided("'workspaces' list and 'workpaces-map' cannot be defined at the same time.")
+	if ((len(srcExcludeWorkspaces)) > 0 && len(srcWorkspacesCfg) > 0) ||
+		((len(srcExcludeWorkspaces)) > 0 && len(wsMapCfg) > 0) ||
+		(len(srcWorkspacesCfg) > 0 && len(wsMapCfg) > 0) {
+		o.AddErrorUserProvided("In config: only one of 'exclude-workspaces', 'workspaces', or 'workspaces-map' can be defined at the same time.")
 		os.Exit(0)
 
 	} else if len(wsMapCfg) > 0 {
@@ -218,6 +238,26 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to list Workspaces in map from source")
 		}
+
+	} else if len(srcExcludeWorkspaces) > 0 {
+		o.AddMessageUserProvided("Excluding workspaces from config list:", srcExcludeWorkspaces)
+
+		srcWorkspaces, err := discoverSrcWorkspaces(c)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to list Workspaces from source")
+		}
+		for _, ws := range srcExcludeWorkspaces {
+			for i, w := range srcWorkspaces {
+				if ws == w.Name {
+					srcWorkspaces = slices.Delete(srcWorkspaces, i, i+1)
+					o.AddMessageUserProvided("Excluding Workspace:", ws)
+					break
+				}
+			}
+		}
+
+		o.AddFormattedMessageCalculated("Will migrate %d total workspaces", len(srcWorkspaces))
+		return srcWorkspaces, nil
 
 	} else if len(srcWorkspacesCfg) > 0 {
 		// use config workspaces from list
@@ -355,7 +395,8 @@ func getDstWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 }
 
 func discoverDestWorkspaces(c tfclient.ClientContexts, output bool) ([]*tfe.Workspace, error) {
-	o.AddMessageUserProvided("Getting list of workspaces from: ", c.DestinationHostname)
+	// Updated the message to make it more clear in the output
+	o.AddMessageUserProvided("\nDiscovering workspaces in destination: ", c.DestinationHostname+"\n")
 	destWorkspaces := []*tfe.Workspace{}
 
 	opts := tfe.WorkspaceListOptions{
@@ -414,12 +455,51 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 	}
 
 	var project tfe.Project
+	projectDescription := "Generated during tfm copy"
 
 	// Check if Project ID is set
 	if viper.GetString("dst_tfc_project_id") != "" {
 
 		project.ID = viper.GetString("dst_tfc_project_id")
 		o.AddMessageUserProvided("Destination Project ID is Set: ", project.ID)
+
+	} else if createDstProject {
+		// Create a new project in the destination using the source organization name
+
+		projectName := c.SourceOrganizationName
+
+		// Check if the project name is already in use
+
+		existingPrjID, err := checkDstProjectExists(c, projectName)
+
+		if err != nil {
+			return errors.Wrap(err, "Failed to check if project exists in destination")
+		}
+		if existingPrjID != "" {
+			o.AddMessageUserProvided("Project already exists in destination: ", projectName)
+			project.ID = existingPrjID
+		} else {
+
+			if !planOnly {
+
+				fmt.Println("\n**** Creating Project ****\n ")
+				projectPtr, err := c.DestinationClient.Projects.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.ProjectCreateOptions{
+					Name:        projectName,
+					Description: &projectDescription,
+				})
+
+				if err != nil {
+					return errors.Wrap(err, "Failed to create project in destination")
+				}
+
+				project = *projectPtr
+				o.AddMessageUserProvided("Created new project in destination: ", project.Name)
+				o.AddMessageUserProvided("Project ID: ", project.ID)
+			} else {
+				fmt.Println("\n**** Plan Only Run ****\n ")
+				o.AddMessageUserProvided("Project will be created in destination: ", projectName)
+			}
+		}
 
 	} else {
 
@@ -430,6 +510,18 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 			fmt.Println("Error Retrieving Destination Project ID. Destination TFE/TFC API may not be supported. Please check credentials")
 			os.Exit(0)
 		}
+	}
+
+	// Check if the workspace name prefix and suffix are set
+	if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+		// Standardize the naming convention for the workspaces
+		srcWorkspaces = standardizeNamingConvention(srcWorkspaces, wsNamePrefix, wsNameSuffix)
+	}
+
+	if planOnly {
+		fmt.Println("\n**** Plan Only Run ****\n ")
+	} else {
+		fmt.Println("\n**** Performing Workspace Copy ****\n ")
 	}
 
 	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
@@ -452,11 +544,30 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		}
 
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
+		length := len(srcworkspace.Name)
+
+		if length >= 90 {
+			return errors.New("Workspace name is too long. Max length is less than or equal to 90 characters.")
+		}
+
+		c.SourceClient.Workspaces.Read(c.SourceContext, c.SourceOrganizationName, srcworkspace.Name)
+		if err != nil {
+			return errors.Wrap(err, "Failed to read workspace from source")
+		}
 
 		if exists {
+			// Check if the destination workspace name differs from the source name
+			// Added info to clarify Destination workspace
+
 			o.AddMessageUserProvided2(destWorkSpaceName, "exists in destination will not migrate", srcworkspace.Name)
+
+		} else if planOnly {
+
+			o.AddMessageUserProvided("Following workspace will be migrated: ", destWorkSpaceName)
+
 		} else {
-			srcworkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
+
+			migratedWorkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
 				// AgentPoolID:        new(string), covered with `assignAgentPool` function
 				AllowDestroyPlan:           &srcworkspace.AllowDestroyPlan,
@@ -480,7 +591,43 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 				fmt.Println("Could not create Workspace.\n\n Error:", err.Error())
 				return err
 			}
-			o.AddDeferredMessageRead("Migrated", srcworkspace.Name)
+			o.AddDeferredMessageRead("Migrated", migratedWorkspace.Name)
+
+			// Add tag to source workspace from migration.
+
+			date := time.Now().Format("2006-01-02")
+
+			// Validate required fields before calling AddTagBindings
+			if srcworkspace.ID == "" || c.SourceContext == nil {
+				return fmt.Errorf("invalid source workspace ID or context")
+			}
+
+			// Tag Bindings only work with v202502-1 and newer versions of API
+			_, err = c.SourceClient.Workspaces.AddTagBindings(c.SourceContext, srcworkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
+				TagBindings: []*tfe.TagBinding{
+					{Key: "migrated:", Value: "true"},
+					{Key: "migration-date:", Value: date},
+					{Key: "migrate-destination-workspace:", Value: destWorkSpaceName},
+					{Key: "migrate-destination-workspace-id:", Value: migratedWorkspace.ID},
+					{Key: "migrate-destination-hostname:", Value: c.DestinationHostname},
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("failed to add tags on source workspace: %w", err)
+			}
+
+			_, err = c.DestinationClient.Workspaces.AddTagBindings(c.DestinationContext, migratedWorkspace.ID, tfe.WorkspaceAddTagBindingsOptions{
+				TagBindings: []*tfe.TagBinding{
+					{Key: "migrated:", Value: "true"},
+					{Key: "migration-date:", Value: date},
+					{Key: "migrate-source-workspace:", Value: srcworkspace.Name},
+					{Key: "migrate-source-workspace-id:", Value: srcworkspace.ID},
+					{Key: "migrate-source-hostname:", Value: c.SourceHostname},
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("failed to add tags on destination workspace - : %w", err)
+			}
 		}
 	}
 	return nil
@@ -520,6 +667,40 @@ func getDstDefaultProjectID(c tfclient.ClientContexts) (string, error) {
 	return "", nil
 }
 
+func checkDstProjectExists(c tfclient.ClientContexts, dstProjectName string) (string, error) {
+
+	dstProjects := []*tfe.Project{}
+
+	opts := tfe.ProjectListOptions{
+		ListOptions: tfe.ListOptions{
+			PageNumber: 1,
+			PageSize:   100},
+	}
+
+	for {
+		items, err := c.DestinationClient.Projects.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
+		if err != nil {
+			return "", err
+		}
+		dstProjects = append(dstProjects, items.Items...)
+
+		if items.CurrentPage >= items.TotalPages {
+			break
+		}
+		opts.PageNumber = items.NextPage
+
+	}
+
+	for _, i := range dstProjects {
+
+		if i.Name == dstProjectName {
+			return i.ID, nil
+		}
+	}
+
+	return "", nil
+}
+
 func confirm() bool {
 
 	var input string
@@ -549,4 +730,26 @@ func confirm() bool {
 		return true
 	}
 	return false
+}
+
+func standardizeNamingConvention(workspaceList []*tfe.Workspace, prefix string, suffix string) []*tfe.Workspace {
+	fmt.Print("\n**** Standardizing workspace names with prefix and suffix ****\n\n")
+
+	for _, ws := range workspaceList {
+		originalName := ws.Name
+
+		if !strings.HasPrefix(ws.Name, prefix+"-") {
+			ws.Name = prefix + "-" + ws.Name
+		}
+
+		if !strings.HasSuffix(ws.Name, "-"+suffix) {
+			ws.Name = ws.Name + "-" + suffix
+		}
+
+		if originalName != ws.Name {
+			o.AddMessageUserProvided("Renaming workspace: ", originalName+" -> "+ws.Name)
+		}
+	}
+
+	return workspaceList
 }

@@ -17,3 +17,5 @@ terraform_config_metadata.json
 
 # Goreleaser build dir
 dist/
+
+*.DS_Store*
