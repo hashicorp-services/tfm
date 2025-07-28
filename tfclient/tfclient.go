@@ -15,6 +15,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	userAgent = "tfm"
+)
+
 type ClientContexts struct {
 	SourceClient                *tfe.Client
 	SourceContext               context.Context
@@ -97,7 +101,7 @@ func GetClientContexts() ClientContexts {
 		RetryLogHook: func(attemptNum int, resp *http.Response) {
 		},
 	}
-	sourceConfig.Headers.Set("User-Agent", "tfm")
+	sourceConfig.Headers.Set("User-Agent", userAgent)
 
 	sourceClient, err := createSrcClientWithRetry(sourceConfig, maxRetries, initialBackoff)
 	if err != nil {
@@ -113,7 +117,7 @@ func GetClientContexts() ClientContexts {
 		RetryLogHook: func(attemptNum int, resp *http.Response) {
 		},
 	}
-	destinationConfig.Headers.Set("User-Agent", "tfm")
+	destinationConfig.Headers.Set("User-Agent", userAgent)
 
 	destinationClient, err := createDestClientWithRetry(destinationConfig, maxRetries, initialBackoff)
 	if err != nil {
