@@ -93,9 +93,11 @@ func GetClientContexts() ClientContexts {
 		Address:           "https://" + viper.GetString("src_tfe_hostname"),
 		Token:             viper.GetString("src_tfe_token"),
 		RetryServerErrors: true,
+		Headers:           make(http.Header),
 		RetryLogHook: func(attemptNum int, resp *http.Response) {
 		},
 	}
+	sourceConfig.Headers.Set("User-Agent", "tfm")
 
 	sourceClient, err := createSrcClientWithRetry(sourceConfig, maxRetries, initialBackoff)
 	if err != nil {
@@ -107,9 +109,11 @@ func GetClientContexts() ClientContexts {
 		Address:           "https://" + viper.GetString("dst_tfc_hostname"),
 		Token:             viper.GetString("dst_tfc_token"),
 		RetryServerErrors: true,
+		Headers:           make(http.Header),
 		RetryLogHook: func(attemptNum int, resp *http.Response) {
 		},
 	}
+	destinationConfig.Headers.Set("User-Agent", "tfm")
 
 	destinationClient, err := createDestClientWithRetry(destinationConfig, maxRetries, initialBackoff)
 	if err != nil {
