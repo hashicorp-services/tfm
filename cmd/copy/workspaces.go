@@ -4,6 +4,7 @@
 package copy
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -295,6 +296,19 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		}
 	}
 
+	// Exclude any workspaces that contain terraform_remote_state resources
+	if viper.GetBool("exclude-ws-remote-state-resources") {
+		srcWorkspaces, err = excludeWorkspaceRemoteStateResources(tfclient.GetClientContexts(), srcWorkspaces)
+		if err != nil {
+			return nil, err
+		}
+		o.AddFormattedMessageCalculated("\n After excluding workspaces with terraform_remote_state resources, %d workspaces remain\n", len(srcWorkspaces))
+		// List the workspaces that remain
+		// for _, w := range srcWorkspaces {
+		// 	o.AddMessageUserProvided("Workspace(s) remaining:", w.Name)
+		// }
+	}
+
 	return srcWorkspaces, nil
 }
 
@@ -342,7 +356,6 @@ func getSrcWorkspacesFilter(c tfclient.ClientContexts, wsList []string) ([]*tfe.
 
 		}
 	}
-
 	return srcWorkspaces, nil
 }
 
@@ -752,4 +765,45 @@ func standardizeNamingConvention(workspaceList []*tfe.Workspace, prefix string, 
 	}
 
 	return workspaceList
+}
+
+// This next section is to check if workspaces use terraform_remote_state
+func excludeWorkspaceRemoteStateResources(c tfclient.ClientContexts, workspaceList []*tfe.Workspace) ([]*tfe.Workspace, error) {
+	var updatedWorkspaceList []*tfe.Workspace
+	opts := &tfe.WorkspaceResourceListOptions{
+		ListOptions: tfe.ListOptions{
+			PageSize:   30,
+			PageNumber: 1,
+		},
+	}
+
+	for _, ws := range workspaceList {
+		fmt.Printf("\nChecking workspace for remote state resources: %s\n", ws.Name)
+		hasRemoteState := false
+		opts.ListOptions.PageNumber = 1 // reset pagination for each workspace
+
+		for {
+			resources, err := c.DestinationClient.WorkspaceResources.List(context.Background(), ws.ID, opts)
+			if err != nil {
+				return nil, fmt.Errorf("failed to list workspace resources - : %w", err)
+			}
+			for _, resource := range resources.Items {
+				// fmt.Printf(" - Found resource: %s of type %s\n", resource.Address, resource.ProviderType)
+				if resource.ProviderType == "data.terraform_remote_state" {
+					fmt.Printf("\nSkipping workspace %s due to terraform_remote_state resource\n", ws.Name)
+					hasRemoteState = true
+					break
+				}
+			}
+			if hasRemoteState || resources.Pagination.NextPage == 0 {
+				break
+			}
+			opts.ListOptions.PageNumber = resources.Pagination.NextPage
+		}
+		if !hasRemoteState {
+			updatedWorkspaceList = append(updatedWorkspaceList, ws)
+		}
+	}
+
+	return updatedWorkspaceList, nil
 }
