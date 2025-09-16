@@ -785,7 +785,6 @@ func excludeWorkspaceRemoteStateResources(c tfclient.ClientContexts, workspaceLi
 				return nil, fmt.Errorf("failed to list workspace resources - : %w", err)
 			}
 			for _, resource := range resources.Items {
-				
 				if resource.ProviderType == "data.terraform_remote_state" {
 					fmt.Printf("\nSkipping workspace %s due to terraform_remote_state resource\n", ws.Name)
 					hasRemoteState = true
