@@ -304,9 +304,6 @@ func getSrcWorkspacesCfg(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
 		}
 		o.AddFormattedMessageCalculated("\n After excluding workspaces with terraform_remote_state resources, %d workspaces remain\n", len(srcWorkspaces))
 		// List the workspaces that remain
-		// for _, w := range srcWorkspaces {
-		// 	o.AddMessageUserProvided("Workspace(s) remaining:", w.Name)
-		// }
 	}
 
 	return srcWorkspaces, nil
