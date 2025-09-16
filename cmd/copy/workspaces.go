@@ -782,7 +782,7 @@ func excludeWorkspaceRemoteStateResources(c tfclient.ClientContexts, workspaceLi
 		for {
 			resources, err := c.SourceClient.WorkspaceResources.List(context.Background(), ws.ID, opts)
 			if err != nil {
-				return nil, fmt.Errorf("failed to list workspace resources - : %w", err)
+				return nil, fmt.Errorf("failed to list workspace resources: %w", err)
 			}
 			for _, resource := range resources.Items {
 				if resource.ProviderType == "data.terraform_remote_state" {
