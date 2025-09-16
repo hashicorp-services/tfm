@@ -780,7 +780,7 @@ func excludeWorkspaceRemoteStateResources(c tfclient.ClientContexts, workspaceLi
 		opts.ListOptions.PageNumber = 1 // reset pagination for each workspace
 
 		for {
-			resources, err := c.DestinationClient.WorkspaceResources.List(context.Background(), ws.ID, opts)
+			resources, err := c.SourceClient.WorkspaceResources.List(context.Background(), ws.ID, opts)
 			if err != nil {
 				return nil, fmt.Errorf("failed to list workspace resources - : %w", err)
 			}
