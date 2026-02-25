@@ -18,9 +18,6 @@ description: "Use when developing Go applications, implementing job schedulers, 
 
 **For comprehensive reviews, ALWAYS invoke these related skills:**
 
-1. **Security audit** - Invoke `/netresearch-skills-bundle:security-audit` for OWASP analysis, vulnerability assessment, and security patterns
-2. **Enterprise readiness** - Invoke `/netresearch-skills-bundle:enterprise-readiness` for OpenSSF Scorecard, SLSA compliance, supply chain security
-3. **GitHub project setup** - Invoke `/netresearch-skills-bundle:github-project` for branch protection, rulesets, CI workflow validation
 
 A Go development review is NOT complete until all related skills have been executed.
 
