@@ -14,7 +14,7 @@ This document provides guidance for GitHub Copilot when assisting with developme
 1. [Go Development Standards](#go-development-standards)
 2. [Project Structure](#project-structure)
 3. [Local Development Skills](#local-development-skills)
-4. [GitFlow Workflow](#gitflow-workflow)
+4. [GitFlow Workflow (Quick Reference)](#gitflow-workflow-quick-reference)
 5. [Code Quality & Testing](#code-quality--testing)
 6. [ADR-Driven Development](#adr-driven-development)
 7. [Common Tasks & Patterns](#common-tasks--patterns)
@@ -148,9 +148,14 @@ This repository includes a local copy of the **netresearch Go development skill*
 - **Use cases:** CLI applications, job scheduling, Docker integration, LDAP clients, resilient services
 - **Key patterns:** Type safety, generics, error handling, testing strategies, performance optimization
 
+**Git Workflow Skill** (`.github/skills/git-workflow/`)
+- **Metadata:** [SKILL.md](.github/skills/git-workflow/SKILL.md)
+- **Use cases:** Branching strategies, conventional commits, PR workflows, merge strategies, CI/CD integration
+- **Key patterns:** Git Flow, GitHub Flow, commit conventions, release management
+
 ### Reference Documents
 
-Detailed pattern and implementation guides are available in `.github/skills/go-development/references/`:
+**Go Development References** (`.github/skills/go-development/references/`):
 
 | Document | Purpose |
 |----------|----------|
@@ -168,143 +173,82 @@ Detailed pattern and implementation guides are available in `.github/skills/go-d
 | [fuzz-testing.md](.github/skills/go-development/references/fuzz-testing.md) | Go fuzzing patterns, security seeds |
 | [mutation-testing.md](.github/skills/go-development/references/mutation-testing.md) | Gremlins configuration, test quality measurement |
 
+**Git Workflow References** (`.github/skills/git-workflow/references/`):
+
+| Document | Purpose |
+|----------|----------|
+| [branching-strategies.md](.github/skills/git-workflow/references/branching-strategies.md) | Git Flow, GitHub Flow, trunk-based development |
+| [commit-conventions.md](.github/skills/git-workflow/references/commit-conventions.md) | Conventional Commits format, semantic versioning |
+| [pull-request-workflow.md](.github/skills/git-workflow/references/pull-request-workflow.md) | PR creation, review, merge strategies, thread resolution |
+| [ci-cd-integration.md](.github/skills/git-workflow/references/ci-cd-integration.md) | GitHub Actions automation, branch protection |
+| [advanced-git.md](.github/skills/git-workflow/references/advanced-git.md) | Rebasing, cherry-picking, bisecting |
+| [github-releases.md](.github/skills/git-workflow/references/github-releases.md) | Release management, immutable releases |
+
+**Reference:** For Git workflow details, see [.github/skills/git-workflow/references/branching-strategies.md](.github/skills/git-workflow/references/branching-strategies.md) and [pull-request-workflow.md](.github/skills/git-workflow/references/pull-request-workflow.md).
+
 ### Accessing Local Skills
 
-**In VS Code/Copilot context:** Reference the skill directly from `.github/skills/` for offline access and to keep guidance in sync with this repository.
+**In VS Code/Copilot context:** Reference the skills directly from `.github/skills/` for offline access and to keep guidance in sync with this repository.
 
-**In CI/CD workflows:** The skill is available locally without network dependencies, making builds faster and more reliable.
+**In CI/CD workflows:** The skills are available locally without network dependencies, making builds faster and more reliable.
 
-**For Copilot:** When asked about Go development patterns, refer to the local `.github/skills/go-development/references/` docs first before external resources.
+**For Copilot:**
+- When asked about Go development patterns, refer to the local `.github/skills/go-development/references/` docs first before external resources.
+- When asked about Git workflow, branching, commits, or PRs, refer to the local `.github/skills/git-workflow/references/` docs first before external resources.
 
 ---
 
-## GitFlow Workflow
+## GitFlow Workflow (Quick Reference)
 
-This project uses **GitFlow** for version control and release management.
+For comprehensive Git workflow guidance, refer to the local git-workflow skill at [.github/skills/git-workflow/](.github/skills/git-workflow/).
 
-### Branch Naming Convention
+### TFM-Specific GitFlow Setup
 
-- **Main branches:**
-  - `main` – Production-ready code; protected branch; only merges via tag-triggered releases
-  - `develop` – Integration branch for next release; base for feature/bugfix branches
+This project uses **GitFlow** for version control and release management. Key commands and patterns are documented in local skill references; quick reference below for TFM specifics.
 
-- **Feature branches:** `feature/<ADR-number>-<short-description>`
-  Examples:
-  - `feature/0003-monorepo-discovery`
-  - `feature/0004-cloud-block-automation`
-  - `feature/0006-gitlab-vcs-support`
+### Branch Naming for TFM
 
-- **Bugfix branches:** `bugfix/<issue-number>-<short-description>`
-  Examples:
-  - `bugfix/123-incorrect-state-upload`
-  - `bugfix/456-vcs-auth-token-renewal`
+- **Feature:** `feature/<ADR-number>-<short-description>` (links ADRs to implementation)
+- **Bugfix:** `bugfix/<issue-number>-<short-description>`
+- **Release:** `release/<version>`
+- **Hotfix:** `hotfix/<version>-<issue>`
 
-- **Release branches:** `release/<version>` (e.g., `release/0.9.0`)
-  - Triggered when ready to cut a release
-  - Minor fixes and version bumps only
-  - Merged to both `main` and back to `develop`
+**See also:** [branching-strategies.md](.github/skills/git-workflow/references/branching-strategies.md) for detailed conventions and alternative branching models.
 
-- **Hotfix branches:** `hotfix/<version>-<issue>`
-  Examples:
-  - `hotfix/0.8.1-auth-panic`
-  - `hotfix/0.9.1-state-corruption-fix`
+### PR Workflow for TFM
 
-### Pull Request Workflow
+**Reference:** See [pull-request-workflow.md](.github/skills/git-workflow/references/pull-request-workflow.md) for comprehensive PR guidance.
 
-1. **Create a feature/bugfix branch** from `develop`
-   ```bash
-   git fetch origin
-   git checkout -b feature/0003-monorepo-discovery origin/develop
-   ```
+**TFM Requirements:**
+- **Title format:** `[ADR #0003] Implement monorepo discovery` (include ADR reference)
+- **Description:** Reference the ADR, link related issues, explain *why* changes are needed
+- **Commit convention:** Follow [Conventional Commits](.github/skills/git-workflow/references/commit-conventions.md) format:
+  ```
+  type(scope): description
 
-2. **Keep branch up-to-date** with `develop` before opening PR
-   ```bash
-   git fetch origin develop
-   git rebase origin/develop  # Preferred over merge to keep history clean
-   ```
+  Body: Detailed explanation.
+  Footer: Fixes #issue-number, References ADR #number
+  ```
+- **Reviews:** 1+ code owner approval (see `.github/CODEOWNERS`)
+- **Checks:** All CI/CD must pass
+- **Merge:** Squash commits to `develop`; preserve history for `main`
 
-3. **Commit messages** should follow conventional format
-   ```
-   type(scope): description
+### Release & Hotfix Workflows
 
-   Body: Detailed explanation (if needed).
-   Footer: Fixes #issue-number, References ADR #number
-   ```
-   Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+**Reference:** See [github-releases.md](.github/skills/git-workflow/references/github-releases.md) for release management best practices.
 
-   Example:
-   ```
-   feat(core): implement monorepo discovery for terraform configs
+**TFM Release Process:**
+1. Create `release/<version>` from `develop`
+2. Update `version/version.go` and `CHANGELOG.md`
+3. Merge to `main` with PR review
+4. Tag with semantic version (e.g., `v0.9.0`)
+5. Merge back to `develop` to sync version
 
-   - Recursively scan cloned repos for .tf files
-   - Create metadata mapping for multi-config repos
-   - Update tfm core init-repos to populate tfvars paths
-
-   Fixes #123
-   References ADR #0003
-   ```
-
-4. **PR Requirements:**
-   - Title: `[ADR #0003] Implement monorepo discovery` (include ADR reference if applicable)
-   - Description: Reference the ADR, link related issues, explain *why* changes are needed
-   - Required reviews: 1+ code owner approval (see `.github/CODEOWNERS`)
-   - CI checks: All GitHub Actions must pass
-   - Branch protection: `develop` and `main` require PR reviews + status checks
-
-5. **Merge strategy:**
-   - Use **"Squash and merge"** for feature branches to `develop` (cleaner history)
-   - Use **"Create a merge commit"** for release/hotfix branches to `main` (preserve history)
-
-### Release Process
-
-1. **Create a release branch** from `develop` when ready for a new version:
-   ```bash
-   git checkout -b release/0.9.0 origin/develop
-   ```
-
-2. **Update version references:**
-   - Update `version/version.go` with new semantic version
-   - Update `CHANGELOG.md` with release notes
-   - Commit: `chore(release): bump version to 0.9.0`
-
-3. **Open PR** to `main` for code owner review
-
-4. **Upon approval:**
-   ```bash
-   git tag -a v0.9.0 -m "Release 0.9.0"
-   git push origin v0.9.0
-   ```
-   Tagged releases trigger GitHub Actions to build binaries
-
-5. **Merge back to develop** to keep version/changelog in sync:
-   ```bash
-   git checkout develop
-   git pull origin develop
-   git merge --no-ff release/0.9.0
-   git push origin develop
-   ```
-
-### Hotfix Process (Critical Bugs in Production)
-
-1. **Create hotfix branch** from `main`:
-   ```bash
-   git checkout -b hotfix/0.8.1-auth-panic origin/main
-   ```
-
-2. **Apply fix**, test, and commit:
-   ```bash
-   git commit -m "fix(auth): prevent panic on token expiration in copy command"
-   ```
-
-3. **Bump patch version** in `version/version.go`
-
-4. **PR to main**, merge with tag:
-   ```bash
-   git tag -a v0.8.1 -m "Hotfix 0.8.1"
-   git push origin v0.8.1
-   ```
-
-5. **Merge back to develop** to sync version bump
+**TFM Hotfix Process:**
+1. Create `hotfix/<version>-<issue>` from `main`
+2. Apply fix and bump patch version
+3. Merge to `main` with tag
+4. Merge back to `develop`
 
 ---
 
@@ -667,9 +611,8 @@ See `.github/CODEOWNERS` for specific package ownership. Key maintainers:
 - **Terraform Documentation:** https://developer.hashicorp.com/terraform
 - **Go Standards:** https://golang.org/doc/effective_go
 - **Cobra CLI Framework:** https://cobra.dev
-- **Local Go Development Skill:** [.github/skills/go-development.md](.github/skills/go-development.md)
-- **Local Skill References:** [.github/skills/go-development/references/](.github/skills/go-development/references/)
-- **Original Skill Source:** [netresearch/go-development-skill](https://github.com/netresearch/go-development-skill/tree/main/skills/go-development)
+- **Local Git Workflow Skill:** [.github/skills/git-workflow/SKILL.md](.github/skills/git-workflow/SKILL.md)
+- **Git Workflow References:** [.github/skills/git-workflow/references/](.github/skills/git-workflow/references/)
 - **GitFlow Reference:** https://nvie.com/posts/a-successful-git-branching-model/
 
 ---
