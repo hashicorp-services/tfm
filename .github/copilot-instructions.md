@@ -14,10 +14,12 @@ This document provides guidance for GitHub Copilot when assisting with developme
 1. [Go Development Standards](#go-development-standards)
 2. [Project Structure](#project-structure)
 3. [Local Development Skills](#local-development-skills)
-4. [GitFlow Workflow (Quick Reference)](#gitflow-workflow-quick-reference)
-5. [Code Quality & Testing](#code-quality--testing)
-6. [ADR-Driven Development](#adr-driven-development)
-7. [Common Tasks & Patterns](#common-tasks--patterns)
+4. [Agents for Development Workflows](#agents-for-development-workflows)
+5. [Prompts & Tools](#prompts--tools)
+6. [GitFlow Workflow (Quick Reference)](#gitflow-workflow-quick-reference)
+7. [Code Quality & Testing](#code-quality--testing)
+8. [ADR-Driven Development](#adr-driven-development)
+9. [Common Tasks & Patterns](#common-tasks--patterns)
 
 ---
 
@@ -75,12 +77,19 @@ tfm/
 ├── Makefile          # Build and test targets
 └── .github/          # GitHub configuration
     ├── workflows/    # CI/CD pipelines
+    ├── actions/      # Reusable workflow actions
+    ├── agents/       # Custom Copilot agents for dev workflows
+    ├── prompts/      # Copilot prompts and templates
+    ├── skills/       # Local development skills (netresearch)
+    │   ├── go-development/
+    │   │   ├── references/    # 13 Go pattern reference docs
+    │   │   └── SKILL.md
+    │   └── git-workflow/
+    │       ├── references/    # 6 Git workflow reference docs
+    │       └── SKILL.md
+    ├── terraform/    # Terraform configurations for GitHub resources
     ├── copilot-instructions.md  # This file
-    ├── CODEOWNERS    # Code ownership
-    └── skills/       # Local development skills
-        ├── go-development.md  # Go skill metadata
-        └── go-development/    # Go development skill
-            └── references/    # Detailed pattern docs
+    └── CODEOWNERS    # Code ownership
 ```
 
 ### Naming Conventions
@@ -198,16 +207,96 @@ This repository includes a local copy of the **netresearch Go development skill*
 
 ---
 
-## GitFlow Workflow (Quick Reference)
+## Agents for Development Workflows
 
-For comprehensive Git workflow guidance, refer to the local git-workflow skill at [.github/skills/git-workflow/](.github/skills/git-workflow/).
+Custom Copilot agents are available in `.github/agents/` to automate complex development workflows. These agents leverage local skills, templates, and enforcement rules.
 
-### TFM-Specific GitFlow Setup
+### SpecKit Agents (Feature Planning & Implementation)
 
-This project uses **GitFlow** for version control and release management. Key commands and patterns are documented in local skill references; quick reference below for TFM specifics.
+SpecKit provides a structured specification-driven development (SDD) workflow for features. Use these agents sequentially to move from concept to implementation:
 
-### Branch Naming for TFM
+| Agent | Purpose | Trigger |
+|-------|---------|---------|
+| **speckit.clarify** | Identify underspecified areas in feature spec; ask up to 5 targeted clarification questions | `clarify-spec` |
+| **speckit.specify** | Generate or refine feature specification from concept or existing spec | `specify-feature` |
+| **speckit.plan** | Create implementation plan with technical design, data model, and Phase 0/1/2 artifacts | `plan-implementation` |
+| **speckit.analyze** | Cross-artifact consistency checking across spec, plan, and tasks | `analyze-artifacts` |
+| **speckit.implement** | Execute implementation plan by processing and executing all tasks | `implement-plan` |
+| **speckit.tasks** | Break planning artifacts into actionable development tasks | `create-tasks` |
+| **speckit.checklist** | Generate domain-specific checklists (UX, test, security, performance) | `create-checklist` |
+| **speckit.taskstoissues** | Convert task.md items into GitHub issues for team tracking | `tasks-to-issues` |
+| **speckit.constitution** | Validate feature design against project constitution and structural rules | `validate-constitution` |
 
+**Workflow:** `clarify` → `specify` → `plan` → `analyze` → `implement` (with `tasks`, `checklist`, `constitution` as supporting steps)
+
+**Key Concept:** SpecKit enforces traceability between specification, design, planning, and implementation. Every task is traceable back to a requirement; every artifact maintains internal consistency.
+
+### SDD Agents (Schema-Driven Domains - Terraform Infrastructure)
+
+SDD agents provide infrastructure-as-code analysis and deployment validation:
+
+| Agent | Purpose | Input |
+|-------|---------|-------|
+| **sdd-clarify** | Ask clarification questions to refine infrastructure specification | Schema requirements, existing TF config |
+| **sdd-analyze** | Cross-artifact consistency checking for infrastructure design (spec ↔ plan ↔ code) | `spec.md`, `plan.md`, `data-model.md`, `tasks.md` |
+| **sdd-plan-draft** | Generate infrastructure planning artifacts from specification | Infrastructure requirements |
+| **sdd-research** | Research infrastructure patterns and validate design decisions | Plan with NEEDS_CLARIFICATION markers |
+| **sdd-specify** | Generate or refine infrastructure specification | Infrastructure concept |
+| **sdd-tasks** | Break infrastructure plan into actionable implementation tasks | Infrastructure plan artifacts |
+| **sdd-checklist** | Generate infrastructure domain checklists (compliance, security, performance) | Infrastructure tasks |
+
+### Terraform Deployment Agents
+
+| Agent | Purpose | Requirement |
+|-------|---------|-------------|
+| **tf-deployer** | Deploy validated Terraform configuration to HCP Terraform workspace | Validated TF config + plan |
+| **tf-report-generator** | Generate comprehensive deployment report from workspace and run data | Deployment status + run URL |
+| **tf-task-executor** | Execute arbitrary Terraform commands against a workspace | Workspace details |
+
+### Using Agents Effectively
+
+**Invocation:**
+```
+@speckit.clarify [brief description or existing spec reference]
+@speckit.plan Build a feature that authenticates users via OAuth
+@speckit.implement
+```
+
+**Agent Handoffs:** Agents include handoff suggestions; follow them for optimal workflow sequencing.
+
+**Output:** Agents generate artifacts in `.specify/<branch>/` (SpecKit) or similar feature directories. All output files are committed to the feature branch.
+
+**Context Preservation:** Agents maintain state across invocations via artifact files. Always work within the same feature branch for consistency.
+
+---
+
+## Prompts & Tools
+
+### Copilot Prompts
+
+Prompts in `.github/prompts/` provide pre-crafted instruction templates for specific tasks:
+
+| Prompt | Use Case |
+|--------|----------|
+| **speckit.* prompts** | Foundation prompts for SpecKit agents (mirrors agent behavior) |
+| **constitution.prompt** | Design review against project constitution |
+| **implement.prompt** | Implementation guidance aligned with planning artifacts |
+| **checklist.prompt** | Checklist generation for domains (UX, test, security, perf) |
+| **tasks.prompt** | Task breakdown from planning documents |
+| **analyze.prompt** | Consistency analysis across artifacts |
+| **plan.prompt** | Implementation planning from specification |
+
+### Terraform-Specific Tools
+
+Specialized agents for infrastructure operations:
+
+- **tf-deployer:** Execute deployments to HCP Terraform workspaces
+- **tf-report-generator:** Generate deployment reports with trivy/vault-radar findings
+- **tf-task-executor:** Execute Terraform commands (init, plan, apply, destroy)
+
+**Access:** These tools integrate with HCP Terraform API via MCP (Model Context Protocol) for live workspace operations.
+
+---
 - **Feature:** `feature/<ADR-number>-<short-description>` (links ADRs to implementation)
 - **Bugfix:** `bugfix/<issue-number>-<short-description>`
 - **Release:** `release/<version>`
@@ -605,17 +694,42 @@ See `.github/CODEOWNERS` for specific package ownership. Key maintainers:
 
 ## Resources & References
 
+### Local Repository Resources
+
+**Development Guidance:**
 - **Main README:** [README.md](../../README.md)
 - **Architecture Decisions:** [ADR/](../../ADR/)
 - **Implementation Status:** [ADR/next-steps.md](../../ADR/next-steps.md)
+- **CODEOWNERS:** [.github/CODEOWNERS](./.CODEOWNERS) (approval requirements)
+
+**Skills & Patterns:**
+- **Go Development Skill:** [.github/skills/go-development/SKILL.md](.github/skills/go-development/SKILL.md)
+  - References: [architecture](./skills/go-development/references/architecture.md), [testing](./skills/go-development/references/testing.md), [logging](./skills/go-development/references/logging.md), [api-design](./skills/go-development/references/api-design.md), [resilience](./skills/go-development/references/resilience.md), and 8 more
+- **Git Workflow Skill:** [.github/skills/git-workflow/SKILL.md](.github/skills/git-workflow/SKILL.md)
+  - References: [branching-strategies](./skills/git-workflow/references/branching-strategies.md), [pull-request-workflow](./skills/git-workflow/references/pull-request-workflow.md), [commit-conventions](./skills/git-workflow/references/commit-conventions.md), and 3 more
+
+**Agents & Workflows:**
+- **SpecKit Agents:** [.github/agents/](./agents/) (speckit.specify, speckit.plan, speckit.implement, etc.)
+- **SDD Analysis Agents:** [.github/agents/sdd-*.md](./agents/) (Infrastructure consistency checking)
+- **Terraform Deployment Agents:** [.github/agents/tf-*.md](./agents/) (tf-deployer, tf-report-generator)
+- **Prompts & Templates:** [.github/prompts/](./prompts/)
+
+**CI/CD & Infrastructure:**
+- **Workflows:** [.github/workflows/](./workflows/)
+- **Reusable Actions:** [.github/actions/](./actions/)
+- **Terraform Configs:** [.github/terraform/](./terraform/)
+
+### External References
+
 - **Terraform Documentation:** https://developer.hashicorp.com/terraform
 - **Go Standards:** https://golang.org/doc/effective_go
 - **Cobra CLI Framework:** https://cobra.dev
-- **Local Git Workflow Skill:** [.github/skills/git-workflow/SKILL.md](.github/skills/git-workflow/SKILL.md)
-- **Git Workflow References:** [.github/skills/git-workflow/references/](.github/skills/git-workflow/references/)
 - **GitFlow Reference:** https://nvie.com/posts/a-successful-git-branching-model/
+- **netresearch Go Skill Origin:** https://github.com/netresearch/go-development-skill
+- **netresearch Git Workflow Skill Origin:** https://github.com/netresearch/git-workflow-skill
 
 ---
 
 **Last Updated:** 2026-02-25
+**Includes:** Go development standards, SpecKit/SDD agents, Terraform deployment workflows, ADR tracking, code quality gates
 
