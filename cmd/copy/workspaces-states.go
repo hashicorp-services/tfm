@@ -258,6 +258,13 @@ func copyStates(c tfclient.ClientContexts, NumberOfStates int) error {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
+		// Check if the workspace name prefix and suffix are set
+		if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+			srcworkspaceSlice := []*tfe.Workspace{{Name: destWorkSpaceName}}
+			newDestWorkspaceName := standardizeNamingConvention(srcworkspaceSlice, wsNamePrefix, wsNameSuffix)
+			destWorkSpaceName = newDestWorkspaceName[0].Name
+		}
+
 		// Check for the existence of the destination workspace in the destination target
 		exists := doesWorkspaceExist(destWorkSpaceName, destWorkspaces)
 

@@ -38,6 +38,13 @@ func copyRunTriggers(c tfclient.ClientContexts) error {
 			destWorkSpaceName = wsMapCfg[srcWorkspace.Name]
 		}
 
+		// Check if the workspace name prefix and suffix are set
+		if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+			srcworkspaceSlice := []*tfe.Workspace{{Name: destWorkSpaceName}}
+			newDestWorkspaceName := standardizeNamingConvention(srcworkspaceSlice, wsNamePrefix, wsNameSuffix)
+			destWorkSpaceName = newDestWorkspaceName[0].Name
+		}
+
 		destWorkSpaceID, err := getWorkspaceId(tfclient.GetClientContexts(), destWorkSpaceName)
 		if err != nil {
 			return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace: "+srcWorkspace.Name)
@@ -120,11 +127,11 @@ func copyRunTriggers(c tfclient.ClientContexts) error {
 						return errors.Wrap(err, "Failed to create run trigger in destination workspace: "+destWorkSpaceName)
 					}
 					o.AddFormattedMessageCalculated2("Created run trigger for workspace %v to %v", destWorkSpaceName, runTriggerWorkspaceName)
-				} else { 
+				} else {
 					o.AddFormattedMessageCalculated("Workspace named %v does not exist in destination. Not able to setup Run Trigger", runTriggerWorkspaceName)
 				}
 			}
-		} 
+		}
 	}
 	return nil
 }

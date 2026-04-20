@@ -250,6 +250,13 @@ func copyWsTeamAccess(c tfclient.ClientContexts) error {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
 		}
 
+		// Check if the workspace name prefix and suffix are set
+		if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+			srcworkspaceSlice := []*tfe.Workspace{{Name: destWorkSpaceName}}
+			newDestWorkspaceName := standardizeNamingConvention(srcworkspaceSlice, wsNamePrefix, wsNameSuffix)
+			destWorkSpaceName = newDestWorkspaceName[0].Name
+		}
+
 		if !doesWorkspaceExist(destWorkSpaceName, destWorkspaces) {
 			return errors.New(" Destination Workspace not found")
 		}

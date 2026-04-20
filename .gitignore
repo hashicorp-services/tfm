@@ -19,3 +19,6 @@ terraform_config_metadata.json
 dist/
 
 *.DS_Store*
+
+# Demo files
+demo/

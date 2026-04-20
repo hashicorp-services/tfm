@@ -62,16 +62,16 @@ func variableCopy(c tfclient.ClientContexts, sourceWorkspaceID string, destinati
 			//Create the variable in the destination workspace but skip any sensitive ones
 			if workspaceVar.Sensitive {
 				o.AddMessageUserProvided(destVarName, "is sensitive and will not be copied")
-		} else {
-			//Create the variable in the destination workspace
-			o.AddMessageUserProvided("Copying", destVarName)
-			_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
-			if err != nil {
-				fmt.Println("Could not create Workspace variable.\n\n Error:", err.Error())
-				return err
+			} else {
+				//Create the variable in the destination workspace
+				o.AddMessageUserProvided("Copying", destVarName)
+				_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
+				if err != nil {
+					fmt.Println("Could not create Workspace variable.\n\n Error:", err.Error())
+					return err
+				}
 			}
-		} 
-	} else {
+		} else {
 			//Create the variable in the destination workspace
 			o.AddMessageUserProvided("Copying", destVarName)
 			_, err := c.DestinationClient.Variables.Create(c.DestinationContext, destinationWorkspaceID, variableOpts)
@@ -123,6 +123,13 @@ func copyVariables(c tfclient.ClientContexts, skipSecure bool) error {
 		// Check if the destination Workspace name differs from the source name
 		if len(wsMapCfg) > 0 {
 			destWorkSpaceName = wsMapCfg[srcworkspace.Name]
+		}
+
+		// Check if the workspace name prefix and suffix are set
+		if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+			srcworkspaceSlice := []*tfe.Workspace{{Name: destWorkSpaceName}}
+			newDestWorkspaceName := standardizeNamingConvention(srcworkspaceSlice, wsNamePrefix, wsNameSuffix)
+			destWorkSpaceName = newDestWorkspaceName[0].Name
 		}
 
 		// Ensure the destination workspace exists in the destination target

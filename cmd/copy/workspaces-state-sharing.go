@@ -40,6 +40,13 @@ func copyRemoteStateSharing(c tfclient.ClientContexts, consolidateGlobal bool) e
 			destWorkSpaceName = wsMapCfg[srcWorkspace.Name]
 		}
 
+		// Check if the workspace name prefix and suffix are set
+		if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+			srcworkspaceSlice := []*tfe.Workspace{{Name: destWorkSpaceName}}
+			newDestWorkspaceName := standardizeNamingConvention(srcworkspaceSlice, wsNamePrefix, wsNameSuffix)
+			destWorkSpaceName = newDestWorkspaceName[0].Name
+		}
+
 		destWorkSpaceID, err := getWorkspaceId(tfclient.GetClientContexts(), destWorkSpaceName)
 		if err != nil {
 			return errors.Wrap(err, "Failed to get the ID of the destination Workspace that matches the Name of the Source Workspace: "+srcWorkspace.Name)
@@ -48,6 +55,13 @@ func copyRemoteStateSharing(c tfclient.ClientContexts, consolidateGlobal bool) e
 		// Check if the destination Workspace name differs from the source name
 		if len(wsMapCfg) > 0 {
 			destWorkSpaceName = wsMapCfg[srcWorkspace.Name]
+		}
+
+		// Check if the workspace name prefix and suffix are set
+		if len(wsNamePrefix) > 0 || len(wsNameSuffix) > 0 {
+			srcworkspaceSlice := []*tfe.Workspace{{Name: destWorkSpaceName}}
+			newDestWorkspaceName := standardizeNamingConvention(srcworkspaceSlice, wsNamePrefix, wsNameSuffix)
+			destWorkSpaceName = newDestWorkspaceName[0].Name
 		}
 
 		// Ensure the destination workspace exists in the destination target
@@ -154,7 +168,7 @@ func copyRemoteStateSharing(c tfclient.ClientContexts, consolidateGlobal bool) e
 
 					// Get the list of workspaces in the destination
 					destinationWorkspaceList, err := lookupWorkspaces(c, "destination")
-					
+
 					if err != nil {
 						return errors.Wrap(err, "failed to list Workspaces from destination")
 					}
