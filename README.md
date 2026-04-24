@@ -26,6 +26,58 @@ Note: The Terraform Community Edition migration as part of `tfm` has been deprec
 
 Binaries are created as part of a release, check out the [Release Page](https://github.com/hashicorp-services/tfm/releases) for the latest version.
 
+## Configuration
+
+`tfm` supports two equivalent ways to supply configuration — use whichever fits your workflow:
+
+### Option 1 — `.tfm.hcl` config file (recommended for interactive use)
+
+By default `tfm` looks for `.tfm.hcl` in the current directory (or `~/.tfm.hcl`). Pass a custom path with `--config`.
+
+```hcl
+# .tfm.hcl
+src_tfe_hostname = "app.terraform.io"
+src_tfe_org      = "my-source-org"
+src_tfe_token    = "..."
+
+dst_tfc_hostname = "app.terraform.io"
+dst_tfc_org      = "my-destination-org"
+dst_tfc_token    = "..."
+```
+
+See the full documentation at [https://hashicorp-services.github.io/tfm/](https://hashicorp-services.github.io/tfm/) for all available keys.
+
+### Option 2 — Environment variables (recommended for CI/CD pipelines)
+
+Config keys map to uppercase environment variables with no prefix. Hyphens in key names are translated to underscores. For example, `src_tfe_token` is read from `SRC_TFE_TOKEN`, and `projects-map` is read from `PROJECTS_MAP`.
+
+A template for commonly used environment-variable-based settings is provided at [`.env.example`](./.env.example). Copy it to `.env` and populate your values:
+```bash
+cp .env.example .env
+# edit .env with your tokens and org names
+set -a
+. ./.env
+set +a
+tfm list workspaces
+```
+
+> **Note:** `.env` is listed in `.gitignore` — never commit a populated `.env` file.
+
+Key variables at a glance:
+
+| Variable | Description |
+|---|---|
+| `SRC_TFE_HOSTNAME` | Source TFE/HCP Terraform hostname (e.g. `app.terraform.io`) |
+| `SRC_TFE_ORG` | Source organisation name |
+| `SRC_TFE_TOKEN` | Source API token |
+| `DST_TFC_HOSTNAME` | Destination TFE/HCP Terraform hostname |
+| `DST_TFC_ORG` | Destination organisation name |
+| `DST_TFC_TOKEN` | Destination API token |
+| `GITHUB_TOKEN` | GitHub PAT (required for `core` VCS migration commands) |
+| `GITLAB_TOKEN` | GitLab PAT (required for `core` VCS migration commands) |
+
+See [`.env.example`](./.env.example) for the complete list including VCS, GitLab, and core migration variables.
+
 ## Migration Type
 
 There are differences between Terraform OSS / CE / Core migrations and Terraform Enterprise & Terraform Cloud Migrations. Accordingly this Readme has been split between two pages [tfe migration](./tfe-migration.md) and [ce migration](./ce-migration.md)
@@ -34,7 +86,7 @@ There are differences between Terraform OSS / CE / Core migrations and Terraform
 
 `tfm` can be used in a pipeline to automate migrations. There are a few considerations when using `tfm` in this manner.
 
-- For source and destination credentials use environment variables from the pipeline's secrete manager or other secure means. Don't embed these credentials in `tfm` configuration files
+- For source and destination credentials, use environment variables sourced from your pipeline's secret manager or another secure mechanism. See [`.env.example`](./.env.example) for the full list of supported variables. Don't embed credentials in `tfm` configuration files.
 - Several `tfm` commands require confirmation before proceeding, which are listed below. To override these in a pipeline, add the `--autoapprove` flag.
   - `copy workspaces` Only when all workspaces are going to be migrated due to no workspace list, or map defined.
   - `copy workspaces --state --last`
