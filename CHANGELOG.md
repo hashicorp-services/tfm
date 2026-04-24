@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0](https://github.com/hashicorp-services/tfm/compare/0.15.1...0.16.0) (2025-09-16)
+
+### Features
+
+- Add option to exclude workspaces that contain `terraform_remote_state` resources from migration ([#335](https://github.com/hashicorp-services/tfm/pull/335))
+
+### Enhancements
+
+- Propagate workspace `name_prefix` and `name_suffix` transformations to all workspace copy sub-commands: run-triggers, state-sharing, states, team-access, and vars ([#331](https://github.com/hashicorp-services/tfm/pull/331))
+- Add `demo/` directory to `.gitignore`
+
+## [0.15.1](https://github.com/hashicorp-services/tfm/compare/0.15.0...0.15.1) (2025-07-28)
+
+### Bug Fixes
+
+- Set `User-Agent` header on source and destination TFE clients to identify `tfm` in API requests ([#321](https://github.com/hashicorp-services/tfm/pull/321))
+
+## [0.15.0](https://github.com/hashicorp-services/tfm/compare/0.14.0...0.15.0) (2025-07-14)
+
+### Features
+
+- Add `lock teams` command to lock team permissions across an organization ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+- Add `--plan-only` flag to `copy workspaces` for dry-run functionality without making changes ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+- Add `--workspace-name-prefix` and `--workspace-name-suffix` flags to `copy workspaces` for workspace renaming during migration ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+- Add `--skip-empty-workspaces` flag to `copy workspaces` to skip workspaces with no resources ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+- Add `--create-destination-project` flag to `copy workspaces` to create the destination project if it does not exist ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+- Validate workspace name length and apply tags during migration ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+
+### Enhancements
+
+- Refactor project creation logic into a reusable function ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+- Update `copy teams` to support org-to-project migration patterns ([#317](https://github.com/hashicorp-services/tfm/pull/317))
+
+### Chore
+
+- Add `.DS_Store` to `.gitignore`
+
 ## [0.14.0](https://github.com/hashicorp-services/tfm/compare/v0.13.0...v0.14.0) (2025-05-16)
 
 ### Features
