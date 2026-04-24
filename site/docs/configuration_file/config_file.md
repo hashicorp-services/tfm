@@ -25,7 +25,7 @@ Every config key maps to an uppercase environment variable of the same name (no 
 
 This is the recommended approach for CI/CD pipelines — credentials are supplied by the pipeline's secret manager and never written to disk.
 
-A fully documented template listing every supported variable is provided in [`.env.example`](https://github.com/hashicorp-services/tfm/blob/main/.env.example) at the root of the repository. Copy it to `.env` and populate your values:
+A starter template with the most common environment variables is provided in [`.env.example`](https://github.com/hashicorp-services/tfm/blob/main/.env.example) at the root of the repository. Copy it to `.env`, populate your values, and add any additional supported variables you need:
 
 ```bash
 cp .env.example .env
