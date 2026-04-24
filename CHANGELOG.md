@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Set `User-Agent` header on source and destination TFE clients to identify `tfm` in API requests ([#321](https://github.com/hashicorp-services/tfm/pull/321))
 
-## [0.15.0](https://github.com/hashicorp-services/tfm/compare/0.14.0...0.15.0) (2025-07-14)
+## [0.15.0](https://github.com/hashicorp-services/tfm/compare/v0.14.0...v0.15.0) (2025-07-14)
 
 ### Features
 
