@@ -231,28 +231,6 @@ SpecKit provides a structured specification-driven development (SDD) workflow fo
 
 **Key Concept:** SpecKit enforces traceability between specification, design, planning, and implementation. Every task is traceable back to a requirement; every artifact maintains internal consistency.
 
-### SDD Agents (Schema-Driven Domains - Terraform Infrastructure)
-
-SDD agents provide infrastructure-as-code analysis and deployment validation:
-
-| Agent | Purpose | Input |
-|-------|---------|-------|
-| **sdd-clarify** | Ask clarification questions to refine infrastructure specification | Schema requirements, existing TF config |
-| **sdd-analyze** | Cross-artifact consistency checking for infrastructure design (spec ↔ plan ↔ code) | `spec.md`, `plan.md`, `data-model.md`, `tasks.md` |
-| **sdd-plan-draft** | Generate infrastructure planning artifacts from specification | Infrastructure requirements |
-| **sdd-research** | Research infrastructure patterns and validate design decisions | Plan with NEEDS_CLARIFICATION markers |
-| **sdd-specify** | Generate or refine infrastructure specification | Infrastructure concept |
-| **sdd-tasks** | Break infrastructure plan into actionable implementation tasks | Infrastructure plan artifacts |
-| **sdd-checklist** | Generate infrastructure domain checklists (compliance, security, performance) | Infrastructure tasks |
-
-### Terraform Deployment Agents
-
-| Agent | Purpose | Requirement |
-|-------|---------|-------------|
-| **tf-deployer** | Deploy validated Terraform configuration to HCP Terraform workspace | Validated TF config + plan |
-| **tf-report-generator** | Generate comprehensive deployment report from workspace and run data | Deployment status + run URL |
-| **tf-task-executor** | Execute arbitrary Terraform commands against a workspace | Workspace details |
-
 ### Using Agents Effectively
 
 **Invocation:**
