@@ -98,8 +98,6 @@ Use these first when they match the task.
 Available agent families include:
 
 - SpecKit: `speckit.specify`, `speckit.plan`, `speckit.tasks`, `speckit.analyze`, `speckit.implement`, `speckit.clarify`, `speckit.checklist`, `speckit.constitution`, `speckit.taskstoissues`
-- SDD: `sdd-specify`, `sdd-clarify`, `sdd-research`, `sdd-plan-draft`, `sdd-tasks`, `sdd-analyze`, `sdd-checklist`
-- Terraform execution helpers: `tf-deployer`, `tf-task-executor`, `tf-report-generator`
 
 ## Setup and Development Commands
 
