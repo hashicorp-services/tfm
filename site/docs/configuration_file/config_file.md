@@ -34,7 +34,7 @@ export $(grep -v '^#' .env | xargs)
 tfm list workspaces
 ```
 
-> !!!! WARNING:
+!!! warning
     Never commit a populated `.env` file. The repository's `.gitignore` already excludes `.env` to protect against accidental credential exposure.
 
 ### Quick-reference: key environment variables
