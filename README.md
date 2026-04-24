@@ -49,15 +49,15 @@ See the full documentation at [https://hashicorp-services.github.io/tfm/](https:
 
 ### Option 2 — Environment variables (recommended for CI/CD pipelines)
 
-Config keys that map cleanly to uppercase environment variable names can be overridden with no prefix required. For example, `src_tfe_token` is read from `SRC_TFE_TOKEN`.
-
-> **Note:** Hyphenated config keys such as `projects-map`, `vcs-map`, and `exclude-ws-remote-state-resources` are not automatically translated to underscore-style environment variable names by the current implementation. Set those values in `.tfm.hcl` instead.
+Config keys map to uppercase environment variables with no prefix. Hyphens in key names are translated to underscores. For example, `src_tfe_token` is read from `SRC_TFE_TOKEN`, and `projects-map` is read from `PROJECTS_MAP`.
 
 A template for commonly used environment-variable-based settings is provided at [`.env.example`](./.env.example). Copy it to `.env` and populate your values:
 ```bash
 cp .env.example .env
 # edit .env with your tokens and org names
-export $(grep -v '^#' .env | xargs)
+set -a
+. ./.env
+set +a
 tfm list workspaces
 ```
 

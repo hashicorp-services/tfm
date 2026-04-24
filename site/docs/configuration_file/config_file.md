@@ -2,6 +2,8 @@
 
 `tfm` uses [Viper](https://github.com/spf13/viper) for configuration. Every parameter in the table below can be supplied via **either** a config file **or** an environment variable — they are fully interchangeable and can be mixed freely. Environment variables always take precedence over config file values.
 
+Viper is configured with an `EnvKeyReplacer` that translates hyphens to underscores, so hyphenated config keys such as `projects-map` and `vcs-map` are read from `PROJECTS_MAP` and `VCS_MAP` respectively.
+
 ## Option 1 — `.tfm.hcl` config file
 
 By default `tfm` looks for `.tfm.hcl` in the current directory, then `~/.tfm.hcl`. Pass a custom path with `--config /path/to/file.hcl`.
@@ -21,7 +23,7 @@ workspaces = ["ws-alpha", "ws-beta"]
 
 ## Option 2 — Environment variables
 
-Every config key maps to an uppercase environment variable of the same name (no prefix). For example, `src_tfe_token` is read from `SRC_TFE_TOKEN`.
+Every config key maps to an uppercase environment variable of the same name (no prefix). Hyphens in key names are translated to underscores. For example, `src_tfe_token` is read from `SRC_TFE_TOKEN`, and `projects-map` is read from `PROJECTS_MAP`.
 
 This is the recommended approach for CI/CD pipelines — credentials are supplied by the pipeline's secret manager and never written to disk.
 
@@ -30,7 +32,9 @@ A starter template with the most common environment variables is provided in [`.
 ```bash
 cp .env.example .env
 # edit .env — fill in your tokens, hostnames, and org names
-export $(grep -v '^#' .env | xargs)
+set -a
+. ./.env
+set +a
 tfm list workspaces
 ```
 
@@ -49,6 +53,14 @@ tfm list workspaces
 | `DST_TFC_TOKEN` | `dst_tfc_token` | Destination API token |
 | `GITHUB_TOKEN` | `github_token` | GitHub PAT (required for `tfm core` with `vcs_type = "github"`) |
 | `GITLAB_TOKEN` | `gitlab_token` | GitLab PAT (required for `tfm core` with `vcs_type = "gitlab"`) |
+| `PROJECTS_MAP` | `projects-map` | Source→destination project name mapping |
+| `VCS_MAP` | `vcs-map` | Source→destination VCS oauth ID mapping |
+| `WORKSPACES_MAP` | `workspaces-map` | Source→destination workspace name mapping |
+| `AGENTS_MAP` | `agents-map` | Source→destination agent pool ID mapping |
+| `SSH_MAP` | `ssh-map` | Source→destination SSH key ID mapping |
+| `VARSETS_MAP` | `varsets-map` | Source→destination variable set name mapping |
+| `EXCLUDE_WS_REMOTE_STATE_RESOURCES` | `exclude-ws-remote-state-resources` | Skip workspaces using remote state data sources |
+| `AGENT_ASSIGNMENT_ID` | `agent-assignment-id` | Agent pool ID to assign to all destination workspaces |
 
 See [`.env.example`](https://github.com/hashicorp-services/tfm/blob/main/.env.example) for the complete list.
 
