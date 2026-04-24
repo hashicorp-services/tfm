@@ -17,3 +17,7 @@ update:
 
 format:
 	go fmt
+
+skills:
+    # installs skills from skills-lock.json
+    npx skills experimental_install

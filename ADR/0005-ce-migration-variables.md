@@ -25,7 +25,7 @@ Accepted
 
 ## Context
 
-Part of migrating from Terraform Community Edition to Terraform Cloud or Enterprise is also migrating terraform inputs / variables in some fashion. A feature to assist users in making existing `.tfvars` files compatible with TFC/TFE runs or creating variables to be managed into TFC/TFE is required. 
+Part of migrating from Terraform Community Edition to Terraform Cloud or Enterprise is also migrating terraform inputs / variables in some fashion. A feature to assist users in making existing `.tfvars` files compatible with TFC/TFE runs or creating variables to be managed into TFC/TFE is required.
 
 Per [This Link](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables) Although Terraform Cloud uses variables from terraform.tfvars, Terraform Enterprise currently ignores this file. A feature to locate all `*.tfvars` files in a given `config_path` could be created. The feature could rename the file to `terraform.auto.tfvars` for consistency across the board between TFC and TFE.
 
@@ -40,3 +40,10 @@ An additional feature in the form of a command or flad to an existing command co
 ## Consequences
 
 Users will be able to modify or create terraform variables for TFC/TFE support at scale.
+
+## Next Steps
+
+- Finalize command UX for `*.tfvars` conversion and variable import path flags.
+- Implement metadata updates in `tfm core init-repos` for tfvars discovery per `config_path`.
+- Add tests for conversion behavior and workspace variable creation flows.
+- Track implementation PRs and merge order in [next-steps.md](next-steps.md).

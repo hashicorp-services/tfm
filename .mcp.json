@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "terraform": {
+      "tools": [
+        "*"
+      ],
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "TFE_TOKEN",
+        "-e",
+        "ENABLE_TF_OPERATIONS=true",
+        "hashicorp/terraform-mcp-server:0.4.0",
+        "--toolsets=all"
+      ]
+    },
+    "gopls": {
+      "tools": [
+        "*"
+      ],
+      "command": "gopls",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}
