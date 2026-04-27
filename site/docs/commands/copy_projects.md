@@ -16,7 +16,7 @@ To automate the confirmation, the flag `--autoapprove=true` can be provided duri
 
 As part of the HCL config file (`/home/user/.tfm.hcl`), a list of projects from the source TFE can be specified. `tfm` will use this list when running `tfm copy projects` and ensure the project exists or is created in the target.
 
-``` terraform
+```terraform
 #List of projects to create/check are migrated across to new TFC
 "projects" = [
   "appAFrontEnd",
@@ -24,7 +24,6 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of projects from 
   "appBDataLake",
   "appBInfra"
 ]
-
 ```
 
 ## Rename projects in destination during a copy
@@ -40,3 +39,4 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-projec
   "projectA=NewProjectA",
   "projectZ=NewProjectX"
 ]
+```
