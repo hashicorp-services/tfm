@@ -1,3 +1,32 @@
-If you have issues with the embedded form, you can also [access it here](https://docs.google.com/forms/d/e/1FAIpQLScxwWWMVSAOO-gr7LTWqXjvuiLQV2P1GQH8WOMDpiGx987aPg/viewform?usp=sharing).
+# Feedback
 
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLScxwWWMVSAOO-gr7LTWqXjvuiLQV2P1GQH8WOMDpiGx987aPg/viewform?usp=sharing" width="640" height="1080" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+We welcome bug reports, feature requests, and general feedback for `tfm`. The best way to reach the maintainers is through a GitHub issue.
+
+## Open a GitHub Issue
+
+[Open an issue on GitHub :material-github:](https://github.com/hashicorp-services/tfm/issues/new/choose){ .md-button .md-button--primary }
+
+### Bug Reports
+
+If you have found unexpected behaviour or a defect, please open a **Bug Report** issue. Include:
+
+- The `tfm` version (`tfm -v`)
+- The command you ran and the full error output
+- Your operating system and Go version if relevant
+
+### Feature Requests
+
+If you have an idea for a new command, flag, or workflow improvement, please open a **Feature Request** issue. Describe:
+
+- The use case or problem you are trying to solve
+- The expected behaviour
+- Any alternatives you have considered
+
+### Questions & Discussions
+
+For general questions about `tfm` usage, open a blank issue or start a [GitHub Discussion](https://github.com/hashicorp-services/tfm/discussions) if discussions are enabled on the repository.
+
+---
+
+!!! note
+    Please search [existing issues](https://github.com/hashicorp-services/tfm/issues) before opening a new one to avoid duplicates.
