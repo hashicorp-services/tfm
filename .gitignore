@@ -22,3 +22,5 @@ dist/
 
 # Demo files
 demo/
+**/skills/**
+!/skills
