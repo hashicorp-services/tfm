@@ -457,6 +457,8 @@ func doesWorkspaceExist(workspaceName string, ws []*tfe.Workspace) bool {
 // Gets all source workspaces and ensure destination workspaces exist and recreates
 // the workspace in the destination if the workspace does not exist in the destination.
 func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error {
+	log := logging.NewLogger("copy.workspaces")
+	log.Info("starting workspace copy", "src_org", c.SourceOrganizationName, "dst_org", c.DestinationOrganizationName)
 
 	// Get Workspaces from Config OR get ALL workspaces from source
 	srcWorkspaces, err := getSrcWorkspacesCfg(c)
@@ -540,6 +542,9 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		fmt.Println("\n**** Performing Workspace Copy ****\n ")
 	}
 
+	created := 0
+	skipped := 0
+
 	// Loop each workspace in the srcWorkspaces slice, check for the workspace existence in the destination,
 	// and if a workspace exists in the destination, then do nothing, else create workspace in destination.
 	for _, srcworkspace := range srcWorkspaces {
@@ -574,14 +579,16 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 		if exists {
 			// Check if the destination workspace name differs from the source name
 			// Added info to clarify Destination workspace
-
+			log.Info("workspace already exists, skipping", "name", destWorkSpaceName)
+			skipped++
 			o.AddMessageUserProvided2(destWorkSpaceName, "exists in destination will not migrate", srcworkspace.Name)
 
 		} else if planOnly {
-
+			log.Info("workspace will be migrated (plan only)", "name", destWorkSpaceName)
 			o.AddMessageUserProvided("Following workspace will be migrated: ", destWorkSpaceName)
 
 		} else {
+			log.Info("creating workspace", "src", srcworkspace.Name, "dst", destWorkSpaceName)
 
 			migratedWorkspace, err := c.DestinationClient.Workspaces.Create(c.DestinationContext, c.DestinationOrganizationName, tfe.WorkspaceCreateOptions{
 				Type: "",
@@ -644,8 +651,11 @@ func copyWorkspaces(c tfclient.ClientContexts, wsMapCfg map[string]string) error
 			if err != nil {
 				return fmt.Errorf("failed to add tags on destination workspace - : %w", err)
 			}
+			created++
+			log.Info("workspace created successfully", "name", migratedWorkspace.Name)
 		}
 	}
+	log.Info("workspace copy complete", "created", created, "skipped", skipped, "total", len(srcWorkspaces))
 	return nil
 }
 
