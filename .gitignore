@@ -24,3 +24,4 @@ dist/
 demo/
 **/skills/**
 !/skills
+/tmp/**
