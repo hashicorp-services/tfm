@@ -22,3 +22,8 @@ dist/
 
 # Demo files
 demo/
+
+# Local environment variable files (never commit secrets)
+.env
+.env.local
+.env.*.local

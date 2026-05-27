@@ -23,6 +23,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp-services/tfm/cmd/copy"
 	"github.com/hashicorp-services/tfm/cmd/core"
@@ -126,6 +127,10 @@ func initConfig() {
 
 	}
 
+	// Replace hyphens with underscores so that hyphenated config keys
+	// (e.g. projects-map, vcs-map) can be set via env vars with underscores
+	// (e.g. PROJECTS_MAP, VCS_MAP).
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
