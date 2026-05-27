@@ -24,7 +24,7 @@ If you have an idea for a new command, flag, or workflow improvement, please ope
 
 ### Questions & Discussions
 
-For general questions about `tfm` usage, open a blank issue or start a [GitHub Discussion](https://github.com/hashicorp-services/tfm/discussions) if discussions are enabled on the repository.
+For general questions about `tfm` usage, open a blank issue. 
 
 ---
 
