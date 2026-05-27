@@ -8,6 +8,7 @@ import (
 
 	"encoding/json"
 
+	"github.com/hashicorp-services/tfm/cmd/logging"
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
@@ -38,6 +39,7 @@ func init() {
 }
 
 func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
+	log := logging.NewLogger("list.workspaces")
 
 	srcWorkspaces := []*tfe.Workspace{}
 	workspaceJSON := make(map[string]interface{}) // Parent JSON object "workspace-names"
@@ -51,6 +53,8 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 
 	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
+		log.Debug("listing workspaces", "org", c.SourceOrganizationName, "host", c.SourceHostname)
+
 		if jsonOut == false {
 			o.AddMessageUserProvided("Getting list of workspaces from: ", c.SourceHostname)
 		}
@@ -58,11 +62,13 @@ func listWorkspaces(c tfclient.ClientContexts, jsonOut bool) error {
 		for {
 			items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
 			if err != nil {
+				log.Error("failed to list workspaces", "org", c.SourceOrganizationName, "error", err)
 				fmt.Println("Error With retrieving Workspaces from ", c.SourceHostname, " : Error ", err)
 				return err
 			}
 
 			srcWorkspaces = append(srcWorkspaces, items.Items...)
+			log.Debug("fetched workspace page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(srcWorkspaces))
 
 			if jsonOut == false {
 				o.AddFormattedMessageCalculated("Found %d Workspaces", len(srcWorkspaces))

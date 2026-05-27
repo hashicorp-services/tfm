@@ -34,4 +34,16 @@
 | ssh-map | A list of source=destination SSH IDs | TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID | `no` |
 | | | | |
 
+## Logging Environment Variables
+
+These environment variables control diagnostic log output. They are not stored in `.tfm.hcl` — set them in your shell or a `.env` file.
+
+| Environment Variable | Supported Values | Description |
+| -------------------- | ---------------- | ----------- |
+| `TFM_LOG` | `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`, `JSON` | Sets the log level. Default is `OFF` (no output). `JSON` emits JSON-formatted logs at TRACE level. |
+| `TFM_LOG_PATH` | A file path | Redirects log output to the specified file (append mode). When unset, logs go to stderr. |
+
+See the [Logging](../logging.md) page for full details, examples, and the `--verbose` / `-V` CLI flag.
+
+
 

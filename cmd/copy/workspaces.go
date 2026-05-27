@@ -13,6 +13,7 @@ import (
 	"slices"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
+	"github.com/hashicorp-services/tfm/cmd/logging"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/pkg/errors"
@@ -169,6 +170,8 @@ func init() {
 
 // Gets all workspaces from the source target
 func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) {
+	log := logging.NewLogger("copy.workspaces")
+	log.Debug("discovering source workspaces", "org", c.SourceOrganizationName, "host", c.SourceHostname)
 	o.AddMessageUserProvided("\nGetting list of Workspaces from: ", c.SourceHostname)
 	srcWorkspaces := []*tfe.Workspace{}
 
@@ -180,10 +183,12 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 	for {
 		items, err := c.SourceClient.Workspaces.List(c.SourceContext, c.SourceOrganizationName, &opts)
 		if err != nil {
+			log.Error("failed to list source workspaces", "org", c.SourceOrganizationName, "error", err)
 			return nil, err
 		}
 
 		srcWorkspaces = append(srcWorkspaces, items.Items...)
+		log.Debug("fetched workspace page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(srcWorkspaces))
 
 		o.AddFormattedMessageCalculated("\nFound %d Workspaces", len(srcWorkspaces))
 
@@ -194,6 +199,7 @@ func discoverSrcWorkspaces(c tfclient.ClientContexts) ([]*tfe.Workspace, error) 
 
 	}
 
+	log.Info("discovered source workspaces", "total", len(srcWorkspaces))
 	return srcWorkspaces, nil
 }
 
