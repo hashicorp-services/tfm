@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "skills": {
+    "acquire-codebase-knowledge": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "06b7a3d0bb44b70b470247aacc2ffffe37c8ce64cc3f9178be6f392c81cb6d22"
+    },
+    "cli-developer": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "2eb0cf6f78a8b861b6fb8da535c0737debbda228ac47f7b50594f03c1d5934d7"
+    },
+    "code-documenter": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "a724aa08b5f00c29315d98ed3e6900835c4231fbb93ef3b589af0ae699dedce2"
+    },
+    "code-reviewer": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "74fef44bfb03c7ff3d8c366d8ee237621f0c0687aa5868d34d9c06a8ba062109"
+    },
+    "conventional-commit": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "f29c9486cede6c7b2df0cfb0a2e4aa67446552b991bcf17d1b309e903171f03d"
+    },
+    "create-architectural-decision-record": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "5c99e32293271aef0270c279c2af8b62301e29257bf85f2ebf7e810c740b4404"
+    },
+    "create-github-action-workflow-specification": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "527e6c77d921d58a9d0059aa95d0d14b441d2166f9c20518263048a56ca8fbbb"
+    },
+    "create-github-issue-feature-from-specification": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "e4d8019e1a7e43b4ab7023117ec9d3332063fdb923a5cc9f2d42159b69cceb04"
+    },
+    "create-github-issues-feature-from-implementation-plan": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "ff0083bd824eaa94c6e4097abe27f1441694a44feb8d6ea43b51bf3f00b883e1"
+    },
+    "create-github-issues-for-unmet-specification-requirements": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "f44956e909348a20a808bcc2aa56a1b063ff1cc2ae1a1659de6193cff45f59ac"
+    },
+    "create-github-pull-request-from-specification": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "2693885db375a1e4a21f66ac69761a86db30911c0a2a9fcb8bac5d9dd05eeb5c"
+    },
+    "create-implementation-plan": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "4764bacd34af8e5c27a85ca01a90197afcf1f1ed1785975ba91d9b80dff60e2d"
+    },
+    "create-specification": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "45b9ef98b0fb82ba0e1aee65dfb464fa1f8494a14a557b9788d73aae87e9e618"
+    },
+    "debugging-wizard": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "d626b433c0d0cfe8238faa26825cd8d80e1adc24969c854d8b99436c062ca4c3"
+    },
+    "documentation-writer": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "ee53d65b163cd7eb953a930c95841cfe398cc2c0bd24c06508bbaa07c432be35"
+    },
+    "generate-custom-instructions-from-codebase": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "f24a3997ee9034af8b609bd02cd1f5303916ce8399b9ea7d89dcb2ecb3c4de8e"
+    },
+    "gh-cli": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "cbe644b0c6760ae2a1eaafa39133920d889331327065d92a131675a665273e56"
+    },
+    "git-commit": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "2607fc60629b82b257136dd2a7a373f0a4466c0b49df7746d845d59313c99b21"
+    },
+    "git-flow-branch-creator": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "8add10a7fce31ef99856d36bffeb90f1f1130f5afd88b111417c257f1e5d39bd"
+    },
+    "github-issues": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "3a752d99ddc3178f443fe242d490800398b2b42030a9d221b298b9486d90cc87"
+    },
+    "golang-pro": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "c90a0798a12ea2d9191508439ec3191dd96713310615260ebe82ec5a09a4a434"
+    },
+    "repo-story-time": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "8f85047285d0e911bafb2ced184c0034784598f1035df96247a1b5bcd570abbf"
+    },
+    "review-and-refactor": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "9236d06a1500089ddb46975b866e9a63478e502afe7095b1980c618678a7c7fe"
+    },
+    "test-master": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "b1b2e37e2dee07180a3a1d0b2ad8d0c67db6d60afd7953a95bf448e5649b40e4"
+    },
+    "the-fool": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "ff233e9bbbb9d967c0057c7927f587d7625772275d9c8e41f0d7feb7cb032d2b"
+    }
+  }
+}

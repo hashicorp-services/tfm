@@ -1,4 +1,4 @@
-# ADR #0004: How to Handle CE/OSS to TFC Migration for CLI Driven Workspaces 
+# ADR #0004: How to Handle CE/OSS to TFC Migration for CLI Driven Workspaces
 
 Date: 2024-02-29
 
@@ -51,3 +51,10 @@ terraform {
 ## Consequences
 
 Users will be able configure terraform configurations for use with TFC/TFE CLI Driven workspaces at scale.
+
+## Next Steps
+
+- Implement and validate automated insertion of `cloud {}` blocks using metadata from `tfm core init-repos`.
+- Implement and validate backend block comment-out behavior for representative customer repos.
+- Define whether branch-only behavior remains intentional or if optional PR creation should be added.
+- Track open execution items and PR dependencies in [next-steps.md](next-steps.md).

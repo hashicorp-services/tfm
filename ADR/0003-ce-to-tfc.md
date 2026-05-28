@@ -84,3 +84,10 @@ User typically have the following configurations:
 - No consideration for CLI driven or API driven workspaces.
 - No consideration for configurations using terraform variable files.
 - Only GitHub VCS will be supported initially.
+
+## Next Steps
+
+- Define and open implementation tickets for monorepo directory discovery and metadata mapping.
+- Define and open implementation tickets for Terraform CLI workspace extraction and state-to-workspace mapping.
+- Add an implementation status update to this ADR once those tickets are linked to active PRs.
+- Track dependency-merge readiness and release risk in [next-steps.md](next-steps.md) before feature merges.

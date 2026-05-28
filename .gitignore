@@ -1,31 +1,4 @@
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,direnv,dotenv,go,powershell,ssh,terraform,venv,virtualenv,visualstudiocode,zsh
-# Edit at https://www.toptal.com/developers/gitignore?templates=cmake,direnv,dotenv,go,powershell,ssh,terraform,venv,virtualenv,visualstudiocode,zsh
-
-### CMake ###
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-
-### CMake Patch ###
-CMakeUserPresets.json
-
-# External projects
-*-prefix/
-
-### direnv ###
-.direnv
-.envrc
-
-### dotenv ###
-.env
 
 ### Go ###
 # If you prefer the allow list template instead of the deny list, see community template:
@@ -176,19 +149,39 @@ zsdoc/data
 # TFM ignore
 ###
 
-tfm
-.tfm.hcl
-terraform_config_metadata.json
+### CMake ###
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
 
 
+### direnv ###
+.direnv
+.envrc
 
-# API Payload
-**/test/cleanup/create_state_payload.json
+### env ###
+.env 
 
 # Goreleaser build dir
 dist/
 
-*.DS_Store*
+# Created by git when using merge tools for conflicts
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*_BACKUP_*.txt
+*_BASE_*.txt
+*_LOCAL_*.txt
+*_REMOTE_*.txt
 
 # Demo files
 demo/

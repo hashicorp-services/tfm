@@ -1,0 +1,312 @@
+# https://taskfile.dev
+# Task automation for the tfm (Terraform Migration) Go project.
+# Run `task --list` to see all available tasks.
+
+version: "3"
+
+vars:
+  MODULE: github.com/hashicorp-services/tfm
+  BINARY: tfm
+  VERSION: x.x.x
+  PRERELEASE: alpha
+  BUILD: local
+  DATE:
+    sh: date
+  BUILT_BY:
+    sh: whoami
+  LDFLAGS: >-
+    -X '{{.MODULE}}/version.Version={{.VERSION}}'
+    -X '{{.MODULE}}/version.Prerelease={{.PRERELEASE}}'
+    -X '{{.MODULE}}/version.Build={{.BUILD}}'
+    -X '{{.MODULE}}/version.BuiltBy={{.BUILT_BY}}'
+    -X '{{.MODULE}}/version.Date={{.DATE}}'
+  COVERAGE_FILE: coverage.out
+  COVERAGE_HTML: coverage.html
+
+tasks:
+
+  # ---------------------------------------------------------------------------
+  # Default / Discovery
+  # ---------------------------------------------------------------------------
+
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  help:
+    desc: Show common workflow patterns and usage
+    cmds:
+      - |
+        echo ""
+        echo "tfm Taskfile — common workflows"
+        echo "================================"
+        echo "  task build         Build local binary (./tfm)"
+        echo "  task test          Run full test suite with race detection"
+        echo "  task lint          Run golangci-lint, go vet, and staticcheck"
+        echo "  task fmt           Format code with go fmt and goimports"
+        echo "  task update        Update all Go dependencies"
+        echo "  task ci            Full CI pipeline (fmt-check, lint, test)"
+        echo "  task release       Build release binary (prompts for version)"
+        echo "  task clean         Remove build artefacts"
+        echo "  task skills:sync   Install/update Copilot agent skills"
+        echo ""
+    silent: true
+
+  # ---------------------------------------------------------------------------
+  # Build
+  # ---------------------------------------------------------------------------
+
+  build:
+    desc: Build local binary with dev ldflags (outputs ./tfm)
+    aliases: [build-local]
+    cmds:
+      - >-
+        go build -v
+        -ldflags="{{.LDFLAGS}}"
+        -o {{.BINARY}} .
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BINARY}}"
+
+  build:release:
+    desc: Build release binary (prompts for VERSION, PRERELEASE, BUILD)
+    vars:
+      REL_VERSION: '{{.REL_VERSION | default ""}}'
+      REL_PRERELEASE: '{{.REL_PRERELEASE | default ""}}'
+      REL_BUILD: '{{.REL_BUILD | default "release"}}'
+    cmds:
+      - >-
+        go build -v
+        -ldflags="
+        -X '{{.MODULE}}/version.Version={{.REL_VERSION}}'
+        -X '{{.MODULE}}/version.Prerelease={{.REL_PRERELEASE}}'
+        -X '{{.MODULE}}/version.Build={{.REL_BUILD}}'
+        -X '{{.MODULE}}/version.BuiltBy={{.BUILT_BY}}'
+        -X '{{.MODULE}}/version.Date={{.DATE}}'"
+        -o {{.BINARY}} .
+    requires:
+      vars: [REL_VERSION]
+
+  install:
+    desc: Install tfm binary to $GOPATH/bin
+    deps: [build]
+    cmds:
+      - go install -v -ldflags="{{.LDFLAGS}}" .
+    silent: false
+
+  clean:
+    desc: Remove compiled binary and coverage artefacts
+    cmds:
+      - rm -f {{.BINARY}}
+      - rm -f {{.COVERAGE_FILE}} {{.COVERAGE_HTML}}
+    silent: true
+
+  # ---------------------------------------------------------------------------
+  # Dependencies
+  # ---------------------------------------------------------------------------
+
+  update:
+    desc: Update all Go module dependencies and tidy go.mod / go.sum
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
+  tidy:
+    desc: Run go mod tidy (prune unused deps without upgrading)
+    cmds:
+      - go mod tidy
+
+  deps:verify:
+    desc: Verify checksums in go.sum match downloaded modules
+    cmds:
+      - go mod verify
+
+  deps:graph:
+    desc: Print the module dependency graph
+    cmds:
+      - go mod graph
+
+  # ---------------------------------------------------------------------------
+  # Formatting & Linting
+  # ---------------------------------------------------------------------------
+
+  fmt:
+    desc: Format all Go source files with go fmt
+    aliases: [format]
+    cmds:
+      - go fmt ./...
+
+  fmt:imports:
+    desc: Organise imports with goimports (requires goimports in PATH)
+    cmds:
+      - goimports -w .
+
+  fmt:check:
+    desc: Verify formatting without modifying files (CI-safe)
+    cmds:
+      - |
+        unformatted=$(gofmt -l .)
+        if [ -n "$unformatted" ]; then
+          echo "Unformatted files:"
+          echo "$unformatted"
+          exit 1
+        fi
+        echo "All files are properly formatted."
+
+  vet:
+    desc: Run go vet across all packages
+    cmds:
+      - go vet ./...
+
+  lint:
+    desc: Run golangci-lint (fast, parallel linter)
+    cmds:
+      - golangci-lint run --timeout 5m ./...
+
+  lint:fix:
+    desc: Run golangci-lint with auto-fix enabled
+    cmds:
+      - golangci-lint run --fix --timeout 5m ./...
+
+  staticcheck:
+    desc: Run staticcheck static analysis
+    cmds:
+      - staticcheck ./...
+
+  vuln:
+    desc: Scan for known vulnerabilities with govulncheck
+    cmds:
+      - govulncheck ./...
+
+  quality:
+    desc: Run all code-quality checks (vet, lint, staticcheck, vuln)
+    deps: [vet, lint, staticcheck, vuln]
+
+  # ---------------------------------------------------------------------------
+  # Testing
+  # ---------------------------------------------------------------------------
+
+  test:
+    desc: Run full test suite with race detection
+    cmds:
+      - nocorrect go test -race -v ./...
+
+  test:fast:
+    desc: Run tests without race detection (faster iteration)
+    cmds:
+      - go test -v ./...
+
+  test:cover:
+    desc: Run tests with coverage report (outputs coverage.out and coverage.html)
+    cmds:
+      - nocorrect go test -race -v -coverprofile={{.COVERAGE_FILE}} ./...
+      - go tool cover -html={{.COVERAGE_FILE}} -o {{.COVERAGE_HTML}}
+      - go tool cover -func={{.COVERAGE_FILE}} | tail -1
+
+  test:cover:open:
+    desc: Open the HTML coverage report in the default browser
+    deps: [test:cover]
+    cmds:
+      - open {{.COVERAGE_HTML}}
+
+  test:run:
+    desc: "Run a specific test by name. Usage: task test:run -- TestMyFunc ./cmd/core"
+    cmds:
+      - nocorrect go test -race -v -run {{.CLI_ARGS}}
+
+  test:e2e:
+    desc: Run end-to-end tests in test/
+    dir: test
+    cmds:
+      - bash cleanup/e2e-nuke.sh
+
+  # ---------------------------------------------------------------------------
+  # Code Generation & Modernisation
+  # ---------------------------------------------------------------------------
+
+  generate:
+    desc: Run go generate across all packages
+    cmds:
+      - go generate ./...
+
+  fix:
+    desc: Apply automated Go source modernisers (go fix)
+    cmds:
+      - go fix ./...
+
+  # ---------------------------------------------------------------------------
+  # CI pipeline
+  # ---------------------------------------------------------------------------
+
+  ci:
+    desc: Full CI pipeline — fmt-check, vet, lint, vuln, test (mirrors GitHub Actions)
+    cmds:
+      - task: fmt:check
+      - task: vet
+      - task: lint
+      - task: vuln
+      - task: test
+
+  precommit:
+    desc: Pre-commit checks — fmt, vet, lint, fast tests
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: lint
+      - task: test:fast
+
+  # ---------------------------------------------------------------------------
+  # Release helpers
+  # ---------------------------------------------------------------------------
+
+  changelog:
+    desc: Show git log since last tag (useful for writing CHANGELOG entries)
+    cmds:
+      - git log $(git describe --tags --abbrev=0)..HEAD --oneline
+
+  tag:
+    desc: "Create and push a semver git tag. Usage: task tag -- v0.15.0"
+    cmds:
+      - git tag -a {{.CLI_ARGS}} -m "Release {{.CLI_ARGS}}"
+      - echo "Tag {{.CLI_ARGS}} created locally. Run 'git push origin {{.CLI_ARGS}}' to publish."
+
+  # ---------------------------------------------------------------------------
+  # Tools — install optional dev toolchain
+  # ---------------------------------------------------------------------------
+
+  tools:install:
+    desc: Install optional Go dev tools (golangci-lint, staticcheck, govulncheck, goimports)
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install honnef.co/go/tools/cmd/staticcheck@latest
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - go install golang.org/x/tools/cmd/goimports@latest
+
+  tools:check:
+    desc: Verify required dev tools are available in PATH
+    cmds:
+      - |
+        missing=0
+        for tool in golangci-lint staticcheck govulncheck goimports; do
+          if ! command -v "$tool" &>/dev/null; then
+            echo "MISSING: $tool"
+            missing=$((missing + 1))
+          else
+            echo "OK:      $tool ($(command -v $tool))"
+          fi
+        done
+        [ $missing -eq 0 ] || exit 1
+
+  # ---------------------------------------------------------------------------
+  # GitHub Copilot agent skills
+  # ---------------------------------------------------------------------------
+
+  skills:sync:
+    desc: Install / update Copilot agent skills via npx skills experimental_install
+    cmds:
+      - npx skills experimental_install

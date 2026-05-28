@@ -48,7 +48,7 @@ type ClientContext struct {
 	GitLabClient       *gitlab.Client
     GitLabContext      context.Context
 	GitLabToken        string
-	GitLabGroup        string 
+	GitLabGroup        string
 	GitLabUsername     string
 }
 ```
@@ -84,3 +84,11 @@ GitLab offers a free tier that can be used for nightly/weekly testing with GitLa
 
 - Users will have the ability to use GitLab with the `tfm core clone` and `tfm core remove-backend` commands.
 - TFM will be made VCS agnostic for future implementation of supported VCS providers.
+
+## Next Steps
+
+- Finalize ADR metadata (number, date, status, and ownership) and align file naming with ADR conventions.
+- Implement `vcsclients/gitlab.go` client context and config validation for `gitlab_token`, `gitlab_group`, and `gitlab_username`.
+- Refactor VCS-dependent code paths to be provider-aware using a shared `vcs_type` setting.
+- Add integration test coverage for GitLab clone and remove-backend workflows.
+- Track implementation PRs and dependency sequencing in [next-steps.md](next-steps.md).
