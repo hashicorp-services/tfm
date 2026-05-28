@@ -9,6 +9,7 @@ import (
 
 	"encoding/json"
 
+	"github.com/hashicorp-services/tfm/cmd/logging"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
@@ -39,6 +40,7 @@ func init() {
 }
 
 func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
+	log := logging.NewLogger("list.projects")
 
 	srcProjects := []*tfe.Project{}
 	projectJSON := make(map[string]interface{}) // Parent JSON object "project-names"
@@ -52,6 +54,8 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 
 	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
+		log.Info("listing projects", "org", c.SourceOrganizationName, "host", c.SourceHostname)
+
 		if jsonOut == false {
 			o.AddMessageUserProvided("Getting list of projects from: ", c.SourceHostname)
 		}
@@ -59,10 +63,12 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 		for {
 			items, err := c.SourceClient.Projects.List(c.SourceContext, c.SourceOrganizationName, &opts)
 			if err != nil {
+				log.Error("failed to list projects", "org", c.SourceOrganizationName, "error", err)
 				return err
 			}
 
 			srcProjects = append(srcProjects, items.Items...)
+			log.Debug("fetched project page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(srcProjects))
 
 			if jsonOut == false {
 				o.AddFormattedMessageCalculated("Found %d Projects", len(srcProjects))
@@ -77,6 +83,7 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 		if jsonOut == false {
 			o.AddTableHeaders("Name", "ID")
 		}
+		log.Info("found projects", "org", c.SourceOrganizationName, "count", len(srcProjects))
 		for _, i := range srcProjects {
 			projectInfo := map[string]string{
 				"name": i.Name,
@@ -104,6 +111,8 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 	}
 
 	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+		log.Info("listing projects", "org", c.DestinationOrganizationName, "host", c.DestinationHostname)
+
 		if jsonOut == false {
 			o.AddMessageUserProvided("Getting list of projects from: ", c.DestinationHostname)
 		}
@@ -111,10 +120,12 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 		for {
 			items, err := c.DestinationClient.Projects.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
 			if err != nil {
+				log.Error("failed to list destination projects", "org", c.DestinationOrganizationName, "error", err)
 				return err
 			}
 
 			srcProjects = append(srcProjects, items.Items...)
+			log.Debug("fetched destination project page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(srcProjects))
 
 			if jsonOut == false {
 				o.AddFormattedMessageCalculated("Found %d Projects", len(srcProjects))
@@ -129,6 +140,7 @@ func listProjects(c tfclient.ClientContexts, jsonOut bool) error {
 		if jsonOut == false {
 			o.AddTableHeaders("Name", "ID")
 		}
+		log.Info("found projects", "org", c.DestinationOrganizationName, "count", len(srcProjects))
 
 		for _, i := range srcProjects {
 			projectInfo := map[string]string{

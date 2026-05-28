@@ -23,6 +23,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp-services/tfm/cmd/copy"
 	"github.com/hashicorp-services/tfm/cmd/core"
@@ -31,6 +32,7 @@ import (
 	"github.com/hashicorp-services/tfm/cmd/helper"
 	"github.com/hashicorp-services/tfm/cmd/list"
 	"github.com/hashicorp-services/tfm/cmd/lock"
+	"github.com/hashicorp-services/tfm/cmd/logging"
 
 	// "github.com/hashicorp-services/tfm/cmd/nuke"
 	"github.com/hashicorp-services/tfm/cmd/unlock"
@@ -93,6 +95,9 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file, can be used to store common flags, (default is ~/.tfm.hcl).")
 	RootCmd.PersistentFlags().BoolP("autoapprove", "", false, "Auto approve the tfm run. --autoapprove=true . false by default")
 	RootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "Print the output in JSON format")
+	RootCmd.PersistentFlags().BoolP("verbose", "V", false,
+		"Enable verbose (INFO-level) log output to stderr. Equivalent to TFM_LOG=INFO.\n"+
+			"Use TFM_LOG=DEBUG or TFM_LOG=TRACE for more detail. See also TFM_LOG_PATH.")
 
 	// Available commands required after "tfm"
 	RootCmd.AddCommand(copy.CopyCmd)
@@ -126,6 +131,10 @@ func initConfig() {
 
 	}
 
+	// Replace hyphens with underscores so that hyphenated config keys
+	// (e.g. projects-map, vcs-map) can be set via env vars with underscores
+	// (e.g. PROJECTS_MAP, VCS_MAP).
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
@@ -138,6 +147,11 @@ func initConfig() {
 	// in one place rather than each command
 	// More info: https://github.com/spf13/viper/issues/397
 	postInitCommands(RootCmd.Commands())
+
+	// Initialise structured logging. The --verbose flag (or TFM_LOG env var)
+	// controls the log level. This must happen after postInitCommands so that
+	// the flag value is bound into Viper.
+	logging.Init(viper.GetBool("verbose"))
 
 	// // Initialize output
 	o = output.New(*helper.ViperBool("json"))

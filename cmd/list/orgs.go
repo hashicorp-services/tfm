@@ -24,6 +24,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp-services/tfm/cmd/helper"
+	"github.com/hashicorp-services/tfm/cmd/logging"
 	"github.com/hashicorp-services/tfm/output"
 	"github.com/hashicorp-services/tfm/tfclient"
 	tfe "github.com/hashicorp/go-tfe"
@@ -83,6 +84,7 @@ func init() {
 }
 
 func orgList(c tfclient.ClientContexts) error {
+	log := logging.NewLogger("list.orgs")
 
 	allItems := []*tfe.Organization{}
 	opts := tfe.OrganizationListOptions{
@@ -93,15 +95,18 @@ func orgList(c tfclient.ClientContexts) error {
 
 	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
+		log.Info("listing organizations", "host", c.SourceHostname)
 		o.AddMessageUserProvided("List of Organizations at: ", c.SourceHostname)
 
 		for {
 			items, err := c.SourceClient.Organizations.List(c.SourceContext, &opts)
 			if err != nil {
+				log.Error("failed to list organizations", "host", c.SourceHostname, "error", err)
 				helper.LogError(err, "failed to list orgs")
 			}
 
 			allItems = append(allItems, items.Items...)
+			log.Debug("fetched org page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(allItems))
 
 			o.AddFormattedMessageCalculated("Found %d Organizations", len(allItems))
 
@@ -112,6 +117,7 @@ func orgList(c tfclient.ClientContexts) error {
 		}
 
 		o.AddTableHeaders("Name", "Created On", "Email")
+		log.Info("found organizations", "host", c.SourceHostname, "count", len(allItems))
 		for _, i := range allItems {
 			cr_created_at := helper.FormatDateTime(i.CreatedAt)
 
@@ -120,15 +126,18 @@ func orgList(c tfclient.ClientContexts) error {
 	}
 	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
 
+		log.Info("listing organizations", "host", c.DestinationHostname)
 		o.AddMessageUserProvided("List of Organizations at: ", c.DestinationHostname)
 
 		for {
 			items, err := c.DestinationClient.Organizations.List(c.DestinationContext, &opts)
 			if err != nil {
+				log.Error("failed to list destination organizations", "host", c.DestinationHostname, "error", err)
 				helper.LogError(err, "failed to list orgs")
 			}
 
 			allItems = append(allItems, items.Items...)
+			log.Debug("fetched destination org page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(allItems))
 
 			o.AddFormattedMessageCalculated("Found %d Organizations", len(allItems))
 
@@ -139,6 +148,7 @@ func orgList(c tfclient.ClientContexts) error {
 		}
 
 		o.AddTableHeaders("Name", "Created On", "Email")
+		log.Info("found organizations", "host", c.DestinationHostname, "count", len(allItems))
 		for _, i := range allItems {
 			cr_created_at := helper.FormatDateTime(i.CreatedAt)
 

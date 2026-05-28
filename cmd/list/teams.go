@@ -4,6 +4,7 @@
 package list
 
 import (
+	"github.com/hashicorp-services/tfm/cmd/logging"
 	"github.com/hashicorp-services/tfm/tfclient"
 	"github.com/hashicorp/go-tfe"
 	"github.com/spf13/cobra"
@@ -44,6 +45,7 @@ func init() {
 }
 
 func listTeams(c tfclient.ClientContexts) error {
+	log := logging.NewLogger("list.teams")
 
 	srcTeams := []*tfe.Team{}
 
@@ -55,15 +57,18 @@ func listTeams(c tfclient.ClientContexts) error {
 
 	if (ListCmd.Flags().Lookup("side").Value.String() == "source") || (!ListCmd.Flags().Lookup("side").Changed) {
 
+		log.Info("listing teams", "org", c.SourceOrganizationName, "host", c.SourceHostname)
 		o.AddMessageUserProvided("Getting list of teams from: ", c.SourceHostname)
 
 		for {
 			items, err := c.SourceClient.Teams.List(c.SourceContext, c.SourceOrganizationName, &opts)
 			if err != nil {
+				log.Error("failed to list teams", "org", c.SourceOrganizationName, "error", err)
 				return err
 			}
 
 			srcTeams = append(srcTeams, items.Items...)
+			log.Debug("fetched team page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(srcTeams))
 
 			o.AddFormattedMessageCalculated("Found %d Teams", len(srcTeams))
 
@@ -74,6 +79,7 @@ func listTeams(c tfclient.ClientContexts) error {
 
 		}
 		o.AddTableHeaders("Name")
+		log.Info("found teams", "org", c.SourceOrganizationName, "count", len(srcTeams))
 		for _, i := range srcTeams {
 
 			o.AddTableRows(i.Name)
@@ -81,15 +87,18 @@ func listTeams(c tfclient.ClientContexts) error {
 	}
 
 	if ListCmd.Flags().Lookup("side").Value.String() == "destination" {
+		log.Info("listing teams", "org", c.DestinationOrganizationName, "host", c.DestinationHostname)
 		o.AddMessageUserProvided("Getting list of teams from: ", c.DestinationHostname)
 
 		for {
 			items, err := c.DestinationClient.Teams.List(c.DestinationContext, c.DestinationOrganizationName, &opts)
 			if err != nil {
+				log.Error("failed to list destination teams", "org", c.DestinationOrganizationName, "error", err)
 				return err
 			}
 
 			srcTeams = append(srcTeams, items.Items...)
+			log.Debug("fetched destination team page", "page", items.CurrentPage, "total_pages", items.TotalPages, "count", len(srcTeams))
 
 			o.AddFormattedMessageCalculated("Found %d Teams", len(srcTeams))
 
@@ -100,6 +109,7 @@ func listTeams(c tfclient.ClientContexts) error {
 
 		}
 		o.AddTableHeaders("Name")
+		log.Info("found teams", "org", c.DestinationOrganizationName, "count", len(srcTeams))
 		for _, i := range srcTeams {
 
 			o.AddTableRows(i.Name)

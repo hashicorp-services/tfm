@@ -49,6 +49,7 @@ nav:
   - Home: index.md
   - TFM Configuration File:
     - Settings: configuration_file/config_file.md
+  - Logging: logging.md
   - Migration Planning:
     - Migration Journey TFE to TFC: migration/journey-tfe-tfc.md
     - Pre-requisites TFE to TFC: migration/pre-requisites-tfe-tfc.md
