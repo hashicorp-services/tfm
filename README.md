@@ -93,6 +93,25 @@ There are differences between Terraform OSS / CE / Core migrations and Terraform
   - `delete workspace`
   - `delete workspaces-vcs`
 
+## Logging
+
+`tfm` supports structured log output controlled by environment variables and a CLI flag.
+
+| Variable | Values | Description |
+|----------|--------|-------------|
+| `TFM_LOG` | `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`, `JSON` | Log level (default: `OFF`) |
+| `TFM_LOG_PATH` | file path | Write logs to a file instead of stderr |
+
+The `--verbose` / `-V` flag enables `INFO`-level output without setting an env var:
+
+```bash
+tfm --verbose list workspaces
+TFM_LOG=DEBUG tfm copy workspaces
+TFM_LOG=JSON TFM_LOG_PATH=./tfm.log tfm copy workspaces
+```
+
+See the [Logging documentation](site/docs/logging.md) for full details.
+
 ## Architectural Decisions Record (ADR)
 
 An architecture decision record (ADR) is a document that captures an important architecture decision made along with its context and consequences.

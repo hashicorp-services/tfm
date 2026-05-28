@@ -4,6 +4,7 @@ go 1.25.0
 
 require (
 	github.com/fatih/color v1.19.0
+	github.com/hashicorp/go-hclog v1.6.3
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
