@@ -8,6 +8,12 @@ Viper is configured with an `EnvKeyReplacer` that translates hyphens to undersco
 
 By default `tfm` looks for `.tfm.hcl` in the current directory, then `~/.tfm.hcl`. Pass a custom path with `--config /path/to/file.hcl`.
 
+On Windows, `~/.tfm.hcl` usually maps to `$env:USERPROFILE\.tfm.hcl`. You can also keep a config file in the current directory as `.\.tfm.hcl`, or pass an explicit path:
+
+```powershell
+.\tfm.exe --config "C:\path\to\.tfm.hcl" list workspaces
+```
+
 ```hcl
 # .tfm.hcl — example for an HCP Terraform to HCP Terraform migration
 src_tfe_hostname = "app.terraform.io"
