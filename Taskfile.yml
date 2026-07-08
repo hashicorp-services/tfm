@@ -216,8 +216,7 @@ tasks:
   test:run:
     desc: "Run a specific test by name. Usage: task test:run -- TestMyFunc ./cmd/core"
     cmds:
-      - nocorrect go test -race -v -run {{.CLI_ARGS}}
-
+      - go test -race -v -run {{.CLI_ARGS}}
   test:e2e:
     desc: Run end-to-end tests in test/
     dir: test
