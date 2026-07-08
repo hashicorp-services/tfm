@@ -194,8 +194,7 @@ tasks:
   test:
     desc: Run full test suite with race detection
     cmds:
-      - nocorrect go test -race -v ./...
-
+      - go test -race -v ./...
   test:fast:
     desc: Run tests without race detection (faster iteration)
     cmds:
