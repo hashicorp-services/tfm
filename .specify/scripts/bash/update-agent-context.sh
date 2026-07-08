@@ -57,11 +57,12 @@ eval $(get_feature_paths)
 
 NEW_PLAN="$IMPL_PLAN"  # Alias for compatibility with existing code
 AGENT_TYPE="${1:-}"
+TEMP_DIR="$REPO_ROOT/tmp/agent-context"
 
 # Agent-specific file paths  
 CLAUDE_FILE="$REPO_ROOT/CLAUDE.md"
 GEMINI_FILE="$REPO_ROOT/GEMINI.md"
-COPILOT_FILE="$REPO_ROOT/.github/agents/copilot-instructions.md"
+COPILOT_FILE="$REPO_ROOT/.github/copilot-instructions.md"
 CURSOR_FILE="$REPO_ROOT/.cursor/rules/specify-rules.mdc"
 QWEN_FILE="$REPO_ROOT/QWEN.md"
 AGENTS_FILE="$REPO_ROOT/AGENTS.md"
@@ -108,13 +109,14 @@ log_warning() {
 # Cleanup function for temporary files
 cleanup() {
     local exit_code=$?
-    rm -f /tmp/agent_update_*_$$
-    rm -f /tmp/manual_additions_$$
-    exit $exit_code
+    rm -f "$TEMP_DIR"/agent_create.* "$TEMP_DIR"/agent_update.*
+    exit "$exit_code"
 }
 
 # Set up cleanup trap
 trap cleanup EXIT INT TERM
+
+mkdir -p "$TEMP_DIR"
 
 #==============================================================================
 # Validation Functions
@@ -368,7 +370,7 @@ update_existing_agent_file() {
     
     # Use a single temporary file for atomic update
     local temp_file
-    temp_file=$(mktemp) || {
+    temp_file=$(mktemp "$TEMP_DIR/agent_update.XXXXXX") || {
         log_error "Failed to create temporary file"
         return 1
     }
@@ -533,7 +535,7 @@ update_agent_file() {
     if [[ ! -f "$target_file" ]]; then
         # Create new file from template
         local temp_file
-        temp_file=$(mktemp) || {
+        temp_file=$(mktemp "$TEMP_DIR/agent_create.XXXXXX") || {
             log_error "Failed to create temporary file"
             return 1
         }
@@ -796,4 +798,3 @@ main() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi
-

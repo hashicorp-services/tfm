@@ -17,7 +17,7 @@ This repository is the `tfm` project.
 - `./test` - test configs, Terraform fixtures, cleanup helpers
 - `./site` - MkDocs documentation site
 - `./.github/workflows` - CI, release, docs, and e2e workflows
-- `./.github/agents` - custom Copilot agent definitions (SpecKit, SDD, Terraform execution)
+- `./.github/agents` - custom Copilot agent definitions (SpecKit and Terraform execution)
 - `./.github/prompts` - prompt templates used by agent workflows
 - `./.github/skills` - reference skill packs (Go and Git workflow)
 - `./.agents/skills` - repo-local agent skills
@@ -130,7 +130,7 @@ Run these from repository root.
 
 ### Go tests
 
-- Run all Go tests: `nocorrect go test -race -v ./...` or `task test`
+- Run all Go tests: `go test -race -v ./...` or `task test`
 - Run tests for a specific package: `go test -v ./cmd/...`
 - Run a specific test name: `go test -v ./... -run TestName`
 

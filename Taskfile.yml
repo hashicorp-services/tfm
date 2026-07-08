@@ -203,7 +203,7 @@ tasks:
   test:cover:
     desc: Run tests with coverage report (outputs coverage.out and coverage.html)
     cmds:
-      - nocorrect go test -race -v -coverprofile={{.COVERAGE_FILE}} ./...
+      - go test -race -v -coverprofile={{.COVERAGE_FILE}} ./...
       - go tool cover -html={{.COVERAGE_FILE}} -o {{.COVERAGE_HTML}}
       - go tool cover -func={{.COVERAGE_FILE}} | tail -1
 
@@ -211,7 +211,16 @@ tasks:
     desc: Open the HTML coverage report in the default browser
     deps: [test:cover]
     cmds:
-      - open {{.COVERAGE_HTML}}
+      - |
+        if command -v xdg-open >/dev/null 2>&1; then
+          xdg-open {{.COVERAGE_HTML}}
+        elif command -v open >/dev/null 2>&1; then
+          open {{.COVERAGE_HTML}}
+        elif command -v cmd.exe >/dev/null 2>&1; then
+          cmd.exe /C start "" "{{.COVERAGE_HTML}}"
+        else
+          echo "Open {{.COVERAGE_HTML}} manually."
+        fi
 
   test:run:
     desc: "Run a specific test by name. Usage: task test:run -- TestMyFunc ./cmd/core"

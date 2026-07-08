@@ -50,7 +50,7 @@ terraform {
 
 ## Consequences
 
-Users will be able configure terraform configurations for use with TFC/TFE CLI Driven workspaces at scale.
+Users will be able to configure terraform configurations for use with TFC/TFE CLI Driven workspaces at scale.
 
 ## Next Steps
 
