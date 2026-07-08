@@ -153,8 +153,7 @@ Notes:
 
 ### Go
 
-- Go version is `1.23`
-- Toolchain is `go1.23.3`
+- Go version is `1.25` (see `go.mod`)
 - CLI framework: Cobra
 - Configuration: Viper
 - Main package layout is command-oriented under `./cmd`
