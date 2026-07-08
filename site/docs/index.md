@@ -55,9 +55,16 @@ chmod +x tfm
 
 ### Windows Installation
 
-```sh
-  version="x.x.x"
-  curl -L -o tfm.exe "https://github.com/hashicorp-services/tfm/releases/download/${version}/tfm_windows_x86_64.exe"
+In PowerShell, use `Invoke-WebRequest` instead of the `curl` alias so the
+download command behaves consistently:
+
+```powershell
+$version = "x.x.x"
+Invoke-WebRequest `
+  -Uri "https://github.com/hashicorp-services/tfm/releases/download/$version/tfm_windows_x86_64.exe" `
+  -OutFile ".\tfm.exe"
+
+.\tfm.exe -v
 ```
 
 ## Usage
@@ -113,13 +120,25 @@ export SRC_TFE_ORG="companyxyz"
 export SRC_TFE_TOKEN="<user token from source TFE/TFC with permissions>"
 export DST_TFC_HOSTNAME="app.terraform.io"
 export DST_TFC_ORG="companyxyz"
-export DST_TFC_TOKEN="<user token from source TFE/TFC with permissions>"
+export DST_TFC_TOKEN="<user token from destination TFE/TFC with permissions>"
 export DST_TFC_PROJECT_ID="Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
+```
+
+PowerShell example:
+
+```powershell
+$env:SRC_TFE_HOSTNAME = "tf.local.com"
+$env:SRC_TFE_ORG = "companyxyz"
+$env:SRC_TFE_TOKEN = "<user token from source TFE/TFC with permissions>"
+$env:DST_TFC_HOSTNAME = "app.terraform.io"
+$env:DST_TFC_ORG = "companyxyz"
+$env:DST_TFC_TOKEN = "<user token from destination TFE/TFC with permissions>"
+$env:DST_TFC_PROJECT_ID = "Destination Project ID for workspaces being migrated by tfm. If this is not set, then Default Project is chosen"
 ```
 
 ### Config File
 
-A HCL file with the following as the minimum located at `/home/user/.tfm.hcl` or specified by `--config config_file`. You can also run `tfm generate config` to create a tempalte config file for use.
+A HCL file with the following as the minimum located at `.tfm.hcl` in the current directory, in your home directory, or specified by `--config config_file`. On Windows, the home directory path is usually `$env:USERPROFILE\.tfm.hcl`. You can also run `tfm generate config` to create a template config file for use.
 
 > [!NOTE]
 > Use the `tfm generate config` command to generate a sample configuration for quick editing.
@@ -155,7 +174,7 @@ dst_tfc_project_id=prj-xxx
 
 ## Workspace List
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target.
+As part of the HCL config file (`.tfm.hcl`), a list of workspaces from the source TFE can be specified. `tfm` will use this list when running `tfm copy workspaces` and ensure the workspace exists or is created in the target.
 
 ```hcl
 #List of Workspaces to create/check are migrated across to new TFC
@@ -170,7 +189,7 @@ As part of the HCL config file (`/home/user/.tfm.hcl`), a list of workspaces fro
 
 ## Assign Agent Pools to Workspaces
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-agent-pool-ID=destination-agent-pool-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --agents` to look at all workspaces in the source host with the assigned source agent pool ID and assign the matching named workspace in the destination with the mapped destination agent pool ID.
+As part of the HCL config file (`.tfm.hcl`), a list of `source-agent-pool-ID=destination-agent-pool-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --agents` to look at all workspaces in the source host with the assigned source agent pool ID and assign the matching named workspace in the destination with the mapped destination agent pool ID.
 
 ```hcl
 # A list of source=destination agent pool IDs TFM will look at each workspace in the source for the source agent pool ID and assign the matching workspace in the destination the destination agent pool ID.
@@ -187,7 +206,7 @@ agents-map = [
 To copy ALL variable sets from the source to the destination run the command:
 `tfm copy varsets`
 
-To copy only desired variable sets, provide an HCL list in the `.tfm.hcl` configuration file using the snyntax `"source-varset-name=destination-varset-name"`. This list will be converted to a map. tfm will copy only the source variable sets provided on the left side of the `=`. The right side of the `=` can optionally be a different name to allow you to copy the variable set with a new name. Both sides of the `=` must be populated and `varsets-map` cannot be empty if it is defined.
+To copy only desired variable sets, provide an HCL list in the `.tfm.hcl` configuration file using the syntax `"source-varset-name=destination-varset-name"`. This list will be converted to a map. tfm will copy only the source variable sets provided on the left side of the `=`. The right side of the `=` can optionally be a different name to allow you to copy the variable set with a new name. Both sides of the `=` must be populated and `varsets-map` cannot be empty if it is defined.
 
 Example configuration file:
 
@@ -201,7 +220,7 @@ varsets-map = [
 
 ## Assign VCS
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-vcs-oauth-ID=destination-vcs-oauth-id-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --vcs` to look at all workspaces in the source host with the assigned source VCS oauth ID and assign the matching named workspace in the destination with the mapped destination VCS oauth ID.
+As part of the HCL config file (`.tfm.hcl`), a list of `source-vcs-oauth-ID=destination-vcs-oauth-id-ID` can be provided. `tfm` will use this list when running `tfm copy workspaces --vcs` to look at all workspaces in the source host with the assigned source VCS oauth ID and assign the matching named workspace in the destination with the mapped destination VCS oauth ID.
 
 ```hcl
 # A list of source=destination VCS oauth IDs. TFM will look at each workspace in the source for the source VCS oauth ID and assign the matching workspace in the destination with the destination VCS oauth ID.
@@ -214,7 +233,7 @@ vcs-map=[
 
 ## Rename Workspaces in destination during a copy
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name.
+As part of the HCL config file (`.tfm.hcl`), a list of `source-workspace-name=destination-workspace-name` can be provided. `tfm` will use this list when running `tfm copy workspace` to look at all workspaces in the source host and rename the destination workspace name.
 _NOTE: Using this configuration in your HCL config file will take precedence over the other Workspace List which only lists source workspace names._
 
 ```hcl
@@ -227,7 +246,7 @@ _NOTE: Using this configuration in your HCL config file will take precedence ove
 
 ## Assign SSH
 
-As part of the HCL config file (`/home/user/.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
+As part of the HCL config file (`.tfm.hcl`), a list of `source-ssh-key-id=destination-ssh-key-id` can be provided. `tfm` will use this list when running `tfm copy workspaces --ssh` to look at all workspaces in the source host with the assigned source SSH key ID and assign the matching named workspace in the destination with the mapped SSH key ID.
 
 ```hcl
 # A list of source=destination SSH IDs. TFM will look at each workspace in the source for the source SSH  ID and assign the matching workspace in the destination with the destination SSH ID.
