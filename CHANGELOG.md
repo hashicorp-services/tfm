@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0](https://github.com/hashicorp-services/tfm/compare/0.16.0...0.17.0) (2026-08-25)
+
+### Features
+
+- Add `TFM_LOG` environment variable and `--verbose` / `-V` flag for structured debug logging ([#367](https://github.com/hashicorp-services/tfm/pull/367))
+- Add `.env.example` and gitignore `.env` files; add `EnvKeyReplacer` so hyphenated config keys work as environment variables ([#353](https://github.com/hashicorp-services/tfm/pull/353))
+
+### Documentation
+
+- Replace deprecated Google Form feedback link with GitHub issue guidance ([#366](https://github.com/hashicorp-services/tfm/pull/366))
+- Clarify Windows install and configuration notes ([#375](https://github.com/hashicorp-services/tfm/pull/375))
+- Fix malformed `copy_projects` documentation page ([#354](https://github.com/hashicorp-services/tfm/pull/354))
+- Backfill changelog entries for 0.15.0, 0.15.1, and 0.16.0; sync `version.go` ([#351](https://github.com/hashicorp-services/tfm/pull/351))
+
+### Chore
+
+- Modify CODEOWNERS for team and copyright ([#371](https://github.com/hashicorp-services/tfm/pull/371))
+- Bump `github.com/hashicorp/go-tfe` from 1.78.0 → 1.110.0 ([#347](https://github.com/hashicorp-services/tfm/pull/347), [#361](https://github.com/hashicorp-services/tfm/pull/361), [#373](https://github.com/hashicorp-services/tfm/pull/373), [#378](https://github.com/hashicorp-services/tfm/pull/378))
+- Bump `github.com/go-git/go-git/v5` from 5.18.0 → 5.19.2 ([#360](https://github.com/hashicorp-services/tfm/pull/360), [#379](https://github.com/hashicorp-services/tfm/pull/379))
+- Bump `github.com/spf13/cobra` from 1.8.1 → 1.10.2 ([#328](https://github.com/hashicorp-services/tfm/pull/328), [#346](https://github.com/hashicorp-services/tfm/pull/346))
+- Bump `github.com/spf13/pflag` from 1.0.5 → 1.0.10 ([#329](https://github.com/hashicorp-services/tfm/pull/329))
+- Bump `github.com/fatih/color` from 1.18.0 → 1.19.0 ([#349](https://github.com/hashicorp-services/tfm/pull/349))
+- Bump `go.mongodb.org/mongo-driver` ([#374](https://github.com/hashicorp-services/tfm/pull/374))
+- Bump `golang.org/x/net` ([#377](https://github.com/hashicorp-services/tfm/pull/377))
+- Bump additional transitive Go modules ([#301](https://github.com/hashicorp-services/tfm/pull/301), [#343](https://github.com/hashicorp-services/tfm/pull/343), [#376](https://github.com/hashicorp-services/tfm/pull/376))
+
 ## [0.16.0](https://github.com/hashicorp-services/tfm/compare/0.15.1...0.16.0) (2025-09-16)
 
 ### Features
