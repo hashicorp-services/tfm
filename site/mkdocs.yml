@@ -100,6 +100,7 @@ nav:
       - Workspace: commands/delete_workspace.md
     - Generate:
       - General: commands/generate_config.md
+    - Completion: commands/completion.md
   - Development:
     - MVP Details: code/mvp.md
     - Project Details: code/project-details.md
