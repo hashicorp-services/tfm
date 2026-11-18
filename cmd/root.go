@@ -108,9 +108,6 @@ func init() {
 	RootCmd.AddCommand(lock.LockCmd)
 	RootCmd.AddCommand(unlock.UnlockCmd)
 	RootCmd.AddCommand(core.CoreCmd)
-	// Turn off completion option
-	RootCmd.CompletionOptions.DisableDefaultCmd = true
-
 }
 
 // initConfig reads in config file and ENV variables if set.
